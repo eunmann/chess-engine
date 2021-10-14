@@ -44,8 +44,8 @@ void Position::init() {
     this->color_positions[Colors::BLACK] = BitBoards::ROW_7 | BitBoards::ROW_8;
 
     // TODO(EMU): When done refactoring, fix this
-    //game_state.position.white_threaten = GameUtils::get_capture_positions(game_state, true);
-    //game_state.position.black_threaten = GameUtils::get_capture_positions(game_state, false);
+    //game_state.position.get_white_threaten() = GameUtils::get_capture_positions(game_state, true);
+    //game_state.position.get_black_threaten() = GameUtils::get_capture_positions(game_state, false);
 }
 
 void Position::clear() {

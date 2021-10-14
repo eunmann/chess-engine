@@ -34,16 +34,10 @@ BitBoard PSEDUO_MOVES[PieceCodes::NUM][Squares::NUM];
 }  // namespace BitBoards
 
 // This is for BitBoards with a single piece in it
-template <int32_t vertical, int32_t horizontal>
+template <Direction direction>
 BitBoard move(BitBoard position) {
-    int32_t shift = vertical * 8 + horizontal;
-    if (horizontal > 0 && (position & (BitBoards::COL_H >> (horizontal - 1)))) {
-        return 0;
-    } else if (horizontal < 0 && (position & (BitBoards::COL_A << (-1 * horizontal - 1)))) {
-        return 0;
-    } else if (shift > 0) {
-        return position << shift;
-    } else {
-        return position >> -1 * shift;
+    switch (direction) {
+        default:
+            return position;
     }
 }

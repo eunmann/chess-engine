@@ -2,6 +2,8 @@
 
 #include <inttypes.h>
 
+#include <array>
+
 #include "Definitions.hpp"
 
 class Board {
@@ -12,5 +14,5 @@ class Board {
     void clear();
     void print();
 
-    int32_t positions[BOARD_DIM * BOARD_DIM];
+    std::array<int32_t, BOARD_DIM * BOARD_DIM> positions;
 };

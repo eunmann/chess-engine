@@ -75,7 +75,7 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
     int32_t piece_index = -1;
 
     for (int32_t i = 0; i < PIECES_PER_PLAYER * 2; ++i) {
-        if (curr_position == game_state.position.piece_positions[i]) {
+        if (curr_position == game_state.position.get_piece_bit_board(i)) {
             piece_index = i;
             break;
         }
@@ -95,7 +95,7 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
         return rv;
     }
 
-    int32_t piece_code = game_state.position.piece_codes[piece_index];
+    int32_t piece_code = game_state.position.get_piece_bit_board(piece_index);
 
     if (move_str.size() == 5) {
         switch (move_str[4]) {
@@ -133,8 +133,8 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
 
     for (size_t i = 0; i < moves.size(); ++i) {
         GameState& move = moves[i];
-        if (move.position.piece_positions[piece_index] == next_position &&
-            move.position.piece_codes[piece_index] == piece_code) {
+        if (move.position.get_piece_bit_board(piece_index) == next_position &&
+            move.position.get_piece_bit_board(piece_index) == piece_code) {
             game_state = move;
             legal_move = true;
             break;
@@ -185,15 +185,15 @@ void UCIUtils::send_ai_move(ThreadState& thread_state) {
     int32_t piece_index = 0;
 
     for (int i = 0; i < PIECES_PER_PLAYER * 2; ++i) {
-        if (thread_state.game_state.position.piece_positions[i] != thread_state.best_move.position.piece_positions[i] &&
-            thread_state.best_move.position.piece_codes[i] != PieceCodes::EMPTY) {
+        if (thread_state.game_state.position.get_piece_bit_board(i) != thread_state.best_move.position.get_piece_bit_board(i) &&
+            thread_state.best_move.position.get_piece_bit_board(i) != PieceCodes::EMPTY) {
             piece_index = i;
             break;
         }
     }
 
-    std::string src_tile = GameUtils::get_tile_name(thread_state.game_state.position.piece_positions[piece_index]);
-    src_tile += GameUtils::get_tile_name(thread_state.best_move.position.piece_positions[piece_index]);
+    std::string src_tile = GameUtils::get_tile_name(thread_state.game_state.position.get_piece_bit_board(piece_index));
+    src_tile += GameUtils::get_tile_name(thread_state.best_move.position.get_piece_bit_board(piece_index));
 
     /* TODO(EMU): Promotions */
 

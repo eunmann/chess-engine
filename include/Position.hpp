@@ -2,6 +2,7 @@
 
 #include <inttypes.h>
 
+#include <array>
 #include <vector>
 
 #include "BitBoard.hpp"
@@ -14,6 +15,7 @@ class Position {
     void clear();
 
     BitBoard get_piece_bit_board(PieceCode piece_code) const;
+    void set_piece_bit_board(PieceCode piece_code, BitBoard bit_board);
     BitBoard get_color_bit_board(Color color) const;
     BitBoard get_bit_board(PieceCode piece_code, Color color) const;
     BitBoard get_occupied_bit_board() const;
@@ -24,13 +26,17 @@ class Position {
     BitBoard get_black_threaten() const;
 
    private:
-    BitBoard piece_positions[PieceCodes::NUM];
-    BitBoard color_positions[Colors::NUM];
-    BitBoard threaten_positions[Colors::NUM];
+    std::array<BitBoard, PieceCodes::NUM> piece_positions;
+    std::array<BitBoard, Colors::NUM> color_positions;
+    std::array<BitBoard, Colors::NUM> threaten_positions;
 };
 
 inline BitBoard Position::get_piece_bit_board(PieceCode piece_code) const {
     return this->piece_positions[piece_code];
+}
+
+inline void Position::set_piece_bit_board(PieceCode piece_code, BitBoard bit_board) {
+    this->piece_positions[piece_code] = bit_board;
 }
 
 inline BitBoard Position::get_color_bit_board(Color color) const {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Definitions.hpp"
 
 // Bits [0-6] Source
@@ -24,6 +26,6 @@ class Moves {
     void add_moves(BitBoard bit_board);
 
    private:
-    Move m_moves_array[MAX_NUM_MOVES];
-    int32_t m_size;
+    std::array<Move, MAX_NUM_MOVES> m_moves_array;
+    std::size_t m_index;
 };

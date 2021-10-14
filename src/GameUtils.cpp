@@ -6,7 +6,6 @@
 #include <string>
 
 #include "Definitions.hpp"
-#include "omp.h"
 
 void GameUtils::print_position(BitBoard position) {
     const BitBoard left_bit = 1ULL << 63;
@@ -104,7 +103,7 @@ void GameUtils::init_standard(GameState &game_state) {
 }
 
 void GameUtils::get_moves_in_direction(const GameState &game_state, int32_t piece_index, int32_t vertical, int32_t horizontal, Moves &moves) {
-    BitBoard position = game_state.position.piece_positions[piece_index];
+    BitBoard position = game_state.position.get_piece_bit_board(piece_index);
     bool is_white_piece = piece_index < PIECES_PER_PLAYER;
 
     for (int i = 0; i < 7; ++i) {
@@ -125,8 +124,8 @@ void GameUtils::get_moves_in_direction(const GameState &game_state, int32_t piec
             GameState &move = moves.back_ref();
             move = game_state;
             GameUtils::apply_move(move, position, piece_index);
-        } else if ((is_white_piece && ((game_state.position.white_pieces & position) == 0)) ||
-                   (!is_white_piece && ((game_state.position.black_pieces & position) == 0))) {
+        } else if ((is_white_piece && ((game_state.position.get_white_bit_board() & position) == 0)) ||
+                   (!is_white_piece && ((game_state.position.get_black_bit_board() & position) == 0))) {
             GameState &move = moves.back_ref();
             move = game_state;
             GameUtils::apply_move(move, position, piece_index);
@@ -147,7 +146,7 @@ void GameUtils::get_moves(const GameState &game_state, Moves &moves) {
 }
 
 void GameUtils::get_piece_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
-    int32_t code = game_state.position.piece_codes[piece_index];
+    int32_t code = game_state.position.get_piece_bit_board(piece_index);
     switch (code) {
         case PieceCodes::PAWN: {
             GameUtils::get_pawn_moves(game_state, piece_index, moves);
@@ -182,7 +181,7 @@ void GameUtils::get_piece_moves(const GameState &game_state, int32_t piece_index
 void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
     const bool is_white_piece = piece_index < PIECES_PER_PLAYER;
     const int64_t pawn_dir = is_white_piece ? 1 : -1;
-    const BitBoard pawn_position = game_state.position.piece_positions[piece_index];
+    const BitBoard pawn_position = game_state.position.get_piece_bit_board(piece_index);
 
     if (pawn_position) {
         /* Up */
@@ -194,7 +193,7 @@ void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index,
                 for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
                     GameState &move = moves.back_ref();
                     move = game_state;
-                    move.position.piece_codes[piece_index] = i;
+                    move.position.get_piece_bit_board(piece_index) = i;
                     GameUtils::apply_move(move, next_pawn_position, piece_index);
                 }
             } else {
@@ -224,14 +223,14 @@ void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index,
         bool right_capture_valid = GameUtils::is_valid(game_state, pawn_position_right_capture, piece_index);
 
         if (left_capture_valid &&
-            ((is_white_piece && ((game_state.position.black_pieces & pawn_position_left_capture) != 0)) ||
-             (!is_white_piece && ((game_state.position.white_pieces & pawn_position_left_capture) != 0)))) {
+            ((is_white_piece && ((game_state.position.get_black_bit_board() & pawn_position_left_capture) != 0)) ||
+             (!is_white_piece && ((game_state.position.get_white_bit_board() & pawn_position_left_capture) != 0)))) {
             if ((is_white_piece && GameUtils::is_piece_in_top_row(pawn_position_left_capture)) ||
                 (!is_white_piece && GameUtils::is_piece_in_bottom_row(pawn_position_left_capture))) {
                 for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
                     GameState &move = moves.back_ref();
                     move = game_state;
-                    move.position.piece_codes[piece_index] = i;
+                    move.position.get_piece_bit_board(piece_index) = i;
                     GameUtils::apply_move(move, pawn_position_left_capture, piece_index);
                 }
             } else {
@@ -242,14 +241,14 @@ void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index,
         }
 
         if (right_capture_valid &&
-            ((is_white_piece && ((game_state.position.black_pieces & pawn_position_right_capture) != 0)) ||
-             (!is_white_piece && ((game_state.position.white_pieces & pawn_position_right_capture) != 0)))) {
+            ((is_white_piece && ((game_state.position.get_black_bit_board() & pawn_position_right_capture) != 0)) ||
+             (!is_white_piece && ((game_state.position.get_white_bit_board() & pawn_position_right_capture) != 0)))) {
             if ((is_white_piece && GameUtils::is_piece_in_top_row(pawn_position_right_capture)) ||
                 (!is_white_piece && GameUtils::is_piece_in_bottom_row(pawn_position_right_capture))) {
                 for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
                     GameState &move = moves.back_ref();
                     move = game_state;
-                    move.position.piece_codes[piece_index] = i;
+                    move.position.get_piece_bit_board(piece_index) = i;
                     GameUtils::apply_move(move, pawn_position_right_capture, piece_index);
                 }
             } else {
@@ -270,20 +269,20 @@ void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index,
             GameState &move = moves.back_ref();
             move = game_state;
             GameUtils::apply_move(move, GameUtils::move(pawn_position_left_capture, -1 * pawn_dir, 0), piece_index);
-            move.position.piece_positions[piece_index] = pawn_position_left_capture;
+            move.position.get_piece_bit_board(piece_index) = pawn_position_left_capture;
         }
 
         if (game_state.pawn_ep == right_ep && GameUtils::is_piece_in_row(pawn_position, en_row)) {
             GameState &move = moves.back_ref();
             move = game_state;
             GameUtils::apply_move(move, GameUtils::move(pawn_position_right_capture, -1 * pawn_dir, 0), piece_index);
-            move.position.piece_positions[piece_index] = pawn_position_right_capture;
+            move.position.get_piece_bit_board(piece_index) = pawn_position_right_capture;
         }
     }
 }
 
 void GameUtils::get_knight_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
-    BitBoard knight_position = game_state.position.piece_positions[piece_index];
+    BitBoard knight_position = game_state.position.get_piece_bit_board(piece_index);
 
     if (knight_position) {
         if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_left_col(knight_position))) {
@@ -360,7 +359,7 @@ void GameUtils::get_knight_moves(const GameState &game_state, int32_t piece_inde
 }
 
 void GameUtils::get_bishop_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
-    if (game_state.position.piece_positions[piece_index]) {
+    if (game_state.position.get_piece_bit_board(piece_index)) {
         GameUtils::get_moves_in_direction(game_state, piece_index, 1, 1, moves);
         GameUtils::get_moves_in_direction(game_state, piece_index, -1, 1, moves);
         GameUtils::get_moves_in_direction(game_state, piece_index, 1, -1, moves);
@@ -369,7 +368,7 @@ void GameUtils::get_bishop_moves(const GameState &game_state, int32_t piece_inde
 }
 
 void GameUtils::get_rook_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
-    if (game_state.position.piece_positions[piece_index]) {
+    if (game_state.position.get_piece_bit_board(piece_index)) {
         GameUtils::get_moves_in_direction(game_state, piece_index, 1, 0, moves);
         GameUtils::get_moves_in_direction(game_state, piece_index, -1, 0, moves);
         GameUtils::get_moves_in_direction(game_state, piece_index, 0, -1, moves);
@@ -383,7 +382,7 @@ void GameUtils::get_queen_moves(const GameState &game_state, int32_t piece_index
 }
 
 void GameUtils::get_king_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
-    BitBoard king_position = game_state.position.piece_positions[piece_index];
+    BitBoard king_position = game_state.position.get_piece_bit_board(piece_index);
     if (king_position) {
         /* Up */
         if (!GameUtils::is_piece_in_top_row(king_position)) {
@@ -485,11 +484,11 @@ void GameUtils::get_king_moves(const GameState &game_state, int32_t piece_index,
                     int32_t rook_piece_index = is_white_piece ? 12 : 12 + PIECES_PER_PLAYER;
 
                     if (is_white_piece) {
-                        move.position.white_pieces ^= (move.position.piece_positions[rook_piece_index] | next_rook_position);
+                        move.position.get_white_bit_board() ^= (move.position.get_piece_bit_board(rook_piece_index) | next_rook_position);
                     } else {
-                        move.position.black_pieces ^= (move.position.piece_positions[rook_piece_index] | next_rook_position);
+                        move.position.get_black_bit_board() ^= (move.position.get_piece_bit_board(rook_piece_index) | next_rook_position);
                     }
-                    move.position.piece_positions[rook_piece_index] = next_rook_position;
+                    move.position.get_piece_bit_board(rook_piece_index) = next_rook_position;
 
                     if (is_white_piece) {
                         move.white_rook_1_moved = true;
@@ -516,11 +515,11 @@ void GameUtils::get_king_moves(const GameState &game_state, int32_t piece_index,
                     int32_t rook_piece_index = is_white_piece ? 13 : 13 + PIECES_PER_PLAYER;
 
                     if (is_white_piece) {
-                        move.position.white_pieces ^= (move.position.piece_positions[rook_piece_index] | next_rook_position);
+                        move.position.get_white_bit_board() ^= (move.position.get_piece_bit_board(rook_piece_index) | next_rook_position);
                     } else {
-                        move.position.black_pieces ^= (move.position.piece_positions[rook_piece_index] | next_rook_position);
+                        move.position.get_black_bit_board() ^= (move.position.get_piece_bit_board(rook_piece_index) | next_rook_position);
                     }
-                    move.position.piece_positions[rook_piece_index] = next_rook_position;
+                    move.position.get_piece_bit_board(rook_piece_index) = next_rook_position;
                     if (is_white_piece) {
                         move.white_rook_2_moved = true;
                     } else {
@@ -537,11 +536,11 @@ void GameUtils::get_king_moves(const GameState &game_state, int32_t piece_index,
 void GameUtils::apply_move(GameState &game_state, BitBoard position, int32_t piece_index) {
     bool is_white_piece = piece_index < PIECES_PER_PLAYER;
     if (is_white_piece) {
-        game_state.position.white_pieces ^= (game_state.position.piece_positions[piece_index] | position);
+        game_state.position.get_white_bit_board() ^= (game_state.position.get_piece_bit_board(piece_index) | position);
     } else {
-        game_state.position.black_pieces ^= (game_state.position.piece_positions[piece_index] | position);
+        game_state.position.get_black_bit_board() ^= (game_state.position.get_piece_bit_board(piece_index) | position);
     }
-    game_state.position.piece_positions[piece_index] = position;
+    game_state.position.get_piece_bit_board(piece_index) = position;
     game_state.white_to_move = !game_state.white_to_move;
     game_state.white_king_in_check = false;
     game_state.black_king_in_check = false;
@@ -562,9 +561,9 @@ void GameUtils::apply_move(GameState &game_state, BitBoard position, int32_t pie
             opp_positions[i] = 0;
             opp_codes[i] = PieceCodes::EMPTY;
             if (is_white_piece) {
-                game_state.position.black_pieces ^= position;
+                game_state.position.get_black_bit_board() ^= position;
             } else {
-                game_state.position.white_pieces ^= position;
+                game_state.position.get_white_bit_board() ^= position;
             }
             break;
         }
@@ -589,15 +588,15 @@ void GameUtils::apply_move(GameState &game_state, BitBoard position, int32_t pie
     }
 
     /* Check if King is in check */
-    game_state.position.white_threaten = GameUtils::get_capture_positions(game_state, true);
-    game_state.position.black_threaten = GameUtils::get_capture_positions(game_state, false);
+    game_state.position.get_white_threaten() = GameUtils::get_capture_positions(game_state, true);
+    game_state.position.get_black_threaten() = GameUtils::get_capture_positions(game_state, false);
 
-    game_state.white_king_in_check = (game_state.position.black_threaten & game_state.position.piece_positions[15]) != 0;
-    game_state.black_king_in_check = (game_state.position.white_threaten & game_state.position.piece_positions[15 + PIECES_PER_PLAYER]) != 0;
+    game_state.white_king_in_check = (game_state.position.get_black_threaten() & game_state.position.piece_positions[15]) != 0;
+    game_state.black_king_in_check = (game_state.position.get_white_threaten() & game_state.position.piece_positions[15 + PIECES_PER_PLAYER]) != 0;
 }
 
 BitBoard GameUtils::get_captures_in_direction(const GameState &game_state, int32_t piece_index, int32_t vertical, int32_t horizontal) {
-    BitBoard position = game_state.position.piece_positions[piece_index];
+    BitBoard position = game_state.position.get_piece_bit_board(piece_index);
     BitBoard capturable_positions = 0;
 
     for (int i = 0; i < 8; ++i) {
@@ -630,7 +629,7 @@ BitBoard GameUtils::get_capture_positions(const GameState &game_state, bool whit
 }
 
 BitBoard GameUtils::get_piece_capture_positions(const GameState &game_state, int32_t piece_index) {
-    int32_t code = game_state.position.piece_codes[piece_index];
+    int32_t code = game_state.position.get_piece_bit_board(piece_index);
     switch (code) {
         case PieceCodes::PAWN: {
             return GameUtils::get_pawn_capture_positions(game_state, piece_index);
@@ -658,9 +657,9 @@ BitBoard GameUtils::get_piece_capture_positions(const GameState &game_state, int
 }
 
 BitBoard GameUtils::get_pawn_capture_positions(const GameState &game_state, int32_t piece_index) {
-    const bool is_white_piece = piece_index < PIECES_PER_PLAYER;
+    const bool is_white_piece = static_cast<uint64_t>(piece_index) < PIECES_PER_PLAYER;
     const int64_t pawn_dir = is_white_piece ? 1 : -1;
-    const BitBoard pawn_position = game_state.position.piece_positions[piece_index];
+    const BitBoard pawn_position = game_state.position.get_piece_bit_board(piece_index);
     BitBoard capturable_positions = 0;
 
     if (pawn_position) {
@@ -674,7 +673,7 @@ BitBoard GameUtils::get_pawn_capture_positions(const GameState &game_state, int3
 }
 
 BitBoard GameUtils::get_knight_capture_positions(const GameState &game_state, int32_t piece_index) {
-    BitBoard knight_position = game_state.position.piece_positions[piece_index];
+    BitBoard knight_position = game_state.position.get_piece_bit_board(piece_index);
     BitBoard capturable_positions = 0;
 
     if (knight_position) {
@@ -723,7 +722,7 @@ BitBoard GameUtils::get_knight_capture_positions(const GameState &game_state, in
 
 BitBoard GameUtils::get_bishop_capture_positions(const GameState &game_state, int32_t piece_index) {
     int64_t capturable_positions = 0;
-    if (game_state.position.piece_positions[piece_index]) {
+    if (game_state.position.get_piece_bit_board(piece_index)) {
         capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 1, 1);
         capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, -1, 1);
         capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 1, -1);
@@ -735,7 +734,7 @@ BitBoard GameUtils::get_bishop_capture_positions(const GameState &game_state, in
 
 BitBoard GameUtils::get_rook_capture_positions(const GameState &game_state, int32_t piece_index) {
     int64_t capturable_positions = 0;
-    if (game_state.position.piece_positions[piece_index]) {
+    if (game_state.position.get_piece_bit_board(piece_index)) {
         capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 1, 0);
         capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, -1, 0);
         capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 0, -1);
@@ -753,7 +752,7 @@ BitBoard GameUtils::get_queen_capture_positions(const GameState &game_state, int
 }
 BitBoard GameUtils::get_king_capture_positions(const GameState &game_state, int32_t piece_index) {
     BitBoard capturable_positions = 0;
-    BitBoard position = game_state.position.piece_positions[piece_index];
+    BitBoard position = game_state.position.get_piece_bit_board(piece_index);
     if (position) {
         /* Up */
         if (!GameUtils::is_piece_in_top_row(position)) {
@@ -870,8 +869,8 @@ int32_t GameUtils::perform_user_move(GameState &game_state) {
 
             BitBoard curr_position = GameUtils::move(0x1ULL, selected_row, selected_col);
 
-            for (int32_t i = 0; i < PIECES_PER_PLAYER; ++i) {
-                BitBoard position = game_state.position.piece_positions[i];
+            for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
+                BitBoard position = game_state.position.get_piece_bit_board(i);
                 if (curr_position == position) {
                     piece_index = i;
                     break;
@@ -913,7 +912,7 @@ int32_t GameUtils::perform_user_move(GameState &game_state) {
 
         for (size_t i = 0; i < moves.size(); ++i) {
             GameState &move = moves[i];
-            if (move.position.piece_positions[piece_index] == next_position) {
+            if (move.position.get_piece_bit_board(piece_index) == next_position) {
                 GameUtils::apply_move(game_state, next_position, piece_index);
                 need_input = false;
                 break;
@@ -1010,8 +1009,8 @@ int32_t GameUtils::get_position_heuristic(const GameState &game_state) {
     int32_t heuristic = 0;
 
     /* Sum piece values */
-    for (int32_t i = 0; i < PIECES_PER_PLAYER; ++i) {
-        switch (game_state.position.piece_codes[i]) {
+    for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
+        switch (game_state.position.get_piece_bit_board(i)) {
             case PieceCodes::PAWN: {
                 heuristic += PieceValues::PAWN;
                 break;
@@ -1036,14 +1035,14 @@ int32_t GameUtils::get_position_heuristic(const GameState &game_state) {
                 heuristic += PieceValues::KING;
                 break;
             }
-            case PieceCodes::EMPTY:
+            case PieceCodes::NONE:
             default: {
             }
         }
     }
 
-    for (int32_t i = PIECES_PER_PLAYER; i < (PIECES_PER_PLAYER * 2); ++i) {
-        switch (game_state.position.piece_codes[i]) {
+    for (uint64_t i = PIECES_PER_PLAYER; i < (PIECES_PER_PLAYER * 2); ++i) {
+        switch (game_state.position.get_piece_bit_board(i)) {
             case PieceCodes::PAWN: {
                 heuristic -= PieceValues::PAWN;
                 break;
@@ -1068,7 +1067,7 @@ int32_t GameUtils::get_position_heuristic(const GameState &game_state) {
                 heuristic -= PieceValues::KING;
                 break;
             }
-            case PieceCodes::EMPTY:
+            case PieceCodes::NONE:
             default: {
             }
         }

@@ -1,11 +1,11 @@
 # Compiler
-CXX = g++
+CXX = g++-11
 
 # Warnings
 WARN = -Wall -Wextra
 
 # Link
-LINK = -lpthread
+LINK =
 
 # Include Directory
 IDIR = -Iinclude
@@ -40,10 +40,10 @@ debug: $(obj)
 
 assembly: $(asm)
 
-bin/unix/obj/%.o: src/%.cpp | dir_make
+bin/obj/%.o: src/%.cpp | dir_make
 	$(CXX) $(CXXFLAGS) $(OPT) $(IDIR) -c -o $@ $^ $(LINK)
 
-bin/unix/asm/%.s: src/%.cpp
+bin/asm/%.s: src/%.cpp
 	$(CXX) $(CXXFLAGS) $(OPT) $(IDIR) -S -o $@ $^ $(LINK)
 
 dir_make:

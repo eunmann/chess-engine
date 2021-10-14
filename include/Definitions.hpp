@@ -2,12 +2,12 @@
 
 #include <inttypes.h>
 
-#define BOARD_DIM 8
-#define NUM_SQUARES 64
-#define NUM_PIECES 6
-#define PIECES_PER_PLAYER 16
-#define NUM_COLORS 2
-#define MAX_NUM_MOVES 256
+constexpr uint64_t BOARD_DIM = 8;
+constexpr uint64_t NUM_SQUARES = 64;
+constexpr uint64_t NUM_PIECES = 6;
+constexpr uint64_t PIECES_PER_PLAYER = 16;
+constexpr uint64_t NUM_COLORS = 2;
+constexpr uint64_t MAX_NUM_MOVES = 256;
 
 typedef int32_t Square;
 namespace Squares {

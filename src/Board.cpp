@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include <range>
 #include <string>
 
 #include "Definitions.hpp"
@@ -35,9 +36,7 @@ void Board::init_standard() {
 }
 
 void Board::clear() {
-    for (int i = 0; i < 64; ++i) {
-        this->positions[i] = 0;
-    }
+    std::range::fill(this->positions, 0);
 }
 
 void Board::print() {
