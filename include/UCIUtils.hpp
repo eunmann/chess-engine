@@ -3,10 +3,10 @@
 #include <string>
 
 #include "GameState.hpp"
-#include "ThreadState.hpp"
+
 
 namespace UCIUtils {
-int32_t process_input_command(ThreadState& thread_state, std::vector<std::thread>& spawned_threads);
+int32_t process_input_command(GameState& game_State);
 int32_t process_user_move(GameState& game_state, const std::string& move_str);
 
 void send_id();
@@ -18,5 +18,5 @@ void send_registration();
 void send_info();
 void send_option();
 
-void send_ai_move(ThreadState& thread_state);
+void send_ai_move(GameState& game_state);
 }  // namespace UCIUtils

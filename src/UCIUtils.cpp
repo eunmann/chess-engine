@@ -6,7 +6,7 @@
 #include "GameUtils.hpp"
 #include "StringUtils.hpp"
 
-int32_t UCIUtils::process_input_command(ThreadState& thread_state, std::vector<std::thread>& spawned_threads) {
+int32_t UCIUtils::process_input_command(GameState& game_state) {
     std::string line;
     std::getline(std::cin, line);
     std::vector<std::string> line_split = StringUtils::split(line);
@@ -23,28 +23,22 @@ int32_t UCIUtils::process_input_command(ThreadState& thread_state, std::vector<s
     } else if (command.compare("setoption") == 0) {
     } else if (command.compare("register") == 0) {
     } else if (command.compare("ucinewgame") == 0) {
-        GameUtils::init_standard(thread_state.game_state);
+        GameUtils::init_standard(game_state);
     } else if (command.compare("position") == 0) {
         if (line_split[1].compare("startpos") == 0) {
-            GameUtils::init_standard(thread_state.game_state);
+            GameUtils::init_standard(game_state);
         }
         for (size_t i = 3; i < line_split.size(); ++i) {
             std::string move_str = line_split[i];
-            if (!UCIUtils::process_user_move(thread_state.game_state, move_str)) {
+            if (!UCIUtils::process_user_move(game_state, move_str)) {
                 printf("info string Cannot process move %s\n", move_str.c_str());
             }
         }
     } else if (command.compare("go") == 0) {
-        thread_state.should_search = true;
-        spawned_threads.push_back(std::thread(UCIUtils::send_ai_move, std::ref(thread_state)));
+        UCIUtils::send_ai_move();
     } else if (command.compare("stop") == 0) {
-        thread_state.should_search = false;
     } else if (command.compare("ponderhit") == 0) {
     } else if (command.compare("quit") == 0) {
-        thread_state.should_search = false;
-        for (auto& thread : spawned_threads) {
-            thread.join();
-        }
         rv = 0;
     }
 
@@ -132,7 +126,7 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
     bool legal_move = false;
 
     for (size_t i = 0; i < moves.size(); ++i) {
-        GameState& move = moves[i];
+        Move& move = moves[i];
         if (move.position.get_piece_bit_board(piece_index) == next_position &&
             move.position.get_piece_bit_board(piece_index) == piece_code) {
             game_state = move;
@@ -179,24 +173,24 @@ void UCIUtils::send_info() {
 void UCIUtils::send_option() {
 }
 
-void UCIUtils::send_ai_move(ThreadState& thread_state) {
-    GameUtils::get_best_move(thread_state);
+void UCIUtils::send_ai_move(GameState& game_state) {
+    Move best_move = GameUtils::get_best_move(game_state);
 
     int32_t piece_index = 0;
 
     for (int i = 0; i < PIECES_PER_PLAYER * 2; ++i) {
-        if (thread_state.game_state.position.get_piece_bit_board(i) != thread_state.best_move.position.get_piece_bit_board(i) &&
-            thread_state.best_move.position.get_piece_bit_board(i) != PieceCodes::EMPTY) {
+        if (game_state.position.get_piece_bit_board(i) != best_move.position.get_piece_bit_board(i) &&
+            best_move.position.get_piece_bit_board(i) != PieceCodes::NONE) {
             piece_index = i;
             break;
         }
     }
 
-    std::string src_tile = GameUtils::get_tile_name(thread_state.game_state.position.get_piece_bit_board(piece_index));
-    src_tile += GameUtils::get_tile_name(thread_state.best_move.position.get_piece_bit_board(piece_index));
+    std::string src_tile = GameUtils::get_tile_name(game_state.position.get_piece_bit_board(piece_index));
+    src_tile += GameUtils::get_tile_name(best_move.position.get_piece_bit_board(piece_index));
 
     /* TODO(EMU): Promotions */
 
-    thread_state.game_state = thread_state.best_move;
+    game_state = thread_state.best_move;
     UCIUtils::send_best_move(src_tile);
 }

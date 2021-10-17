@@ -8,7 +8,7 @@
 #include "Definitions.hpp"
 #include "GameUtils.hpp"
 #include "Position.hpp"
-#include "ThreadState.hpp"
+
 #include "UCIUtils.hpp"
 
 void print_bit_board(const Position &bit_board) {
@@ -23,17 +23,17 @@ int main() {
     setbuf(stdin, NULL);
 
     bool console = false;
-    ThreadState thread_state;
-    std::vector<std::thread> spawned_threads;
+
+    GameState game_state;
 
     if (console) {
-        GameUtils::init_standard(thread_state.game_state);
-        print_bit_board(thread_state.game_state.position);
+        GameUtils::init_standard(game_state);
+        print_bit_board(game_state.position);
     }
 
-    while (UCIUtils::process_input_command(thread_state, spawned_threads)) {
+    while (UCIUtils::process_input_command(game_state)) {
         if (console) {
-            print_bit_board(thread_state.game_state.position);
+            print_bit_board(game_state.position);
         }
     }
 
