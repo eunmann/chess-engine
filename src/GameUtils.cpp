@@ -929,27 +929,49 @@ int32_t GameUtils::perform_user_move(GameState &game_state) {
     return 1;
 }
 
-Move GameUtils::get_best_move(const GameState& game_state) {
+void GameUtils::get_best_move(ThreadState &thread_state) {
     Moves moves;
-    GameUtils::get_moves(game_state, moves);
+    GameUtils::get_moves(thread_state.game_state, moves);
 
-    int32_t best_heuristic = game_state.white_to_move ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
-    Move best_move;
+    int32_t best_heuristics[omp_get_max_threads()];
+    ThreadState thread_states[omp_get_max_threads()];
 
+    int32_t heuristic_init = thread_state.game_state.white_to_move ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+
+    for (int i = 0; i < omp_get_max_threads(); ++i) {
+        best_heuristics[i] = heuristic_init;
+        thread_states[i] = thread_state;
+    }
+
+#pragma omp parallel for schedule(dynamic, 1)
     for (size_t i = 0; i < moves.size(); ++i) {
-        Move& move = moves[i];
+        GameState &move = moves[i];
+        ThreadState &ts = thread_states[omp_get_thread_num()];
 
-        int32_t heuristic = GameUtils::alpha_beta_pruning_search(game_state, move, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY, !game_state.white_to_move);
-        if ((game_state.white_to_move && best_heuristic < heuristic) ||
-            (!game_state.white_to_move && best_heuristic > heuristic)) {
-            best_heuristic = heuristic;
-            best_move = move;
+        int32_t heuristic = GameUtils::alpha_beta_pruning_search(ts, move, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY, !ts.game_state.white_to_move);
+        if ((ts.game_state.white_to_move && best_heuristics[omp_get_thread_num()] < heuristic) ||
+            (!ts.game_state.white_to_move && best_heuristics[omp_get_thread_num()] > heuristic)) {
+            best_heuristics[omp_get_thread_num()] = heuristic;
+            ts.best_move = move;
         }
     }
-    return best_move;
+
+    int32_t best_heuristic = heuristic_init;
+
+    for (int i = 0; i < omp_get_max_threads(); ++i) {
+        if ((thread_state.game_state.white_to_move && best_heuristic <= best_heuristics[i]) ||
+            (!thread_state.game_state.white_to_move && best_heuristic >= best_heuristics[i])) {
+            best_heuristic = best_heuristics[i];
+            thread_state.best_move = thread_states[i].best_move;
+        }
+    }
 }
 
-int32_t GameUtils::alpha_beta_pruning_search( const GameState &game_state, int32_t ply_depth, int32_t alpha, int32_t beta, bool max_white) {
+int32_t GameUtils::alpha_beta_pruning_search(const ThreadState &thread_state, const GameState &game_state, int32_t ply_depth, int32_t alpha, int32_t beta, bool max_white) {
+    if (!thread_state.should_search) {
+        /* TODO(EMU): What should this value be? */
+        return 0;
+    }
 
     if (ply_depth == 0) {
         return GameUtils::get_position_heuristic(game_state);
@@ -961,8 +983,8 @@ int32_t GameUtils::alpha_beta_pruning_search( const GameState &game_state, int32
     if (max_white) {
         int32_t best_heuristic = PieceValues::NEG_INFINITY;
         for (size_t i = 0; i < moves.size(); ++i) {
-            Move& move = moves[i];
-            best_heuristic = std::max(best_heuristic, GameUtils::alpha_beta_pruning_search(game_state, move, ply_depth - 1, alpha, beta, false));
+            GameState &move = moves[i];
+            best_heuristic = std::max(best_heuristic, GameUtils::alpha_beta_pruning_search(thread_state, move, ply_depth - 1, alpha, beta, false));
             if (best_heuristic >= beta) {
                 break;
             }
@@ -972,8 +994,8 @@ int32_t GameUtils::alpha_beta_pruning_search( const GameState &game_state, int32
     } else {
         int32_t best_heuristic = PieceValues::POS_INFINITY;
         for (size_t i = 0; i < moves.size(); ++i) {
-            Move& move = moves[i];
-            best_heuristic = std::min(best_heuristic, GameUtils::alpha_beta_pruning_search(game_state, move, ply_depth - 1, alpha, beta, true));
+            GameState &move = moves[i];
+            best_heuristic = std::min(best_heuristic, GameUtils::alpha_beta_pruning_search(thread_state, move, ply_depth - 1, alpha, beta, true));
             if (best_heuristic <= alpha) {
                 break;
             }

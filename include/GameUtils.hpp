@@ -22,16 +22,17 @@ std::string get_tile_name(BitBoard position);
 
 void init_standard(GameState &game_state);
 
-void get_moves(const GameState &game_state, Moves &moves);
-void get_piece_moves(const GameState &game_state, Moves &moves);
-void get_pawn_moves(const GameState &game_state, Moves &moves);
-void get_knight_moves(const GameState &game_state, Moves &moves);
-void get_bishop_moves(const GameState &game_state, Moves &moves);
-void get_rook_moves(const GameState &game_state, Moves &moves);
-void get_queen_moves(const GameState &game_state, Moves &moves);
-void get_king_moves(const GameState &game_state, Moves &moves);
-
 void get_moves_in_direction(const GameState &game_state, int32_t piece_index, int32_t vertical, int32_t horizontal, Moves &moves);
+
+void get_moves(const GameState &game_state, Moves &moves);
+void get_piece_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+void get_pawn_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+void get_knight_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+void get_bishop_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+void get_rook_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+void get_queen_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+void get_king_moves(const GameState &game_state, int32_t piece_index, Moves &moves);
+
 BitBoard get_captures_in_direction(const GameState &game_state, int32_t piece_index, int32_t vertical, int32_t horizontal);
 
 BitBoard get_capture_positions(const GameState &game_state, bool white_pieces);

@@ -6,7 +6,7 @@ Moves::Moves() : m_moves_array(),
                  m_index(0) {
 }
 
-std::size_t Moves::size() {
+int32_t Moves::size() {
     return this->m_index;
 }
 

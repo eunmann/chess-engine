@@ -21,7 +21,7 @@ class Moves {
     Moves();
 
     Move& back_ref();
-    std::size_t size();
+    int32_t size();
     Move& operator[](int32_t index);
     void add_moves(BitBoard bit_board);
 
