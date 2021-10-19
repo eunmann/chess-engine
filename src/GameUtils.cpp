@@ -178,7 +178,7 @@ void GameUtils::get_piece_moves(const GameState &game_state, int32_t piece_index
     }
 }
 
-void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+void GameUtils::get_pawn_moves(const GameState &game_state, Moves &moves) {
     const bool is_white_piece = piece_index < PIECES_PER_PLAYER;
     const int64_t pawn_dir = is_white_piece ? 1 : -1;
     const BitBoard pawn_position = game_state.position.get_piece_bit_board(piece_index);
@@ -281,7 +281,7 @@ void GameUtils::get_pawn_moves(const GameState &game_state, int32_t piece_index,
     }
 }
 
-void GameUtils::get_knight_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+void GameUtils::get_knight_moves(const GameState &game_state, Moves &moves) {
     BitBoard knight_position = game_state.position.get_piece_bit_board(piece_index);
 
     if (knight_position) {
@@ -358,7 +358,7 @@ void GameUtils::get_knight_moves(const GameState &game_state, int32_t piece_inde
     }
 }
 
-void GameUtils::get_bishop_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+void GameUtils::get_bishop_moves(const GameState &game_state, Moves &moves) {
     if (game_state.position.get_piece_bit_board(piece_index)) {
         GameUtils::get_moves_in_direction(game_state, piece_index, 1, 1, moves);
         GameUtils::get_moves_in_direction(game_state, piece_index, -1, 1, moves);
@@ -367,7 +367,7 @@ void GameUtils::get_bishop_moves(const GameState &game_state, int32_t piece_inde
     }
 }
 
-void GameUtils::get_rook_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+void GameUtils::get_rook_moves(const GameState &game_state, Moves &moves) {
     if (game_state.position.get_piece_bit_board(piece_index)) {
         GameUtils::get_moves_in_direction(game_state, piece_index, 1, 0, moves);
         GameUtils::get_moves_in_direction(game_state, piece_index, -1, 0, moves);
@@ -376,12 +376,12 @@ void GameUtils::get_rook_moves(const GameState &game_state, int32_t piece_index,
     }
 }
 
-void GameUtils::get_queen_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+void GameUtils::get_queen_moves(const GameState &game_state, Moves &moves) {
     GameUtils::get_bishop_moves(game_state, piece_index, moves);
     GameUtils::get_rook_moves(game_state, piece_index, moves);
 }
 
-void GameUtils::get_king_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+void GameUtils::get_king_moves(const GameState &game_state, Moves &moves) {
     BitBoard king_position = game_state.position.get_piece_bit_board(piece_index);
     if (king_position) {
         /* Up */
