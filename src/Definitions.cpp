@@ -25,3 +25,7 @@ char PieceCodes::to_char(int32_t piece_code) {
         }
     }
 }
+
+Color Colors::bool_to_color(bool white_to_move) {
+    return white_to_move ? Colors::WHITE : Colors::BLACK;
+}

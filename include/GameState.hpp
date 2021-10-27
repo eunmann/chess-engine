@@ -9,8 +9,9 @@ class GameState {
     GameState();
 
     Position position;
-    bool white_to_move;
 
+    /* TODO(EMU): Mask this a bit mask instead */
+    bool white_to_move;
     bool white_king_moved;
     bool white_rook_1_moved;
     bool white_rook_2_moved;

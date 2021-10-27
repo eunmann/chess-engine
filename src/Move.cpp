@@ -17,6 +17,6 @@ Move& Moves::back_ref() {
 }
 
 Move& Moves::operator[](int32_t index) {
-    assert(index >= 0 && index <= this->m_moves_array.size());
+    assert(index >= 0 && index < this->m_moves_array.size());
     return this->m_moves_array[index];
 }

@@ -66,4 +66,5 @@ namespace Colors {
 const Color WHITE = 0,
             BLACK = 1,
             NUM = 2;
+Color bool_to_color(bool white_to_move);
 };
