@@ -35,7 +35,7 @@ int32_t UCIUtils::process_input_command(GameState& game_state) {
             }
         }
     } else if (command.compare("go") == 0) {
-        UCIUtils::send_ai_move();
+        UCIUtils::send_ai_move(game_state);
     } else if (command.compare("stop") == 0) {
     } else if (command.compare("ponderhit") == 0) {
     } else if (command.compare("quit") == 0) {
@@ -117,7 +117,7 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
     BitBoard next_position = GameUtils::move(0x1ULL, dest_row, dest_col);
 
     Moves moves;
-    GameUtils::get_piece_moves(game_state, piece_index, moves);
+    GameUtils::get_moves(game_state, moves);
 
     if (moves.size() == 0) {
         return rv;
@@ -127,12 +127,14 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
 
     for (size_t i = 0; i < moves.size(); ++i) {
         Move& move = moves[i];
+        /*
         if (move.position.get_piece_bit_board(piece_index) == next_position &&
             move.position.get_piece_bit_board(piece_index) == piece_code) {
             game_state = move;
             legal_move = true;
             break;
         }
+        */
     }
 
     if (!legal_move) {
@@ -178,6 +180,7 @@ void UCIUtils::send_ai_move(GameState& game_state) {
 
     int32_t piece_index = 0;
 
+    /*
     for (int i = 0; i < PIECES_PER_PLAYER * 2; ++i) {
         if (game_state.position.get_piece_bit_board(i) != best_move.position.get_piece_bit_board(i) &&
             best_move.position.get_piece_bit_board(i) != PieceCodes::NONE) {
@@ -189,8 +192,9 @@ void UCIUtils::send_ai_move(GameState& game_state) {
     std::string src_tile = GameUtils::get_tile_name(game_state.position.get_piece_bit_board(piece_index));
     src_tile += GameUtils::get_tile_name(best_move.position.get_piece_bit_board(piece_index));
 
-    /* TODO(EMU): Promotions */
+    // TODO(EMU): Promotions
 
     game_state = thread_state.best_move;
     UCIUtils::send_best_move(src_tile);
+    */
 }

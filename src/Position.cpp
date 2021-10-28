@@ -58,3 +58,42 @@ void Position::clear() {
         this->threaten_positions[i] = 0ULL;
     }
 }
+
+BitBoard Position::get_piece_bit_board(PieceCode piece_code) const {
+    return this->piece_positions[piece_code];
+}
+
+void Position::set_piece_bit_board(PieceCode piece_code, BitBoard bit_board) {
+    this->piece_positions[piece_code] = bit_board;
+}
+
+BitBoard Position::get_color_bit_board(Color color) const {
+    return this->color_positions[color];
+}
+
+BitBoard Position::get_piece_color_bit_board(PieceCode piece_code, Color color) const {
+    return this->get_piece_bit_board(piece_code) & this->get_color_bit_board(color);
+}
+
+BitBoard Position::get_occupied_bit_board() const {
+    return this->color_positions[Colors::WHITE] | this->color_positions[Colors::BLACK];
+}
+
+BitBoard Position::get_empty_bit_board() const {
+    return ~this->get_occupied_bit_board();
+}
+
+BitBoard Position::get_white_bit_board() const {
+    return this->get_color_bit_board(Colors::WHITE);
+}
+BitBoard Position::get_black_bit_board() const {
+    return this->get_color_bit_board(Colors::BLACK);
+}
+
+BitBoard Position::get_white_threaten() const {
+    return this->threaten_positions[Colors::WHITE];
+}
+
+BitBoard Position::get_black_threaten() const {
+    return this->threaten_positions[Colors::BLACK];
+}

@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include <range>
+#include <ranges>
 #include <string>
 
 #include "Definitions.hpp"
@@ -36,7 +36,7 @@ void Board::init_standard() {
 }
 
 void Board::clear() {
-    std::range::fill(this->positions, 0);
+    std::fill(this->positions.begin(), this->positions.end(), 0);
 }
 
 void Board::print() {
@@ -53,7 +53,7 @@ void Board::print() {
                 out += "\033[1;34m";
             }
             switch (value) {
-                case PieceCodes::EMPTY:
+                case PieceCodes::NONE:
                     out += ' ';
                     break;
                 case PieceCodes::PAWN:

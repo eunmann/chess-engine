@@ -8,7 +8,6 @@
 #include "Definitions.hpp"
 #include "GameUtils.hpp"
 #include "Position.hpp"
-
 #include "UCIUtils.hpp"
 
 void print_bit_board(const Position &bit_board) {

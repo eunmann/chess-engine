@@ -2,6 +2,14 @@
 
 #include <assert.h>
 
+Square get_source(Move move) {
+    return static_cast<Square>(move & 0x3F);
+}
+
+Square get_dest(Move move) {
+    return static_cast<Square>((move >> 6) & 0x3F);
+}
+
 Moves::Moves() : m_moves_array(),
                  m_index(0) {
 }
@@ -12,7 +20,6 @@ std::size_t Moves::size() {
 
 Move& Moves::back_ref() {
     assert(this->m_index < this->m_moves_array.size());
-
     return this->m_moves_array[this->m_index++];
 }
 

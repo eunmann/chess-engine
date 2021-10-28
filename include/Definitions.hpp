@@ -2,6 +2,8 @@
 
 #include <inttypes.h>
 
+#include <array>
+
 constexpr uint64_t BOARD_DIM = 8;
 constexpr uint64_t NUM_SQUARES = 64;
 constexpr uint64_t NUM_PIECES = 6;
@@ -67,4 +69,35 @@ const Color WHITE = 0,
             BLACK = 1,
             NUM = 2;
 Color bool_to_color(bool white_to_move);
-};
+};  // namespace Colors
+
+typedef uint64_t BitBoard;
+
+namespace BitBoards {
+
+// Entire Boards
+constexpr BitBoard EMPTY = 0ULL;
+constexpr BitBoard ALL_SQUARES = ~EMPTY;
+
+// Rows
+constexpr BitBoard ROW_1 = 0xFFULL;
+constexpr BitBoard ROW_2 = ROW_1 << 8;
+constexpr BitBoard ROW_3 = ROW_2 << 8;
+constexpr BitBoard ROW_4 = ROW_3 << 8;
+constexpr BitBoard ROW_5 = ROW_4 << 8;
+constexpr BitBoard ROW_6 = ROW_5 << 8;
+constexpr BitBoard ROW_7 = ROW_6 << 8;
+constexpr BitBoard ROW_8 = ROW_7 << 8;
+
+// Cols
+constexpr BitBoard COL_A = 0x0101010101010101ULL;
+constexpr BitBoard COL_B = COL_A << 1;
+constexpr BitBoard COL_C = COL_B << 1;
+constexpr BitBoard COL_D = COL_C << 1;
+constexpr BitBoard COL_E = COL_D << 1;
+constexpr BitBoard COL_F = COL_E << 1;
+constexpr BitBoard COL_G = COL_F << 1;
+constexpr BitBoard COL_H = COL_G << 1;
+
+static std::array<BitBoard, PieceCodes::NUM * Squares::NUM> PSEDUO_MOVES;
+}  // namespace BitBoards
