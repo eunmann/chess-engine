@@ -17,13 +17,11 @@ auto MoveGeneration::get_moves_in_direction(const GameState &game_state, BitBoar
         position = GameUtils::move(position, vertical, horizontal);
 
         if (GameUtils::is_empty(game_state.position, position)) {
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
 
         } else if ((is_white_piece && ((game_state.position.get_white_bit_board() & position) == 0)) ||
                    (!is_white_piece && ((game_state.position.get_black_bit_board() & position) == 0))) {
-            Move &move = moves.back_ref();
-
-            moves.back_ref() = move;
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
             break;
         } else {
             break;
@@ -52,10 +50,10 @@ auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves) -
             if ((is_white_piece && GameUtils::is_piece_in_top_row(next_pawn_position)) ||
                 (!is_white_piece && GameUtils::is_piece_in_bottom_row(next_pawn_position))) {
                 for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                    Move &move = moves.back_ref();
+                    moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
                 }
             } else {
-                Move &move = moves.back_ref();
+                moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
             }
 
             /* Up 2 first-move */
@@ -63,7 +61,7 @@ auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves) -
                 (!is_white_piece && GameUtils::is_piece_in_row(pawn_position, 6))) {
                 next_pawn_position = GameUtils::move(pawn_position, 2 * pawn_dir, 0);
                 if (GameUtils::is_empty(game_state.position, next_pawn_position)) {
-                    Move &move = moves.back_ref();
+                    moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
                     //move.pawn_ep = piece_index;
                 }
             }
@@ -78,10 +76,10 @@ auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves) -
             if ((is_white_piece && GameUtils::is_piece_in_top_row(pawn_position_left_capture)) ||
                 (!is_white_piece && GameUtils::is_piece_in_bottom_row(pawn_position_left_capture))) {
                 for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                    Move &move = moves.back_ref();
+                    moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
                 }
             } else {
-                Move &move = moves.back_ref();
+                moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
             }
         }
 
@@ -90,10 +88,10 @@ auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves) -
             if ((is_white_piece && GameUtils::is_piece_in_top_row(pawn_position_right_capture)) ||
                 (!is_white_piece && GameUtils::is_piece_in_bottom_row(pawn_position_right_capture))) {
                 for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                    Move &move = moves.back_ref();
+                    moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
                 }
             } else {
-                Move &move = moves.back_ref();
+                moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
             }
         }
 
@@ -105,11 +103,11 @@ auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves) -
         const int32_t en_row = is_white_piece ? 4 : 3;
 
         if (game_state.pawn_ep == left_ep && GameUtils::is_piece_in_row(pawn_position, en_row)) {
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (game_state.pawn_ep == right_ep && GameUtils::is_piece_in_row(pawn_position, en_row)) {
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
     }
 }
@@ -120,41 +118,41 @@ auto MoveGeneration::get_knight_moves(const GameState &game_state, Moves &moves)
     if (knight_position) {
         if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_left_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, 2, -1);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
         if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_left_2_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, 1, -2);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_left_2_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, -1, -2);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (!(GameUtils::is_piece_in_bottom_2_row(knight_position) || GameUtils::is_piece_in_left_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, -2, -1);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (!(GameUtils::is_piece_in_bottom_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, -2, 1);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, -1, 2);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, 1, 2);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, 2, 1);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
     }
 }
@@ -205,56 +203,56 @@ auto MoveGeneration::get_king_moves(const GameState &game_state, Moves &moves) -
         /* Up */
         if (!GameUtils::is_piece_in_top_row(king_position)) {
             BitBoard next_king_position = GameUtils::move(king_position, 1, 0);
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Down */
         if (!GameUtils::is_piece_in_bottom_row(king_position)) {
             BitBoard next_king_position = GameUtils::move(king_position, -1, 0);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Left */
         if (!GameUtils::is_piece_in_left_col(king_position)) {
             BitBoard next_king_position = GameUtils::move(king_position, 0, -1);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Right */
         if (!GameUtils::is_piece_in_right_col(king_position)) {
             BitBoard next_king_position = GameUtils::move(king_position, 0, 1);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Up-Right */
         if (!(GameUtils::is_piece_in_top_row(king_position) || GameUtils::is_piece_in_right_col(king_position))) {
             BitBoard next_king_position = GameUtils::move(king_position, 1, 1);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Up-Left */
         if (!(GameUtils::is_piece_in_top_row(king_position) || GameUtils::is_piece_in_left_col(king_position))) {
             BitBoard next_king_position = GameUtils::move(king_position, 1, -1);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Down-Right */
         if (!(GameUtils::is_piece_in_bottom_row(king_position) || GameUtils::is_piece_in_right_col(king_position))) {
             BitBoard next_king_position = GameUtils::move(king_position, -1, 1);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Down-Left */
         if (!(GameUtils::is_piece_in_bottom_row(king_position) || GameUtils::is_piece_in_left_col(king_position))) {
             BitBoard next_king_position = GameUtils::move(king_position, -1, -1);
 
-            Move &move = moves.back_ref();
+            moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
         /* Castling */
@@ -272,7 +270,7 @@ auto MoveGeneration::get_king_moves(const GameState &game_state, Moves &moves) -
 
                 if (((castle_threw_positions & attack_positions) == 0) &&
                     GameUtils::is_empty(game_state.position, castle_threw_positions | empty_position)) {
-                    Move &move = moves.back_ref();
+                    moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
                 }
             }
 
@@ -286,7 +284,7 @@ auto MoveGeneration::get_king_moves(const GameState &game_state, Moves &moves) -
 
                 if (((castle_threw_positions & attack_positions) == 0) &&
                     GameUtils::is_empty(game_state.position, castle_threw_positions)) {
-                    Move &move = moves.back_ref();
+                    moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
                 }
             }
         }

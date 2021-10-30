@@ -12,6 +12,7 @@ constexpr uint64_t NUM_COLORS = 2;
 constexpr uint64_t MAX_NUM_MOVES = 256;
 
 typedef int32_t Square;
+
 namespace Squares {
 const Square A1 = 0, A2 = 1, A3 = 2, A4 = 3, A5 = 4, A6 = 5, A7 = 6, A8 = 7,
              B1 = 8, B2 = 9, B3 = 10, B4 = 11, B5 = 12, B6 = 13, B7 = 14, B8 = 15,

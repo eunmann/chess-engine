@@ -9,6 +9,10 @@
 #include "Definitions.hpp"
 #include "MoveGeneration.hpp"
 
+auto GameUtils::square_to_bit_board(const Square square) -> BitBoard {
+    return 0x1UL << (square - 1);
+}
+
 auto GameUtils::print_position(BitBoard position) -> void {
     const BitBoard left_bit = 1ULL << 63;
     std::string output;
@@ -95,14 +99,6 @@ auto GameUtils::get_tile_name(BitBoard position) -> std::string {
     name += (char)(row + '1');
 
     return name;
-}
-
-auto GameUtils::get_source(Move move) -> Square {
-    return static_cast<Square>(move & 0x3F);
-}
-
-auto GameUtils::get_dest(Move move) -> Square {
-    return static_cast<Square>((move >> 6) & 0x3F);
 }
 
 auto GameUtils::init_standard(GameState &game_state) -> void {
@@ -293,7 +289,7 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
         for (size_t i = 0; i < moves.size(); ++i) {
             Move &move = moves[i];
             /* TODO(EMU): Wrong, need to convert next_position to move */
-            if (move == next_position) {
+            if (move.get_destination_bit_board() == next_position) {
                 GameUtils::apply_move(game_state, next_position);
                 need_input = false;
                 break;

@@ -40,8 +40,10 @@ auto Board::clear() -> void {
 }
 
 auto Board::print() -> void {
-    std::string out = "\n";
+    std::string out;
     out.reserve(256);
+
+    out += '\n';
 
     for (int i = BOARD_DIM - 1; i >= 0; --i) {
         out += '1' + i;

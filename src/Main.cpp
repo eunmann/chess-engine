@@ -11,7 +11,7 @@
 #include "UCIUtils.hpp"
 
 auto print_bit_board(const Position &bit_board) -> void {
-    GameUtils::to_board(bit_board).print();
+    GameUtils::position_to_board(bit_board).print();
 }
 
 int main() {
@@ -19,6 +19,7 @@ int main() {
     setbuf(stdout, NULL);
     setbuf(stdin, NULL);
 
+    // Prints out the board after each move, for debugging
     bool console = false;
 
     GameState game_state;
@@ -28,6 +29,7 @@ int main() {
         print_bit_board(game_state.position);
     }
 
+    // Game Loop
     while (UCIUtils::process_input_command(game_state)) {
         if (console) {
             print_bit_board(game_state.position);
