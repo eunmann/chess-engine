@@ -6,7 +6,7 @@ Position::Position() {
     this->clear();
 }
 
-void Position::init() {
+auto Position::init() -> void {
     // Pawns
     for (int i = 0; i < 8; ++i) {
         this->piece_positions[PieceCodes::PAWN] |= GameUtils::move(0x1ULL, 1, i);
@@ -48,7 +48,7 @@ void Position::init() {
     //game_state.position.get_black_threaten() = GameUtils::get_capture_positions(game_state, false);
 }
 
-void Position::clear() {
+auto Position::clear() -> void {
     for (int i = 0; i < PieceCodes::NUM; ++i) {
         this->piece_positions[i] = 0ULL;
     }
@@ -59,41 +59,41 @@ void Position::clear() {
     }
 }
 
-BitBoard Position::get_piece_bit_board(PieceCode piece_code) const {
+auto Position::get_piece_bit_board(PieceCode piece_code) const -> BitBoard {
     return this->piece_positions[piece_code];
 }
 
-void Position::set_piece_bit_board(PieceCode piece_code, BitBoard bit_board) {
+auto Position::set_piece_bit_board(PieceCode piece_code, BitBoard bit_board) -> void {
     this->piece_positions[piece_code] = bit_board;
 }
 
-BitBoard Position::get_color_bit_board(Color color) const {
+auto Position::get_color_bit_board(Color color) const -> BitBoard {
     return this->color_positions[color];
 }
 
-BitBoard Position::get_piece_color_bit_board(PieceCode piece_code, Color color) const {
+auto Position::get_piece_color_bit_board(PieceCode piece_code, Color color) const -> BitBoard {
     return this->get_piece_bit_board(piece_code) & this->get_color_bit_board(color);
 }
 
-BitBoard Position::get_occupied_bit_board() const {
+auto Position::get_occupied_bit_board() const -> BitBoard {
     return this->color_positions[Colors::WHITE] | this->color_positions[Colors::BLACK];
 }
 
-BitBoard Position::get_empty_bit_board() const {
+auto Position::get_empty_bit_board() const -> BitBoard {
     return ~this->get_occupied_bit_board();
 }
 
-BitBoard Position::get_white_bit_board() const {
+auto Position::get_white_bit_board() const -> BitBoard {
     return this->get_color_bit_board(Colors::WHITE);
 }
-BitBoard Position::get_black_bit_board() const {
+auto Position::get_black_bit_board() const -> BitBoard {
     return this->get_color_bit_board(Colors::BLACK);
 }
 
-BitBoard Position::get_white_threaten() const {
+auto Position::get_white_threaten() const -> BitBoard {
     return this->threaten_positions[Colors::WHITE];
 }
 
-BitBoard Position::get_black_threaten() const {
+auto Position::get_black_threaten() const -> BitBoard {
     return this->threaten_positions[Colors::BLACK];
 }

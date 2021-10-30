@@ -36,7 +36,7 @@ const PieceCode NONE = 0,
                 ALL = 0,
                 NUM = 7;
 
-char to_char(PieceCode piece_code);
+auto to_char(PieceCode piece_code) -> char;
 }  // namespace PieceCodes
 
 typedef int32_t PieceValue;
@@ -68,7 +68,7 @@ namespace Colors {
 const Color WHITE = 0,
             BLACK = 1,
             NUM = 2;
-Color bool_to_color(bool white_to_move);
+auto bool_to_color(bool white_to_move) -> Color;
 };  // namespace Colors
 
 typedef uint64_t BitBoard;

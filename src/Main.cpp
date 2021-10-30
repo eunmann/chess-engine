@@ -10,10 +10,8 @@
 #include "Position.hpp"
 #include "UCIUtils.hpp"
 
-void print_bit_board(const Position &bit_board) {
-    Board board;
-    GameUtils::copy(bit_board, board);
-    board.print();
+auto print_bit_board(const Position &bit_board) -> void {
+    GameUtils::to_board(bit_board).print();
 }
 
 int main() {
@@ -35,44 +33,6 @@ int main() {
             print_bit_board(game_state.position);
         }
     }
-
-    /*  TODO(EMU):
-
-        Code:
-            Probably need to refactor data structures and code
-                Maybe put some functions into BitBoard and GameState
-                Use templates
-                Create an array of psuedo legal moves
-                Creates a Moves structure
-
-        AI:
-            Book openings?
-        
-        Performance:
-            Maybe setup bitboards as a structure of arrays?
-                SIMD for generating moves?
-                SIMD for computing heuristics?
-
-            Might be able to swap if-statements with bit operations
-
-            GPU?
-                What would be useful here?
-                    Generating moves?
-                    Computing the heuristic?
-            
-            Need to profile what is taking so long
-
-            Searching needs load balancing as well
-
-            Threads need to stop on stop command from GUI
-
-            GameUtils::is_valid is computationally expensive
-
-        Engine Things:
-            Accept clock time and obey it
-
-            Print info strings for in-game info and also debugging strings
-    */
 
     return 0;
 }

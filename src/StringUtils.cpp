@@ -1,6 +1,6 @@
 #include "StringUtils.hpp"
 
-std::vector<std::string> StringUtils::split(const std::string& str) {
+auto StringUtils::split(const std::string& str) -> std::vector<std::string> {
     std::vector<std::string> split;
     std::string temp;
     for (size_t i = 0; i < str.size(); ++i) {

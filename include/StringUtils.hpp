@@ -4,5 +4,5 @@
 #include <vector>
 
 namespace StringUtils {
-std::vector<std::string> split(const std::string& str);
+auto split(const std::string& str) -> std::vector<std::string>;
 }

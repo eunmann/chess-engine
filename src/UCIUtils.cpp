@@ -4,9 +4,11 @@
 #include <thread>
 
 #include "GameUtils.hpp"
+#include "MoveGeneration.hpp"
+#include "MoveSearch.hpp"
 #include "StringUtils.hpp"
 
-int32_t UCIUtils::process_input_command(GameState& game_state) {
+auto UCIUtils::process_input_command(GameState& game_state) -> int32_t {
     std::string line;
     std::getline(std::cin, line);
     std::vector<std::string> line_split = StringUtils::split(line);
@@ -45,7 +47,7 @@ int32_t UCIUtils::process_input_command(GameState& game_state) {
     return rv;
 }
 
-int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& move_str) {
+auto UCIUtils::process_user_move(GameState& game_state, const std::string& move_str) -> int32_t {
     int32_t rv = 1;
 
     if (move_str.size() < 4) {
@@ -59,8 +61,8 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
     int32_t selected_col = column_name - 'a';
     int32_t selected_row = row_name - '1';
 
-    if ((selected_col < 0 || selected_col >= 8) ||
-        (selected_row < 0 || selected_row >= 8)) {
+    if ((selected_col < 0 || selected_col > 7) ||
+        (selected_row < 0 || selected_row > 7)) {
         rv = 0;
         return rv;
     }
@@ -117,7 +119,7 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
     BitBoard next_position = GameUtils::move(0x1ULL, dest_row, dest_col);
 
     Moves moves;
-    GameUtils::get_moves(game_state, moves);
+    MoveGeneration::get_moves(game_state, moves);
 
     if (moves.size() == 0) {
         return rv;
@@ -145,38 +147,38 @@ int32_t UCIUtils::process_user_move(GameState& game_state, const std::string& mo
     return rv;
 }
 
-void UCIUtils::send_id() {
+auto UCIUtils::send_id() -> void {
     printf("id name ChessEngine\n");
     printf("id author Evan Unmann\n");
 }
 
-void UCIUtils::send_uci_ok() {
+auto UCIUtils::send_uci_ok() -> void {
     printf("uciok\n");
 }
 
-void UCIUtils::send_ready_ok() {
+auto UCIUtils::send_ready_ok() -> void {
     printf("readyok\n");
 }
 
-void UCIUtils::send_best_move(const std::string& move_str) {
+auto UCIUtils::send_best_move(const std::string& move_str) -> void {
     printf("bestmove %s\n", move_str.c_str());
 }
-void UCIUtils::send_copyright_protection() {
+auto UCIUtils::send_copyright_protection() -> void {
     printf("copyrightprotection checking\n");
     printf("copyrightprotection ok\n");
 }
-void UCIUtils::send_registration() {
+auto UCIUtils::send_registration() -> void {
     printf("registration checking\n");
     printf("registration ok\n");
 }
-void UCIUtils::send_info() {
+auto UCIUtils::send_info() -> void {
 }
 
-void UCIUtils::send_option() {
+auto UCIUtils::send_option() -> void {
 }
 
-void UCIUtils::send_ai_move(GameState& game_state) {
-    Move best_move = GameUtils::get_best_move(game_state);
+auto UCIUtils::send_ai_move(GameState& game_state) -> void {
+    Move best_move = MoveSearch::get_best_move(game_state);
 
     int32_t piece_index = 0;
 

@@ -10,9 +10,9 @@ class Board {
    public:
     Board();
 
-    void init_standard();
-    void clear();
-    void print();
+    auto init_standard() -> void;
+    auto clear() -> void;
+    auto print() -> void;
 
     std::array<int32_t, BOARD_DIM * BOARD_DIM> positions;
 };

@@ -2,14 +2,6 @@
 
 #include <assert.h>
 
-Square get_source(Move move) {
-    return static_cast<Square>(move & 0x3F);
-}
-
-Square get_dest(Move move) {
-    return static_cast<Square>((move >> 6) & 0x3F);
-}
-
 Moves::Moves() : m_moves_array(),
                  m_index(0) {
 }

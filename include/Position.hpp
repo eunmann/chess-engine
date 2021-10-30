@@ -13,20 +13,20 @@ class Position {
     void init();
     void clear();
 
-    BitBoard get_piece_bit_board(PieceCode piece_code) const;
-    void set_piece_bit_board(PieceCode piece_code, BitBoard bit_board);
-    BitBoard get_piece_color_bit_board(PieceCode piece_code, Color color) const;
+    auto get_piece_bit_board(PieceCode piece_code) const -> BitBoard;
+    auto set_piece_bit_board(PieceCode piece_code, BitBoard bit_board) -> void;
+    auto get_piece_color_bit_board(PieceCode piece_code, Color color) const -> BitBoard;
 
-    BitBoard get_color_bit_board(Color color) const;
+    auto get_color_bit_board(Color color) const -> BitBoard;
 
-    BitBoard get_occupied_bit_board() const;
-    BitBoard get_empty_bit_board() const;
+    auto get_occupied_bit_board() const -> BitBoard;
+    auto get_empty_bit_board() const -> BitBoard;
 
-    BitBoard get_white_bit_board() const;
-    BitBoard get_black_bit_board() const;
+    auto get_white_bit_board() const -> BitBoard;
+    auto get_black_bit_board() const -> BitBoard;
 
-    BitBoard get_white_threaten() const;
-    BitBoard get_black_threaten() const;
+    auto get_white_threaten() const -> BitBoard;
+    auto get_black_threaten() const -> BitBoard;
 
    private:
     std::array<BitBoard, PieceCodes::NUM> piece_positions;

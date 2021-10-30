@@ -1,6 +1,6 @@
 #include "Definitions.hpp"
 
-char PieceCodes::to_char(int32_t piece_code) {
+auto PieceCodes::to_char(int32_t piece_code) -> char {
     switch (piece_code) {
         case PieceCodes::PAWN: {
             return ' ';
@@ -26,6 +26,6 @@ char PieceCodes::to_char(int32_t piece_code) {
     }
 }
 
-Color Colors::bool_to_color(bool white_to_move) {
+auto Colors::bool_to_color(bool white_to_move) -> Color {
     return white_to_move ? Colors::WHITE : Colors::BLACK;
 }

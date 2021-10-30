@@ -8,18 +8,14 @@
 // Bits [7-13] Dest
 typedef int32_t Move;
 
-Square get_source(Move move);
-
-Square get_dest(Move move);
-
 class Moves {
    public:
     Moves();
 
-    Move& back_ref();
-    std::size_t size();
-    Move& operator[](int32_t index);
-    void add_moves(BitBoard bit_board);
+    auto back_ref() -> Move&;
+    auto size() -> std::size_t;
+    auto operator[](int32_t index) -> Move&;
+    auto add_moves(BitBoard bit_board) -> void;
 
    private:
     std::array<Move, MAX_NUM_MOVES> m_moves_array;

@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include <ranges>
+#include <algorithm>
 #include <string>
 
 #include "Definitions.hpp"
@@ -11,8 +11,8 @@ Board::Board() {
     this->clear();
 };
 
-void Board::init_standard() {
-    int32_t init_rank[] = {
+auto Board::init_standard() -> void {
+    const std::array<PieceCode, 8> init_rank{
         PieceCodes::ROOK,
         PieceCodes::KNIGHT,
         PieceCodes::BISHOP,
@@ -35,11 +35,11 @@ void Board::init_standard() {
     }
 }
 
-void Board::clear() {
+auto Board::clear() -> void {
     std::fill(this->positions.begin(), this->positions.end(), 0);
 }
 
-void Board::print() {
+auto Board::print() -> void {
     std::string out = "\n";
     out.reserve(256);
 
