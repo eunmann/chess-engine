@@ -1,6 +1,7 @@
 #include "GameUtils.hpp"
 
 #include <assert.h>
+#include <bits/stdc++.h>
 #include <stdio.h>
 
 #include <iostream>
@@ -229,8 +230,7 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
 
     while (need_input) {
         printf("Select piece: ");
-        std::string input = "";
-        std::getline(std::cin, input);
+        auto input = GameUtils::get_user_input();
 
         BitBoard selected_col;
         BitBoard selected_row;
@@ -304,4 +304,105 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
     }
 
     return 1;
+}
+
+auto GameUtils::get_user_input() -> std::string {
+    std::string input;
+    std::getline(std::cin, input);
+    return input;
+}
+
+auto GameUtils::process_user_move(GameState &game_state, const Move move) -> int32_t {
+    int32_t rv = 1;
+
+    Moves legal_moves;
+    MoveGeneration::get_moves(game_state, legal_moves);
+
+    // TODO(EMU): No moves, should return value to indicate?
+    if (legal_moves.size() == 0) {
+        return rv;
+    }
+
+    bool input_move_legal = false;
+
+    std::any_of(legal_moves.begin(), legal_moves.end(), [&input_move_legal, move](Move legal_move) {
+        if (move == legal_move) {
+            input_move_legal = true;
+            // TODO(EMU): Apply the move here
+            return false;
+        } else {
+            return true;
+        }
+    });
+
+    if (!input_move_legal) {
+        rv = 0;
+        return rv;
+    }
+
+    return rv;
+}
+
+auto GameUtils::square_name_to_square(const std::string &square_name) -> Square {
+    // Check string length, min 2 characters required for a move
+    if (square_name.size() < 2) {
+        return 0;
+    }
+
+    int32_t col_index = square_name[0] - 'a';
+    int32_t row_index = square_name[1] - '1';
+
+    auto invalid_input_range = [](int32_t num) { return (num < 0 || num > 7); };
+
+    if (invalid_input_range(col_index) ||
+        invalid_input_range(row_index)) {
+        return 0;
+    }
+
+    return row_index * 8 + col_index;
+}
+
+auto GameUtils::move_str_to_move(const std::string &move_str) -> Move {
+    // Check string length, min 4 characters required for a move
+    if (move_str.size() < 4) {
+        return Move();
+    }
+
+    auto source_square = GameUtils::square_name_to_square(move_str);
+    auto destintion_square = GameUtils::square_name_to_square(move_str.substr(2, 2));
+
+    // TODO(EMU): Deal with promotion
+    // Check if moves promotes a pawn
+    PieceCode promotion_piece_code = PieceCodes::NONE;
+    if (move_str.size() == 5) {
+        switch (move_str[4]) {
+            case 'n': {
+                promotion_piece_code = PieceCodes::KNIGHT;
+                break;
+            }
+            case 'b': {
+                promotion_piece_code = PieceCodes::BISHOP;
+                break;
+            }
+            case 'r': {
+                promotion_piece_code = PieceCodes::ROOK;
+                break;
+            }
+            case 'q': {
+                promotion_piece_code = PieceCodes::QUEEN;
+                break;
+            }
+            default: {
+            }
+        }
+    }
+
+    return Move(source_square, destintion_square);
+}
+
+auto GameUtils::for_each_set_bit(BitBoard bit_board, std::function<void(int32_t bit_index)> func) -> void {
+    while (int32_t index = ffs(bit_board)) {
+        func(index);
+        bit_board ^= 0b1 << (index - 1);
+    };
 }

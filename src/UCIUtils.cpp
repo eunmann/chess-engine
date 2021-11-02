@@ -3,22 +3,17 @@
 #include <assert.h>
 
 #include <functional>
-#include <iostream>
-#include <thread>
 #include <unordered_map>
 
 #include "GameUtils.hpp"
-#include "MoveGeneration.hpp"
 #include "MoveSearch.hpp"
 #include "StringUtils.hpp"
 
-auto UCIUtils::process_input_command(GameState& game_state) -> int32_t {
-    std::string line;
-    std::getline(std::cin, line);
-    auto line_split = StringUtils::split(line);
+auto UCIUtils::process_input_command(GameState& game_state, const std::string& command) -> int32_t {
+    auto line_split = StringUtils::split(command);
     assert(line_split.size() > 0);
 
-    auto command = line_split[0];
+    auto command_action = line_split[0];
     int32_t rv = 1;
 
     const std::unordered_map<std::string, std::function<void()>> command_map = {
@@ -32,106 +27,31 @@ auto UCIUtils::process_input_command(GameState& game_state) -> int32_t {
         {"setoption", []() {}},
         {"register", []() {}},
         {"ucinewgame", [&game_state]() { GameUtils::init_standard(game_state); }},
-        {"position", [&line_split, &game_state]() {if (line_split[1].compare("startpos") == 0) {
-            GameUtils::init_standard(game_state);
-        }
-        for (size_t i = 3; i < line_split.size(); ++i) {
-            std::string move_str = line_split[i];
-            if (!UCIUtils::process_user_move(game_state, move_str)) {
-                printf("info string Cannot process move %s\n", move_str.c_str());
+        {"position", [&line_split, &game_state]() {
+            if (line_split[1].compare("startpos") == 0) {
+                GameUtils::init_standard(game_state);
+            }
+            for (size_t i = 3; i < line_split.size(); ++i) {
+                std::string move_str = line_split[i];
+                Move move = GameUtils::move_str_to_move(move_str);
+                if (!GameUtils::process_user_move(game_state, move)) {
+                    printf("info string cannot process move %s\n", move_str.c_str());
             }
         } }},
-        {"go", [&game_state]() { UCIUtils::send_ai_move(game_state); }},
+        {"go", [&game_state]() {
+             Move best_move = MoveSearch::get_best_move(game_state);
+             // TODO(EMU): Convert the move to a string
+             std::string src_tile;
+             UCIUtils::send_best_move(src_tile);
+         }},
         {"stop", []() {}},
         {"ponderhit", []() {}},
         {"quit", [&rv]() { rv = 0; }},
     };
 
-    if (command_map.contains(command)) {
-        auto command_func = command_map.find(command)->second;
+    if (command_map.contains(command_action)) {
+        auto command_func = command_map.find(command_action)->second;
         command_func();
-    }
-
-    return rv;
-}
-
-auto UCIUtils::process_user_move(GameState& game_state, const std::string& move_str) -> int32_t {
-    int32_t rv = 1;
-
-    // Check string length, min 4 characters required for a move
-    if (move_str.size() < 4) {
-        rv = 0;
-        return rv;
-    }
-
-    int32_t source_col = move_str[0] - 'a';
-    int32_t source_row = move_str[1] - '1';
-    int32_t dest_col = move_str[2] - 'a';
-    int32_t dest_row = move_str[3] - '1';
-
-    auto invalid_input_range = [](int32_t num) { return (num < 0 || num > 7); };
-
-    if (invalid_input_range(source_col) ||
-        invalid_input_range(source_row) ||
-        invalid_input_range(dest_col) ||
-        invalid_input_range(dest_row)) {
-        rv = 0;
-        return rv;
-    }
-
-    auto input_to_square_num = [](int32_t row, int32_t col) { return row * 8 + col; };
-
-    Move input_move(input_to_square_num(source_row, source_col),
-                    input_to_square_num(dest_row, dest_col));
-
-    // Check if moves promotes a pawn
-    PieceCode promotion_piece_code = PieceCodes::NONE;
-    if (move_str.size() == 5) {
-        switch (move_str[4]) {
-            case 'n': {
-                promotion_piece_code = PieceCodes::KNIGHT;
-                break;
-            }
-            case 'b': {
-                promotion_piece_code = PieceCodes::BISHOP;
-                break;
-            }
-            case 'r': {
-                promotion_piece_code = PieceCodes::ROOK;
-                break;
-            }
-            case 'q': {
-                promotion_piece_code = PieceCodes::QUEEN;
-                break;
-            }
-            default: {
-            }
-        }
-    }
-
-    Moves moves;
-    MoveGeneration::get_moves(game_state, moves);
-
-    // TODO(EMU): No moves, should return value to indicate?
-    if (moves.size() == 0) {
-        return rv;
-    }
-
-    bool legal_move = false;
-
-    std::any_of(moves.begin(), moves.end(), [&legal_move, input_move](Move move) {
-        if (move == input_move) {
-            legal_move = true;
-            // TODO(EMU): Apply the move here
-            return false;
-        } else {
-            return true;
-        }
-    });
-
-    if (!legal_move) {
-        rv = 0;
-        return rv;
     }
 
     return rv;
@@ -168,8 +88,6 @@ auto UCIUtils::send_option() -> void {
 }
 
 auto UCIUtils::send_ai_move(GameState& game_state) -> void {
-    Move best_move = MoveSearch::get_best_move(game_state);
-
     int32_t piece_index = 0;
 
     /*

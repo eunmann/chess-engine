@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -37,4 +38,16 @@ auto is_piece_in_right_2_col(BitBoard position) -> bool;
 // GameState Modifiers
 auto perform_user_move(GameState &game_state) -> int32_t;
 auto apply_move(GameState &game_state, Move move) -> void;
+auto process_user_move(GameState &game_state, const Move move) -> int32_t;
+
+// Input
+auto get_user_input() -> std::string;
+auto square_name_to_square(const std::string &square_name) -> Square;
+auto move_str_to_move(const std::string &move_str) -> Move;
+
+// Output
+auto get_best_move(const GameState &game_state) -> Move;
+
+// Bit Utils
+auto for_each_set_bit(BitBoard bit_board, std::function<void(int32_t bit_index)> func) -> void;
 }  // namespace GameUtils

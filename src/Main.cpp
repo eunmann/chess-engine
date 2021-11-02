@@ -20,7 +20,7 @@ int main() {
     setbuf(stdin, NULL);
 
     // Prints out the board after each move, for debugging
-    bool console = false;
+    auto console = false;
 
     GameState game_state;
 
@@ -30,7 +30,11 @@ int main() {
     }
 
     // Game Loop
-    while (UCIUtils::process_input_command(game_state)) {
+    while (true) {
+        auto input_command = GameUtils::get_user_input();
+        if (!UCIUtils::process_input_command(game_state, input_command)) {
+            break;
+        };
         if (console) {
             print_bit_board(game_state.position);
         }

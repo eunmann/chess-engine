@@ -30,12 +30,13 @@ auto MoveGeneration::get_moves_in_direction(const GameState &game_state, BitBoar
 }
 
 auto MoveGeneration::get_moves(const GameState &game_state, Moves &moves) -> void {
-    MoveGeneration::get_pawn_moves(game_state, moves);
-    MoveGeneration::get_knight_moves(game_state, moves);
-    MoveGeneration::get_bishop_moves(game_state, moves);
-    MoveGeneration::get_rook_moves(game_state, moves);
-    MoveGeneration::get_queen_moves(game_state, moves);
+    // Add moves in order of piece value
     MoveGeneration::get_king_moves(game_state, moves);
+    MoveGeneration::get_queen_moves(game_state, moves);
+    MoveGeneration::get_rook_moves(game_state, moves);
+    MoveGeneration::get_bishop_moves(game_state, moves);
+    MoveGeneration::get_knight_moves(game_state, moves);
+    MoveGeneration::get_pawn_moves(game_state, moves);
 }
 
 auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves) -> void {
@@ -345,17 +346,34 @@ auto MoveGeneration::get_knight_capture_positions(const GameState &game_state, C
     BitBoard capturable_positions = 0;
 
     if (knight_position) {
+        // TODO(EMU): These if statements can be condensed. Also, better checks might be possible
         if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_left_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, 2, -1);
             capturable_positions |= next_knight_position;
         }
+
+        if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, 2, 1);
+            capturable_positions |= next_knight_position;
+        }
+
         if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_left_2_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, 1, -2);
             capturable_positions |= next_knight_position;
         }
 
+        if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, 1, 2);
+            capturable_positions |= next_knight_position;
+        }
+
         if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_left_2_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, -1, -2);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, -1, 2);
             capturable_positions |= next_knight_position;
         }
 
@@ -366,21 +384,6 @@ auto MoveGeneration::get_knight_capture_positions(const GameState &game_state, C
 
         if (!(GameUtils::is_piece_in_bottom_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
             BitBoard next_knight_position = GameUtils::move(knight_position, -2, 1);
-            capturable_positions |= next_knight_position;
-        }
-
-        if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
-            BitBoard next_knight_position = GameUtils::move(knight_position, -1, 2);
-            capturable_positions |= next_knight_position;
-        }
-
-        if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
-            BitBoard next_knight_position = GameUtils::move(knight_position, 1, 2);
-            capturable_positions |= next_knight_position;
-        }
-
-        if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
-            BitBoard next_knight_position = GameUtils::move(knight_position, 2, 1);
             capturable_positions |= next_knight_position;
         }
     }

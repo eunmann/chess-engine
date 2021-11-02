@@ -100,5 +100,6 @@ constexpr BitBoard COL_F = COL_E << 1;
 constexpr BitBoard COL_G = COL_F << 1;
 constexpr BitBoard COL_H = COL_G << 1;
 
-static std::array<BitBoard, PieceCodes::NUM * Squares::NUM> PSEDUO_MOVES;
+// TODO(EMU): Fill the psuedomoves at compile time!
+// static std::array<BitBoard, PieceCodes::NUM * Squares::NUM> PSEDUO_MOVES;
 }  // namespace BitBoards
