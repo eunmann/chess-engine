@@ -9,35 +9,35 @@ Position::Position() {
 auto Position::init() -> void {
     // Pawns
     for (int i = 0; i < 8; ++i) {
-        this->piece_positions[PieceCodes::PAWN] |= GameUtils::move(0x1ULL, 1, i);
-        this->piece_positions[PieceCodes::PAWN] |= GameUtils::move(0x1ULL, 6, i);
+        this->piece_positions[PieceCodes::PAWN] |= GameUtils::shift_bit_board(0b1, 1, i);
+        this->piece_positions[PieceCodes::PAWN] |= GameUtils::shift_bit_board(0b1, 6, i);
     }
 
     // Knights
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::move(0x1ULL, 0, 1);
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::move(0x1ULL, 0, 6);
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::move(0x1ULL, 7, 1);
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::move(0x1ULL, 7, 6);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 1>(0b1);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 6>(0b1);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 1>(0b1);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 6>(0b1);
 
     // Bishops
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::move(0x1ULL, 0, 2);
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::move(0x1ULL, 0, 5);
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::move(0x1ULL, 7, 2);
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::move(0x1ULL, 7, 5);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 2>(0b1);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 5>(0b1);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 2>(0b1);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 5>(0b1);
 
     // Rooks
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::move(0x1ULL, 0, 0);
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::move(0x1ULL, 0, 7);
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::move(0x1ULL, 7, 0);
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::move(0x1ULL, 7, 7);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 0>(0b1);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 7>(0b1);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 0>(0b1);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 7>(0b1);
 
     // Queens
-    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::move(0x1ULL, 0, 3);
-    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::move(0x1ULL, 7, 3);
+    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<0, 3>(0b1);
+    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<7, 3>(0b1);
 
     // Kings
-    this->piece_positions[PieceCodes::KING] |= GameUtils::move(0x1ULL, 0, 4);
-    this->piece_positions[PieceCodes::KING] |= GameUtils::move(0x1ULL, 7, 4);
+    this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<0, 4>(0b1);
+    this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<7, 4>(0b1);
 
     // Color Position
     this->color_positions[Colors::WHITE] = BitBoards::ROW_1 | BitBoards::ROW_2;

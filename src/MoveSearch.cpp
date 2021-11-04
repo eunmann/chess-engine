@@ -4,7 +4,7 @@
 
 auto MoveSearch::get_best_move(const GameState &game_state) -> Move {
     Moves moves;
-    MoveGeneration::get_moves(game_state, moves);
+    MoveGeneration::get_moves(game_state, moves, Colors::bool_to_color(game_state.white_to_move));
 
     int32_t best_heuristic = game_state.white_to_move ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
     Move best_move;
@@ -28,12 +28,13 @@ auto MoveSearch::alpha_beta_pruning_search(const GameState &game_state, int32_t 
     }
 
     Moves moves;
-    MoveGeneration::get_moves(game_state, moves);
+    MoveGeneration::get_moves(game_state, moves, max_white);
 
     if (max_white) {
         int32_t best_heuristic = PieceValues::NEG_INFINITY;
         for (size_t i = 0; i < moves.size(); ++i) {
             Move &move = moves[i];
+            // TODO(EMU): Check if move is legal, apply move to a copy of GameState with move
             best_heuristic = std::max(best_heuristic, MoveSearch::alpha_beta_pruning_search(game_state, ply_depth - 1, alpha, beta, false));
             if (best_heuristic >= beta) {
                 break;
@@ -45,6 +46,7 @@ auto MoveSearch::alpha_beta_pruning_search(const GameState &game_state, int32_t 
         int32_t best_heuristic = PieceValues::POS_INFINITY;
         for (size_t i = 0; i < moves.size(); ++i) {
             Move &move = moves[i];
+            // TODO(EMU): Check if move is legal, apply move to a copy of GameState with move
             best_heuristic = std::min(best_heuristic, MoveSearch::alpha_beta_pruning_search(game_state, ply_depth - 1, alpha, beta, true));
             if (best_heuristic <= alpha) {
                 break;

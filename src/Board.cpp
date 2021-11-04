@@ -48,7 +48,7 @@ auto Board::print() -> void {
     for (int i = BOARD_DIM - 1; i >= 0; --i) {
         out += '1' + i;
         out += " |";
-        for (int j = 0; j < BOARD_DIM; ++j) {
+        for (uint64_t j = 0; j < BOARD_DIM; ++j) {
             int8_t value = this->positions[i * BOARD_DIM + j];
 
             if (value < 0) {

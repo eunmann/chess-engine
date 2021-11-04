@@ -33,7 +33,7 @@ class Moves {
 
     auto push_back(const Move move) -> void;
     auto size() -> std::size_t;
-    auto operator[](int32_t index) -> Move&;
+    auto operator[](std::size_t index) -> Move&;
     auto begin() -> Move*;
     auto end() -> Move*;
 

@@ -10,8 +10,8 @@
 #include "Position.hpp"
 #include "UCIUtils.hpp"
 
-auto print_bit_board(const Position &bit_board) -> void {
-    GameUtils::position_to_board(bit_board).print();
+auto print_bit_board(const Position &position) -> void {
+    GameUtils::position_to_board(position).print();
 }
 
 int main() {

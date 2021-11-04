@@ -40,8 +40,8 @@ auto Moves::push_back(const Move move) -> void {
     this->m_moves_array[this->m_index++] = move;
 }
 
-Move& Moves::operator[](int32_t index) {
-    assert(index >= 0 && index < this->m_moves_array.size());
+Move& Moves::operator[](std::size_t index) {
+    assert(index < this->m_moves_array.size());
     return this->m_moves_array[index];
 }
 
