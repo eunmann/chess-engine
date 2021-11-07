@@ -199,7 +199,12 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
         BitBoard next_position = GameUtils::shift_bit_board(0b1, dest_row, dest_col);
 
         Moves moves;
-        MoveGeneration::get_moves(game_state, moves, Colors::bool_to_color(game_state.white_to_move));
+        Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
+        if (color_to_move == Colors::WHITE) {
+            MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
+        } else {
+            MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
+        }
 
         for (size_t i = 0; i < moves.size(); ++i) {
             Move &move = moves[i];

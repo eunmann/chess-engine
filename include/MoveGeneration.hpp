@@ -7,16 +7,6 @@
 
 namespace MoveGeneration {
 
-// Pseduo-Legal Moves
-auto get_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_pawn_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_knight_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_bishop_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_rook_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_queen_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_king_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_moves_in_direction(const GameState &game_state, BitBoard bit_board, int32_t vertical, int32_t horizontal, Moves &moves, Color color) -> void;
-
 // Pseduo-Legal Moves Templates
 template <const int V, const int H, const Color C>
 constexpr auto get_moves_in_direction(const GameState &game_state, BitBoard bit_board, Moves &moves) -> void {
@@ -364,16 +354,6 @@ constexpr auto get_moves(const GameState &game_state, Moves &moves) -> void {
     MoveGeneration::get_knight_moves<color>(game_state, moves);
     MoveGeneration::get_pawn_moves<color>(game_state, moves);
 }
-
-// Threaten Squares
-auto get_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_pawn_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_knight_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_bishop_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_rook_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_queen_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_king_capture_positions(const Position &position, Color color) -> BitBoard;
-auto get_captures_in_direction(const Position &position, BitBoard bit_board, int32_t vertical, int32_t horizontal) -> BitBoard;
 
 // Threaten Squares Templates
 template <const int V, const int H>
