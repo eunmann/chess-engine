@@ -60,7 +60,7 @@ auto MoveSearch::alpha_beta_pruning_search(const GameState &game_state, int32_t 
 auto MoveSearch::get_position_heuristic(const GameState &game_state) -> int32_t {
     int32_t heuristic = 0;
 
-    /* Sum piece values */
+    // Sum piece values
     for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
         switch (game_state.position.get_piece_bit_board(i)) {
             case PieceCodes::PAWN: {
@@ -87,7 +87,6 @@ auto MoveSearch::get_position_heuristic(const GameState &game_state) -> int32_t 
                 heuristic += PieceValues::KING;
                 break;
             }
-            case PieceCodes::NONE:
             default: {
             }
         }
@@ -119,13 +118,13 @@ auto MoveSearch::get_position_heuristic(const GameState &game_state) -> int32_t 
                 heuristic -= PieceValues::KING;
                 break;
             }
-            case PieceCodes::NONE:
+            case PieceCodes::NUM:
             default: {
             }
         }
     }
 
-    /* Put the King in check */
+    // Put the King in check
     if (game_state.black_king_in_check) {
         heuristic += PieceValues::PAWN / 2;
     }
@@ -134,7 +133,7 @@ auto MoveSearch::get_position_heuristic(const GameState &game_state) -> int32_t 
         heuristic -= PieceValues::PAWN / 2;
     }
 
-    /* Bad check for Castling */
+    // Bad check for Castling
     if (game_state.black_king_moved && !(game_state.black_rook_1_moved || game_state.black_rook_2_moved)) {
         heuristic += PieceValues::PAWN / 2;
     }

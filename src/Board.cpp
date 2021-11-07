@@ -55,11 +55,11 @@ auto Board::print() -> void {
                 out += "\033[1;34m";
             }
             switch (value) {
-                case PieceCodes::NONE:
+                case PieceCodes::NUM:
                     out += ' ';
                     break;
                 case PieceCodes::PAWN:
-                case -1 * PieceCodes::PAWN:
+                    //case -1 * PieceCodes::PAWN:
                     out += 'p';
                     break;
                 case PieceCodes::KNIGHT:

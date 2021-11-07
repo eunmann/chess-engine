@@ -1,6 +1,7 @@
 #include "Position.hpp"
 
 #include "GameUtils.hpp"
+#include "MoveGeneration.hpp"
 
 Position::Position() {
     this->clear();
@@ -63,10 +64,6 @@ auto Position::get_piece_bit_board(PieceCode piece_code) const -> BitBoard {
     return this->piece_positions[piece_code];
 }
 
-auto Position::set_piece_bit_board(PieceCode piece_code, BitBoard bit_board) -> void {
-    this->piece_positions[piece_code] = bit_board;
-}
-
 auto Position::get_color_bit_board(Color color) const -> BitBoard {
     return this->color_positions[color];
 }
@@ -96,4 +93,52 @@ auto Position::get_white_threaten() const -> BitBoard {
 
 auto Position::get_black_threaten() const -> BitBoard {
     return this->threaten_positions[Colors::BLACK];
+}
+
+auto Position::get_color(const BitBoard bit_board) const -> Color {
+    if (this->color_positions[Colors::WHITE] | bit_board) {
+        return Colors::WHITE;
+    } else if (this->color_positions[Colors::BLACK] | bit_board) {
+        return Colors::BLACK;
+    } else {
+        return Colors::NUM;
+    }
+}
+
+auto Position::get_piece_type(const BitBoard bit_board) const -> PieceCode {
+    for (PieceCode p = PieceCodes::PAWN; p < PieceCodes::NUM; p++) {
+        if (this->piece_positions[p] | bit_board) {
+            return p;
+        }
+    }
+
+    return PieceCodes::NUM;
+}
+
+auto Position::clear(const BitBoard bit_board) -> void {
+    const BitBoard negated_bit_board = !bit_board;
+    for (PieceCode pc = 0; pc < PieceCodes::NUM; pc++) {
+        this->piece_positions[pc] &= negated_bit_board;
+    }
+
+    this->color_positions[Colors::WHITE] &= negated_bit_board;
+    this->color_positions[Colors::BLACK] &= negated_bit_board;
+}
+
+auto Position::add(const PieceCode piece_code, const Color color, const BitBoard bit_board) -> void {
+    this->piece_positions[piece_code] |= bit_board;
+    this->color_positions[color] |= bit_board;
+}
+
+auto Position::recompute() -> void {
+    this->threaten_positions[Colors::WHITE] = MoveGeneration::get_capture_positions(*this, Colors::WHITE);
+    this->threaten_positions[Colors::BLACK] = MoveGeneration::get_capture_positions(*this, Colors::BLACK);
+}
+
+auto Position::is_empty(const BitBoard bit_board) const -> bool {
+    return (this->get_empty_bit_board() & bit_board) != 0;
+}
+
+auto Position::is_occupied(const BitBoard bit_board) const -> bool {
+    return (this->get_occupied_bit_board() & bit_board) != 0;
 }

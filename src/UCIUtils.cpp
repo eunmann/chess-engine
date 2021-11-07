@@ -86,25 +86,3 @@ auto UCIUtils::send_info() -> void {
 
 auto UCIUtils::send_option() -> void {
 }
-
-auto UCIUtils::send_ai_move(GameState& game_state) -> void {
-    int32_t piece_index = 0;
-
-    /*
-    for (int i = 0; i < PIECES_PER_PLAYER * 2; ++i) {
-        if (game_state.position.get_piece_bit_board(i) != best_move.position.get_piece_bit_board(i) &&
-            best_move.position.get_piece_bit_board(i) != PieceCodes::NONE) {
-            piece_index = i;
-            break;
-        }
-    }
-
-    std::string src_tile = GameUtils::get_tile_name(game_state.position.get_piece_bit_board(piece_index));
-    src_tile += GameUtils::get_tile_name(best_move.position.get_piece_bit_board(piece_index));
-
-    // TODO(EMU): Promotions
-
-    game_state = thread_state.best_move;
-    UCIUtils::send_best_move(src_tile);
-    */
-}

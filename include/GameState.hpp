@@ -2,15 +2,18 @@
 
 #include <inttypes.h>
 
+#include "Move.hpp"
 #include "Position.hpp"
 
 class GameState {
    public:
     GameState();
 
-    Position position;
+    auto apply_move(const Move move) -> void;
+    auto is_move_legal(const Move move) -> bool;
 
-    /* TODO(EMU): Mask this a bit mask instead */
+    Position position;
+    // TODO(EMU): Mask this a bit mask instead
     bool white_to_move;
     bool white_king_moved;
     bool white_rook_1_moved;

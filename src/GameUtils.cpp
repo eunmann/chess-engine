@@ -46,35 +46,9 @@ auto GameUtils::shift_bit_board(BitBoard bit_board, int32_t vertical, int32_t ho
     }
 }
 
-auto GameUtils::is_empty(const Position &position, BitBoard bit_board) -> bool {
-    return (position.get_empty_bit_board() & bit_board) == 0;
-}
-
-auto GameUtils::is_valid(const GameState &game_state, BitBoard bit_board) -> bool {
-    /*
-    bool is_white_piece = piece_index < PIECES_PER_PLAYER;
-
-    if ((is_white_piece && ((game_state.position.get_color_bit_board(Colors::WHITE) & position) != 0)) ||
-        (!is_white_piece && ((game_state.position.get_color_bit_board(Colors::BLACK) & position) != 0))) {
-        return false;
-    }
-
-    // TODO(EMU): I don't like this copy here
-    GameState temp = game_state;
-    GameUtils::apply_move(temp, position, piece_index);
-
-    if (is_white_piece) {
-        return (temp.position.get_piece_bit_board(PieceCodes::KING) & temp.position.get_white_bit_board() & temp.position.get_black_threaten()) == 0;
-    } else {
-        return (temp.position.get_piece_bit_board(PieceCodes::KING) & temp.position.get_black_bit_board() & temp.position.get_white_threaten()) == 0;
-    }
-    */
-    return true;
-}
-
 auto GameUtils::get_row_col(BitBoard bit_board, int32_t &row, int32_t &col) -> void {
-    BitBoard row_mask = 0xFFULL;
-    BitBoard col_mask = 0x0101010101010101ULL;
+    BitBoard row_mask = BitBoards::ROW_1;
+    BitBoard col_mask = BitBoards::COL_A;
 
     row = -1;
     col = -1;
@@ -119,77 +93,13 @@ auto GameUtils::init_standard(GameState &game_state) -> void {
     game_state.pawn_ep = -128;
 }
 
-auto GameUtils::apply_move(GameState &game_state, Move move) -> void {
-    /*
-    bool is_white_piece = piece_index < PIECES_PER_PLAYER;
-    if (is_white_piece) {
-        game_state.position.get_white_bit_board() ^= (game_state.position.get_piece_bit_board(piece_index) | position);
-    } else {
-        game_state.position.get_black_bit_board() ^= (game_state.position.get_piece_bit_board(piece_index) | position);
-    }
-    game_state.position.get_piece_bit_board(piece_index) = position;
-    game_state.white_to_move = !game_state.white_to_move;
-    game_state.white_king_in_check = false;
-    game_state.black_king_in_check = false;
-
-    // Removed a captured piece from the board
-    BitBoard *opp_positions;
-    int32_t *opp_codes;
-    if (is_white_piece) {
-        opp_positions = game_state.position.piece_positions + PIECES_PER_PLAYER;
-        opp_codes = game_state.position.piece_codes + PIECES_PER_PLAYER;
-    } else {
-        opp_positions = game_state.position.piece_positions;
-        opp_codes = game_state.position.piece_codes;
-    }
-
-    for (int i = 0; i < PIECES_PER_PLAYER; ++i) {
-        if (opp_positions[i] == position) {
-            opp_positions[i] = 0;
-            opp_codes[i] = PieceCodes::EMPTY;
-            if (is_white_piece) {
-                game_state.position.get_black_bit_board() ^= position;
-            } else {
-                game_state.position.get_white_bit_board() ^= position;
-            }
-            break;
-        }
-    }
-
-    // Clear En Passant flag
-    game_state.pawn_ep = -128;
-
-    // Check for Rook or King moves
-    if (piece_index == 15) {
-        game_state.white_king_moved = true;
-    } else if (piece_index == 15 + PIECES_PER_PLAYER) {
-        game_state.black_king_moved = true;
-    } else if (piece_index == 12) {
-        game_state.white_rook_1_moved = true;
-    } else if (piece_index == 12 + PIECES_PER_PLAYER) {
-        game_state.black_rook_1_moved = true;
-    } else if (piece_index == 13) {
-        game_state.white_rook_2_moved = true;
-    } else if (piece_index == 13 + PIECES_PER_PLAYER) {
-        game_state.black_rook_2_moved = true;
-    }
-
-    // Check if King is in check
-    game_state.position.get_white_threaten() = GameUtils::get_capture_positions(game_state, true);
-    game_state.position.get_black_threaten() = GameUtils::get_capture_positions(game_state, false);
-
-    game_state.white_king_in_check = (game_state.position.get_black_threaten() & game_state.position.piece_positions[15]) != 0;
-    game_state.black_king_in_check = (game_state.position.get_white_threaten() & game_state.position.piece_positions[15 + PIECES_PER_PLAYER]) != 0;
-    */
-}
-
 auto GameUtils::is_piece_in_row(BitBoard bit_board, int32_t row) -> bool {
-    const BitBoard row_mask = 0xFFULL << (row * 8);
+    const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
     return (bit_board & row_mask) != 0;
 }
 
 auto GameUtils::is_piece_in_col(BitBoard bit_board, int32_t col) -> bool {
-    const BitBoard col_mask = 0x0101010101010101ULL << col;
+    const BitBoard col_mask = BitBoards::COL_A << col;
     return (bit_board & col_mask) != 0;
 }
 
@@ -288,9 +198,9 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
 
         for (size_t i = 0; i < moves.size(); ++i) {
             Move &move = moves[i];
-            /* TODO(EMU): Wrong, need to convert next_position to move */
+            // TODO(EMU): Wrong, need to convert next_position to move
             if (move.get_destination_bit_board() == next_position) {
-                GameUtils::apply_move(game_state, next_position);
+                game_state.apply_move(move);
                 need_input = false;
                 break;
             }
@@ -373,7 +283,7 @@ auto GameUtils::move_str_to_move(const std::string &move_str) -> Move {
 
     // TODO(EMU): Deal with promotion
     // Check if moves promotes a pawn
-    PieceCode promotion_piece_code = PieceCodes::NONE;
+    PieceCode promotion_piece_code = PieceCodes::NUM;
     if (move_str.size() == 5) {
         switch (move_str[4]) {
             case 'n': {
@@ -400,15 +310,19 @@ auto GameUtils::move_str_to_move(const std::string &move_str) -> Move {
     return Move(source_square, destintion_square);
 }
 
+auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
+    return ffsl(bit_board) - 1;
+}
+
 auto GameUtils::for_each_set_bit(BitBoard bit_board, std::function<void(Square square)> func) -> void {
-    while (int32_t index = ffs(bit_board)) {
+    while (int32_t index = ffsl(bit_board)) {
         func(index);
         bit_board ^= GameUtils::square_to_bit_board(index);
     };
 }
 
 auto GameUtils::for_each_bit_board(BitBoard bit_board, std::function<void(BitBoard bit_board)> func) -> void {
-    while (int32_t index = ffs(bit_board)) {
+    while (int32_t index = ffsl(bit_board)) {
         BitBoard single_bit_board = GameUtils::square_to_bit_board(index);
         func(single_bit_board);
         bit_board ^= single_bit_board;

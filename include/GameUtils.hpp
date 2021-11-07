@@ -22,10 +22,9 @@ auto init_standard(GameState &game_state) -> void;
 // Conversions
 auto square_to_bit_board(const Square square) -> BitBoard;
 auto position_to_board(const Position &position) -> Board;
+auto bit_board_to_square(const BitBoard bit_board) -> Square;
 
 // Checks
-auto is_empty(const Position &position, BitBoard bit_board) -> bool;
-auto is_valid(const GameState &game_state, BitBoard bit_board) -> bool;
 auto is_piece_in_row(BitBoard bit_board, int32_t row) -> bool;
 auto is_piece_in_col(BitBoard bit_board, int32_t col) -> bool;
 auto is_piece_in_top_row(BitBoard bit_board) -> bool;
@@ -39,7 +38,6 @@ auto is_piece_in_right_2_col(BitBoard bit_board) -> bool;
 
 // GameState Modifiers
 auto perform_user_move(GameState &game_state) -> int32_t;
-auto apply_move(GameState &game_state, Move move) -> void;
 auto process_user_move(GameState &game_state, const Move move) -> int32_t;
 
 // Input

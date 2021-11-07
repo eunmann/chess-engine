@@ -27,15 +27,13 @@ const Square A1 = 0, A2 = 1, A3 = 2, A4 = 3, A5 = 4, A6 = 5, A7 = 6, A8 = 7,
 
 typedef int32_t PieceCode;
 namespace PieceCodes {
-const PieceCode NONE = 0,
-                PAWN = 1,
-                KNIGHT = 2,
-                BISHOP = 3,
-                ROOK = 4,
-                QUEEN = 5,
-                KING = 6,
-                ALL = 0,
-                NUM = 7;
+const PieceCode PAWN = 0,
+                KNIGHT = 1,
+                BISHOP = 2,
+                ROOK = 3,
+                QUEEN = 4,
+                KING = 5,
+                NUM = 6;
 
 auto to_char(PieceCode piece_code) -> char;
 }  // namespace PieceCodes
@@ -51,17 +49,6 @@ const PieceValue PAWN = 100,
                  KING = 100000,
                  POS_INFINITY = KING + 1,
                  NEG_INFINITY = -1 * POS_INFINITY;
-};
-
-enum Direction : int32_t {
-    NORTH = 8,
-    SOUTH = -1 * NORTH,
-    EAST = 1,
-    WEST = -1 * EAST,
-    NORTH_EAST = NORTH + EAST,
-    NORTH_WEST = NORTH + WEST,
-    SOUTH_EAST = SOUTH + EAST,
-    SOUTH_WEST = SOUTH + WEST
 };
 
 typedef int32_t Color;

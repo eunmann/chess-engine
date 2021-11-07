@@ -15,8 +15,9 @@ auto get_bishop_moves(const GameState &game_state, Moves &moves, Color color) ->
 auto get_rook_moves(const GameState &game_state, Moves &moves, Color color) -> void;
 auto get_queen_moves(const GameState &game_state, Moves &moves, Color color) -> void;
 auto get_king_moves(const GameState &game_state, Moves &moves, Color color) -> void;
-auto get_moves_in_direction(const GameState &game_state, BitBoard bit_board, int32_t vertical, int32_t horizontal, Moves &moves) -> void;
+auto get_moves_in_direction(const GameState &game_state, BitBoard bit_board, int32_t vertical, int32_t horizontal, Moves &moves, Color color) -> void;
 
+// Pseduo-Legal Moves Templates
 template <const int V, const int H, const Color C>
 constexpr auto get_moves_in_direction(const GameState &game_state, BitBoard bit_board, Moves &moves) -> void {
     for (int i = 0; i < 7; ++i) {
@@ -42,7 +43,7 @@ constexpr auto get_moves_in_direction(const GameState &game_state, BitBoard bit_
 
         bit_board = GameUtils::shift_bit_board<V, H>(bit_board);
 
-        if (GameUtils::is_empty(game_state.position, bit_board)) {
+        if (game_state.position.is_empty(bit_board)) {
             moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
         }
 
@@ -64,18 +65,19 @@ constexpr auto get_moves_in_direction(const GameState &game_state, BitBoard bit_
 }
 
 // Threaten Squares
-auto get_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_pawn_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_knight_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_bishop_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_rook_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_queen_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_king_capture_positions(const GameState &game_state, Color color) -> BitBoard;
-auto get_captures_in_direction(const GameState &game_state, BitBoard bit_board, int32_t vertical, int32_t horizontal) -> BitBoard;
+auto get_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_pawn_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_knight_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_bishop_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_rook_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_queen_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_king_capture_positions(const Position &position, Color color) -> BitBoard;
+auto get_captures_in_direction(const Position &position, BitBoard bit_board, int32_t vertical, int32_t horizontal) -> BitBoard;
 
+// Threaten Squares Templates
 template <const int V, const int H>
-constexpr auto get_captures_in_direction(const GameState &game_state, BitBoard bit_board) -> BitBoard {
-    BitBoard capturable_bit_board = 0;
+constexpr auto get_captures_in_direction(const Position &position, BitBoard bit_board) -> BitBoard {
+    BitBoard capturable_bit_board = BitBoards::EMPTY;
 
     for (int i = 0; i < 8; ++i) {
         if constexpr (V > 0) {
@@ -101,7 +103,7 @@ constexpr auto get_captures_in_direction(const GameState &game_state, BitBoard b
         bit_board = GameUtils::shift_bit_board<V, H>(bit_board);
         capturable_bit_board |= bit_board;
 
-        if (!GameUtils::is_empty(game_state.position, bit_board)) {
+        if (position.is_occupied(bit_board)) {
             break;
         }
     }
