@@ -94,50 +94,50 @@ auto GameUtils::init_standard(GameState &game_state) -> void {
     game_state.pawn_ep = -128;
 }
 
-auto do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) -> bool {
+auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) -> bool {
     return (bit_board_1 & bit_board_2) != 0;
 }
 
 auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row) -> bool {
     const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
-    return (bit_board & row_mask) != 0;
+    return GameUtils::do_bit_boards_overlap(row_mask, bit_board);
 }
 
 auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col) -> bool {
     const BitBoard col_mask = BitBoards::COL_A << col;
-    return (bit_board & col_mask) != 0;
+    return GameUtils::do_bit_boards_overlap(col_mask, bit_board);
 }
 
 auto GameUtils::is_piece_in_top_row(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_row(bit_board, 7);
+    return GameUtils::do_bit_boards_overlap(BitBoards::ROW_8, bit_board);
 }
 
 auto GameUtils::is_piece_in_top_2_row(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_row(bit_board, 7) || GameUtils::is_piece_in_row(bit_board, 6);
+    return GameUtils::do_bit_boards_overlap(BitBoards::ROW_8 | BitBoards::ROW_7, bit_board);
 }
 
 auto GameUtils::is_piece_in_bottom_row(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_row(bit_board, 0);
+    return GameUtils::do_bit_boards_overlap(BitBoards::ROW_1, bit_board);
 }
 
 auto GameUtils::is_piece_in_bottom_2_row(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_row(bit_board, 0) || GameUtils::is_piece_in_row(bit_board, 1);
+    return GameUtils::do_bit_boards_overlap(BitBoards::ROW_1 | BitBoards::ROW_2, bit_board);
 }
 
 auto GameUtils::is_piece_in_left_col(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_col(bit_board, 0);
+    return GameUtils::do_bit_boards_overlap(BitBoards::COL_A, bit_board);
 }
 
 auto GameUtils::is_piece_in_left_2_col(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_col(bit_board, 0) || GameUtils::is_piece_in_col(bit_board, 1);
+    return GameUtils::do_bit_boards_overlap(BitBoards::COL_A | BitBoards::COL_B, bit_board);
 }
 
 auto GameUtils::is_piece_in_right_col(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_col(bit_board, 7);
+    return GameUtils::do_bit_boards_overlap(BitBoards::COL_H, bit_board);
 }
 
 auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) -> bool {
-    return GameUtils::is_piece_in_col(bit_board, 7) || GameUtils::is_piece_in_col(bit_board, 6);
+    return GameUtils::do_bit_boards_overlap(BitBoards::COL_H | BitBoards::COL_G, bit_board);
 }
 
 auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
@@ -250,10 +250,10 @@ auto GameUtils::process_user_move(GameState &game_state, const Move move) -> int
 
     bool input_move_legal = false;
 
-    std::any_of(legal_moves.begin(), legal_moves.end(), [&input_move_legal, move](Move legal_move) {
+    std::any_of(legal_moves.begin(), legal_moves.end(), [&game_state, &input_move_legal, move](Move legal_move) {
         if (move == legal_move) {
             input_move_legal = true;
-            // TODO(EMU): Apply the move here
+            game_state.apply_move(move);
             return false;
         } else {
             return true;

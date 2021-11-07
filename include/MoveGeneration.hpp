@@ -62,15 +62,19 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
 
     GameUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves, pawn_dir](const BitBoard pawn_bit_board) {
         Square source_square = GameUtils::bit_board_to_square(pawn_bit_board);
+        auto add_promotion_moves = [source_square, &moves](const BitBoard destination_bit_board) {
+            for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
+                moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
+            }
+        };
+
         // Up
         BitBoard next_pawn_bit_board = GameUtils::shift_bit_board(pawn_bit_board, 1 * pawn_dir, 0);
         if (game_state.position.is_empty(next_pawn_bit_board)) {
             if constexpr (color == Colors::WHITE) {
                 // Promotion
                 if (GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
-                    for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                        moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
-                    }
+                    add_promotion_moves(next_pawn_bit_board);
                 } else {
                     moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
                 }
@@ -86,9 +90,7 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
             } else if constexpr (color == Colors::BLACK) {
                 // Promotion
                 if (GameUtils::is_piece_in_bottom_row(next_pawn_bit_board)) {
-                    for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                        moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
-                    }
+                    add_promotion_moves(next_pawn_bit_board);
                 } else {
                     moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
                 }
@@ -112,9 +114,7 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
             if (game_state.position.is_black_occupied(pawn_bit_board_left_capture)) {
                 // Promotions
                 if (GameUtils::is_piece_in_top_row(pawn_bit_board_left_capture)) {
-                    for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
-                    }
+                    add_promotion_moves(pawn_bit_board_left_capture);
                 } else {
                     moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
                 }
@@ -123,9 +123,7 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
             if (game_state.position.is_black_occupied(pawn_bit_board_right_capture)) {
                 // Promotions
                 if (GameUtils::is_piece_in_top_row(pawn_bit_board_right_capture)) {
-                    for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
-                    }
+                    add_promotion_moves(pawn_bit_board_right_capture);
                 } else {
                     moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
                 }
@@ -134,9 +132,7 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
             if (game_state.position.is_white_occupied(pawn_bit_board_left_capture)) {
                 // Promotions
                 if (GameUtils::is_piece_in_top_row(pawn_bit_board_left_capture)) {
-                    for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
-                    }
+                    add_promotion_moves(pawn_bit_board_left_capture);
                 } else {
                     moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
                 }
@@ -145,9 +141,7 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
             if (game_state.position.is_white_occupied(pawn_bit_board_right_capture)) {
                 // Promotions
                 if (GameUtils::is_piece_in_top_row(pawn_bit_board_right_capture)) {
-                    for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; ++i) {
-                        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
-                    }
+                    add_promotion_moves(pawn_bit_board_right_capture);
                 } else {
                     moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
                 }
