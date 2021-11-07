@@ -10,7 +10,7 @@ class GameState {
     GameState();
 
     auto apply_move(const Move move) -> void;
-    auto is_move_legal(const Move move) -> bool;
+    auto is_move_legal(const Move move) const -> bool;
 
     Position position;
     // TODO(EMU): Mask this a bit mask instead

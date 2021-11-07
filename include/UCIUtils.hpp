@@ -15,7 +15,4 @@ auto send_copyright_protection() -> void;
 auto send_registration() -> void;
 auto send_info() -> void;
 auto send_option() -> void;
-
-// TODO(EMU): This really shouldn't be here
-auto send_ai_move(GameState& game_state) -> void;
 }  // namespace UCIUtils

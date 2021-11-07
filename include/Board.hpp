@@ -12,7 +12,7 @@ class Board {
 
     auto init_standard() -> void;
     auto clear() -> void;
-    auto print() -> void;
+    auto print() const -> void;
 
     std::array<int32_t, BOARD_DIM * BOARD_DIM> positions;
 };

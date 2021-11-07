@@ -39,7 +39,7 @@ auto Board::clear() -> void {
     std::fill(this->positions.begin(), this->positions.end(), 0);
 }
 
-auto Board::print() -> void {
+auto Board::print() const -> void {
     std::string out;
     out.reserve(256);
 

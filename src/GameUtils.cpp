@@ -14,19 +14,20 @@ auto GameUtils::square_to_bit_board(const Square square) -> BitBoard {
     return 0b1 << (square - 1);
 }
 
-auto GameUtils::print_position(BitBoard bit_board) -> void {
+auto GameUtils::print_position(const BitBoard bit_board) -> void {
     const BitBoard left_bit = 1ULL << 63;
+    BitBoard temp_bit_board = bit_board;
     std::string output;
     output.reserve(64);
 
     for (int32_t j = 0; j < 8; ++j) {
         for (int32_t i = 0; i < 8; ++i) {
-            if (left_bit & bit_board) {
+            if (left_bit & temp_bit_board) {
                 output += '1';
             } else {
                 output += '0';
             }
-            bit_board <<= 1;
+            temp_bit_board <<= 1;
         }
         output += '\n';
     }
@@ -34,7 +35,7 @@ auto GameUtils::print_position(BitBoard bit_board) -> void {
     printf("%s", output.c_str());
 }
 
-auto GameUtils::shift_bit_board(BitBoard bit_board, int32_t vertical, int32_t horizontal) -> BitBoard {
+auto GameUtils::shift_bit_board(const BitBoard bit_board, const int32_t vertical, const int32_t horizontal) -> BitBoard {
     assert(vertical > -8 && vertical < 8);
     assert(horizontal > -8 && horizontal < 8);
 
@@ -46,7 +47,7 @@ auto GameUtils::shift_bit_board(BitBoard bit_board, int32_t vertical, int32_t ho
     }
 }
 
-auto GameUtils::get_row_col(BitBoard bit_board, int32_t &row, int32_t &col) -> void {
+auto GameUtils::get_row_col(const BitBoard bit_board, int32_t &row, int32_t &col) -> void {
     BitBoard row_mask = BitBoards::ROW_1;
     BitBoard col_mask = BitBoards::COL_A;
 
@@ -65,7 +66,7 @@ auto GameUtils::get_row_col(BitBoard bit_board, int32_t &row, int32_t &col) -> v
     }
 }
 
-auto GameUtils::get_tile_name(BitBoard bit_board) -> std::string {
+auto GameUtils::get_tile_name(const BitBoard bit_board) -> std::string {
     int32_t row, col;
     GameUtils::get_row_col(bit_board, row, col);
 
@@ -93,45 +94,49 @@ auto GameUtils::init_standard(GameState &game_state) -> void {
     game_state.pawn_ep = -128;
 }
 
-auto GameUtils::is_piece_in_row(BitBoard bit_board, int32_t row) -> bool {
+auto do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) -> bool {
+    return (bit_board_1 & bit_board_2) != 0;
+}
+
+auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row) -> bool {
     const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
     return (bit_board & row_mask) != 0;
 }
 
-auto GameUtils::is_piece_in_col(BitBoard bit_board, int32_t col) -> bool {
+auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col) -> bool {
     const BitBoard col_mask = BitBoards::COL_A << col;
     return (bit_board & col_mask) != 0;
 }
 
-auto GameUtils::is_piece_in_top_row(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_top_row(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_row(bit_board, 7);
 }
 
-auto GameUtils::is_piece_in_top_2_row(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_top_2_row(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_row(bit_board, 7) || GameUtils::is_piece_in_row(bit_board, 6);
 }
 
-auto GameUtils::is_piece_in_bottom_row(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_bottom_row(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_row(bit_board, 0);
 }
 
-auto GameUtils::is_piece_in_bottom_2_row(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_bottom_2_row(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_row(bit_board, 0) || GameUtils::is_piece_in_row(bit_board, 1);
 }
 
-auto GameUtils::is_piece_in_left_col(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_left_col(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_col(bit_board, 0);
 }
 
-auto GameUtils::is_piece_in_left_2_col(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_left_2_col(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_col(bit_board, 0) || GameUtils::is_piece_in_col(bit_board, 1);
 }
 
-auto GameUtils::is_piece_in_right_col(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_right_col(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_col(bit_board, 7);
 }
 
-auto GameUtils::is_piece_in_right_2_col(BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) -> bool {
     return GameUtils::is_piece_in_col(bit_board, 7) || GameUtils::is_piece_in_col(bit_board, 6);
 }
 
@@ -226,7 +231,12 @@ auto GameUtils::process_user_move(GameState &game_state, const Move move) -> int
     int32_t rv = 1;
 
     Moves legal_moves;
-    MoveGeneration::get_moves(game_state, legal_moves, Colors::bool_to_color(game_state.white_to_move));
+    Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
+    if (color_to_move == Colors::WHITE) {
+        MoveGeneration::get_moves<Colors::WHITE>(game_state, legal_moves);
+    } else {
+        MoveGeneration::get_moves<Colors::BLACK>(game_state, legal_moves);
+    }
 
     // TODO(EMU): No moves, should return value to indicate?
     if (legal_moves.size() == 0) {
@@ -314,17 +324,19 @@ auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
     return ffsl(bit_board) - 1;
 }
 
-auto GameUtils::for_each_set_bit(BitBoard bit_board, std::function<void(Square square)> func) -> void {
-    while (int32_t index = ffsl(bit_board)) {
+auto GameUtils::for_each_set_bit(const BitBoard bit_board, const std::function<void(Square square)> &func) -> void {
+    BitBoard temp_bit_board = bit_board;
+    while (int32_t index = ffsl(temp_bit_board)) {
         func(index);
-        bit_board ^= GameUtils::square_to_bit_board(index);
+        temp_bit_board ^= GameUtils::square_to_bit_board(index);
     };
 }
 
-auto GameUtils::for_each_bit_board(BitBoard bit_board, std::function<void(BitBoard bit_board)> func) -> void {
-    while (int32_t index = ffsl(bit_board)) {
+auto GameUtils::for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)> &func) -> void {
+    BitBoard temp_bit_board = bit_board;
+    while (int32_t index = ffsl(temp_bit_board)) {
         BitBoard single_bit_board = GameUtils::square_to_bit_board(index);
         func(single_bit_board);
-        bit_board ^= single_bit_board;
+        temp_bit_board ^= single_bit_board;
     };
 }

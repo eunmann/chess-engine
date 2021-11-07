@@ -2,7 +2,7 @@
 
 #include "GameUtils.hpp"
 
-auto MoveGeneration::get_moves_in_direction(const GameState &game_state, BitBoard bit_board, int32_t vertical, int32_t horizontal, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_moves_in_direction(const GameState &game_state, BitBoard bit_board, const int32_t vertical, const int32_t horizontal, Moves &moves, const Color color) -> void {
     Square source_square = GameUtils::bit_board_to_square(bit_board);
 
     for (int i = 0; i < 7; ++i) {
@@ -28,7 +28,7 @@ auto MoveGeneration::get_moves_in_direction(const GameState &game_state, BitBoar
     }
 }
 
-auto MoveGeneration::get_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     // Add moves in order of piece value
     MoveGeneration::get_king_moves(game_state, moves, color);
     MoveGeneration::get_queen_moves(game_state, moves, color);
@@ -38,7 +38,7 @@ auto MoveGeneration::get_moves(const GameState &game_state, Moves &moves, Color 
     MoveGeneration::get_pawn_moves(game_state, moves, color);
 }
 
-auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     const int64_t pawn_dir = game_state.white_to_move ? 1 : -1;
     const BitBoard pawns_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::PAWN, color);
 
@@ -113,7 +113,7 @@ auto MoveGeneration::get_pawn_moves(const GameState &game_state, Moves &moves, C
     });
 }
 
-auto MoveGeneration::get_knight_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_knight_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::KNIGHT, color);
 
     GameUtils::for_each_bit_board(knights_bit_board, [&game_state, &moves](const BitBoard knight_bit_board) {
@@ -123,6 +123,7 @@ auto MoveGeneration::get_knight_moves(const GameState &game_state, Moves &moves,
             BitBoard next_knight_bit_board = GameUtils::shift_bit_board<2, -1>(knight_bit_board);
             moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_knight_bit_board)));
         }
+
         if (!(GameUtils::is_piece_in_top_row(knight_bit_board) || GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
             BitBoard next_knight_bit_board = GameUtils::shift_bit_board<1, -2>(knight_bit_board);
             moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_knight_bit_board)));
@@ -160,7 +161,7 @@ auto MoveGeneration::get_knight_moves(const GameState &game_state, Moves &moves,
     });
 }
 
-auto MoveGeneration::get_bishop_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_bishop_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     BitBoard bishops_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
 
     GameUtils::for_each_bit_board(bishops_bit_board, [&game_state, &moves, color](const BitBoard bishop_bit_board) {
@@ -171,7 +172,7 @@ auto MoveGeneration::get_bishop_moves(const GameState &game_state, Moves &moves,
     });
 }
 
-auto MoveGeneration::get_rook_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_rook_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     BitBoard rooks_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::ROOK, color);
 
     GameUtils::for_each_bit_board(rooks_bit_board, [&game_state, &moves, color](const BitBoard rook_bit_board) {
@@ -182,7 +183,7 @@ auto MoveGeneration::get_rook_moves(const GameState &game_state, Moves &moves, C
     });
 }
 
-auto MoveGeneration::get_queen_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_queen_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     BitBoard queens_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::QUEEN, color);
     GameUtils::for_each_bit_board(queens_bit_board, [&game_state, &moves, color](BitBoard queen_bit_board) {
         // Diagonal
@@ -199,7 +200,7 @@ auto MoveGeneration::get_queen_moves(const GameState &game_state, Moves &moves, 
     });
 }
 
-auto MoveGeneration::get_king_moves(const GameState &game_state, Moves &moves, Color color) -> void {
+auto MoveGeneration::get_king_moves(const GameState &game_state, Moves &moves, const Color color) -> void {
     BitBoard kings_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::KING, color);
 
     GameUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves, color](BitBoard king_bit_board) {
@@ -288,7 +289,7 @@ auto MoveGeneration::get_king_moves(const GameState &game_state, Moves &moves, C
     });
 }
 
-auto MoveGeneration::get_captures_in_direction(const Position &position, BitBoard bit_board, int32_t vertical, int32_t horizontal) -> BitBoard {
+auto MoveGeneration::get_captures_in_direction(const Position &position, BitBoard bit_board, const int32_t vertical, const int32_t horizontal) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
 
     for (int i = 0; i < 8; ++i) {
@@ -310,7 +311,7 @@ auto MoveGeneration::get_captures_in_direction(const Position &position, BitBoar
     return capturable_bit_board;
 }
 
-auto MoveGeneration::get_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_capture_positions(const Position &position, const Color color) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     capturable_bit_board |= MoveGeneration::get_pawn_capture_positions(position, color);
     capturable_bit_board |= MoveGeneration::get_knight_capture_positions(position, color);
@@ -321,7 +322,7 @@ auto MoveGeneration::get_capture_positions(const Position &position, Color color
     return capturable_bit_board;
 }
 
-auto MoveGeneration::get_pawn_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_pawn_capture_positions(const Position &position, const Color color) -> BitBoard {
     const int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard pawns_bit_board = position.get_piece_color_bit_board(PieceCodes::PAWN, color);
@@ -334,7 +335,7 @@ auto MoveGeneration::get_pawn_capture_positions(const Position &position, Color 
     return capturable_bit_board;
 }
 
-auto MoveGeneration::get_knight_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_knight_capture_positions(const Position &position, const Color color) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard knights_bit_board = position.get_piece_color_bit_board(PieceCodes::KNIGHT, color);
     GameUtils::for_each_bit_board(knights_bit_board, [&capturable_bit_board](BitBoard knight_bit_board) {
@@ -383,7 +384,7 @@ auto MoveGeneration::get_knight_capture_positions(const Position &position, Colo
     return capturable_bit_board;
 }
 
-auto MoveGeneration::get_bishop_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_bishop_capture_positions(const Position &position, const Color color) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
     GameUtils::for_each_bit_board(bishops_bit_board, [&capturable_bit_board, &position](BitBoard bishop_bit_board) {
@@ -395,7 +396,7 @@ auto MoveGeneration::get_bishop_capture_positions(const Position &position, Colo
     return capturable_bit_board;
 }
 
-auto MoveGeneration::get_rook_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_rook_capture_positions(const Position &position, const Color color) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard rooks_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
     GameUtils::for_each_bit_board(rooks_bit_board, [&capturable_bit_board, &position](BitBoard rook_bit_board) {
@@ -406,7 +407,7 @@ auto MoveGeneration::get_rook_capture_positions(const Position &position, Color 
     });
     return capturable_bit_board;
 }
-auto MoveGeneration::get_queen_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_queen_capture_positions(const Position &position, const Color color) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard queens_bit_board = position.get_piece_color_bit_board(PieceCodes::QUEEN, color);
     GameUtils::for_each_bit_board(queens_bit_board, [&capturable_bit_board, &position](BitBoard queen_bit_board) {
@@ -424,7 +425,7 @@ auto MoveGeneration::get_queen_capture_positions(const Position &position, Color
     });
     return capturable_bit_board;
 }
-auto MoveGeneration::get_king_capture_positions(const Position &position, Color color) -> BitBoard {
+auto MoveGeneration::get_king_capture_positions(const Position &position, const Color color) -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard kings_bit_board = position.get_piece_color_bit_board(PieceCodes::KING, color);
 

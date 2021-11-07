@@ -16,7 +16,7 @@ class Move {
     auto get_source_bit_board() const -> BitBoard;
     auto get_destination_bit_board() const -> BitBoard;
 
-    bool operator==(const Move& move) {
+    auto operator==(const Move& move) const -> bool {
         return this->m_move == move.m_move;
     }
 
@@ -33,7 +33,7 @@ class Moves {
 
     auto push_back(const Move move) -> void;
     auto size() -> std::size_t;
-    auto operator[](std::size_t index) -> Move&;
+    auto operator[](const std::size_t index) -> Move&;
     auto begin() -> Move*;
     auto end() -> Move*;
 

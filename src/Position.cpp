@@ -44,9 +44,7 @@ auto Position::init() -> void {
     this->color_positions[Colors::WHITE] = BitBoards::ROW_1 | BitBoards::ROW_2;
     this->color_positions[Colors::BLACK] = BitBoards::ROW_7 | BitBoards::ROW_8;
 
-    // TODO(EMU): When done refactoring, fix this
-    //game_state.position.get_white_threaten() = GameUtils::get_capture_positions(game_state, true);
-    //game_state.position.get_black_threaten() = GameUtils::get_capture_positions(game_state, false);
+    this->recompute();
 }
 
 auto Position::clear() -> void {
@@ -60,15 +58,15 @@ auto Position::clear() -> void {
     }
 }
 
-auto Position::get_piece_bit_board(PieceCode piece_code) const -> BitBoard {
+auto Position::get_piece_bit_board(const PieceCode piece_code) const -> BitBoard {
     return this->piece_positions[piece_code];
 }
 
-auto Position::get_color_bit_board(Color color) const -> BitBoard {
+auto Position::get_color_bit_board(const Color color) const -> BitBoard {
     return this->color_positions[color];
 }
 
-auto Position::get_piece_color_bit_board(PieceCode piece_code, Color color) const -> BitBoard {
+auto Position::get_piece_color_bit_board(const PieceCode piece_code, const Color color) const -> BitBoard {
     return this->get_piece_bit_board(piece_code) & this->get_color_bit_board(color);
 }
 
@@ -131,8 +129,8 @@ auto Position::add(const PieceCode piece_code, const Color color, const BitBoard
 }
 
 auto Position::recompute() -> void {
-    this->threaten_positions[Colors::WHITE] = MoveGeneration::get_capture_positions(*this, Colors::WHITE);
-    this->threaten_positions[Colors::BLACK] = MoveGeneration::get_capture_positions(*this, Colors::BLACK);
+    this->threaten_positions[Colors::WHITE] = MoveGeneration::get_capture_positions<Colors::WHITE>(*this);
+    this->threaten_positions[Colors::BLACK] = MoveGeneration::get_capture_positions<Colors::BLACK>(*this);
 }
 
 auto Position::is_empty(const BitBoard bit_board) const -> bool {
@@ -141,4 +139,12 @@ auto Position::is_empty(const BitBoard bit_board) const -> bool {
 
 auto Position::is_occupied(const BitBoard bit_board) const -> bool {
     return (this->get_occupied_bit_board() & bit_board) != 0;
+}
+
+auto Position::is_white_occupied(const BitBoard bit_board) const -> bool {
+    return (this->get_white_bit_board() & bit_board) != 0;
+}
+
+auto Position::is_black_occupied(const BitBoard bit_board) const -> bool {
+    return (this->get_black_bit_board() & bit_board) != 0;
 }

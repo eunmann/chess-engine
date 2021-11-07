@@ -13,9 +13,9 @@ class Position {
     void init();
     void clear();
 
-    auto get_piece_bit_board(PieceCode piece_code) const -> BitBoard;
-    auto get_color_bit_board(Color color) const -> BitBoard;
-    auto get_piece_color_bit_board(PieceCode piece_code, Color color) const -> BitBoard;
+    auto get_piece_bit_board(const PieceCode piece_code) const -> BitBoard;
+    auto get_color_bit_board(const Color color) const -> BitBoard;
+    auto get_piece_color_bit_board(const PieceCode piece_code, const Color color) const -> BitBoard;
 
     auto get_color(const BitBoard bit_board) const -> Color;
     auto get_piece_type(const BitBoard bit_board) const -> PieceCode;
@@ -36,6 +36,9 @@ class Position {
 
     auto is_empty(const BitBoard bit_board) const -> bool;
     auto is_occupied(const BitBoard bit_board) const -> bool;
+
+    auto is_white_occupied(const BitBoard bit_board) const -> bool;
+    auto is_black_occupied(const BitBoard bit_board) const -> bool;
 
    private:
     std::array<BitBoard, PieceCodes::NUM> piece_positions;

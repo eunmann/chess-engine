@@ -26,7 +26,7 @@ auto GameState::apply_move(const Move move) -> void {
     // TODO(EMU): Update GameState flags
 }
 
-auto GameState::is_move_legal(const Move move) -> bool {
+auto GameState::is_move_legal(const Move move) const -> bool {
     BitBoard source_bit_board = move.get_source_bit_board();
     BitBoard destination_bit_board = move.get_destination_bit_board();
     Color color = this->position.get_color(source_bit_board);
