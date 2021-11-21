@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <algorithm>
 #include <iostream>
+#include <numeric>
 
 #include "Board.hpp"
 #include "Definitions.hpp"
@@ -11,7 +13,20 @@
 #include "UCIUtils.hpp"
 
 auto print_bit_board(const Position &position) -> void {
-    GameUtils::position_to_board(position).print();
+    position.to_board().print();
+}
+
+constexpr auto init_pseduo_moves() -> void {
+    std::iota(BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
+              BitBoards::PSEDUO_MOVES_KNIGHT.end(),
+              1);
+
+    std::transform(BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
+                   BitBoards::PSEDUO_MOVES_KNIGHT.end(),
+                   BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
+                   [](auto el) {
+                       return 0;
+                   });
 }
 
 int main() {
@@ -20,7 +35,9 @@ int main() {
     setbuf(stdin, NULL);
 
     // Prints out the board after each move, for debugging
-    auto console = false;
+    auto console = true;
+
+    init_pseduo_moves();
 
     GameState game_state;
 

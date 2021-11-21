@@ -12,7 +12,7 @@ Board::Board() {
 };
 
 auto Board::init_standard() -> void {
-    const std::array<PieceCode, 8> init_rank{
+    constexpr std::array<PieceCode, 8> init_rank{
         PieceCodes::ROOK,
         PieceCodes::KNIGHT,
         PieceCodes::BISHOP,

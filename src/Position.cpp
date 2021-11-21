@@ -44,7 +44,7 @@ auto Position::init() -> void {
     this->color_positions[Colors::WHITE] = BitBoards::ROW_1 | BitBoards::ROW_2;
     this->color_positions[Colors::BLACK] = BitBoards::ROW_7 | BitBoards::ROW_8;
 
-    this->recompute();
+    this->recompute_threaten();
 }
 
 auto Position::clear() -> void {
@@ -115,6 +115,8 @@ auto Position::get_piece_type(const BitBoard bit_board) const -> PieceCode {
 
 auto Position::clear(const BitBoard bit_board) -> void {
     const BitBoard negated_bit_board = !bit_board;
+
+    // Loop through all Piece BitBoards because it might be a capture
     for (PieceCode pc = 0; pc < PieceCodes::NUM; pc++) {
         this->piece_positions[pc] &= negated_bit_board;
     }
@@ -128,7 +130,7 @@ auto Position::add(const PieceCode piece_code, const Color color, const BitBoard
     this->color_positions[color] |= bit_board;
 }
 
-auto Position::recompute() -> void {
+auto Position::recompute_threaten() -> void {
     this->threaten_positions[Colors::WHITE] = MoveGeneration::get_capture_positions<Colors::WHITE>(*this);
     this->threaten_positions[Colors::BLACK] = MoveGeneration::get_capture_positions<Colors::BLACK>(*this);
 }
@@ -147,4 +149,34 @@ auto Position::is_white_occupied(const BitBoard bit_board) const -> bool {
 
 auto Position::is_black_occupied(const BitBoard bit_board) const -> bool {
     return (this->get_black_bit_board() & bit_board) != 0;
+}
+
+auto Position::is_white_threaten(const BitBoard bit_board) const -> bool {
+    return (this->get_white_threaten() & bit_board) != 0;
+}
+
+auto Position::is_black_threaten(const BitBoard bit_board) const -> bool {
+    return (this->get_black_threaten() & bit_board) != 0;
+}
+
+auto Position::to_board() const -> Board {
+    Board board;
+
+    for (int i = 0; i < PieceCodes::NUM; i++) {
+        const PieceCode piece_code = PieceCodes::ALL[i];
+        const int32_t board_value = BoardValues::ALL[i];
+
+        const BitBoard piece_bit_board = this->get_piece_bit_board(piece_code);
+
+        GameUtils::for_each_bit_board(piece_bit_board, [this, board_value, &board](auto bit_board) {
+            const Square square = GameUtils::bit_board_to_square(bit_board);
+            if (this->is_white_occupied(bit_board)) {
+                board.positions[square] = board_value;
+            } else {
+                board.positions[square] = -1 * board_value;
+            }
+        });
+    }
+
+    return board;
 }

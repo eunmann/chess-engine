@@ -1,6 +1,6 @@
 #include "Definitions.hpp"
 
-auto PieceCodes::to_char(int32_t piece_code) -> char {
+auto PieceCodes::to_char(PieceCode piece_code) -> char {
     switch (piece_code) {
         case PieceCodes::PAWN: {
             return ' ';

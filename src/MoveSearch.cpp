@@ -1,5 +1,8 @@
 #include "MoveSearch.hpp"
 
+#include <algorithm>
+
+#include "GameUtils.hpp"
 #include "MoveGeneration.hpp"
 
 auto MoveSearch::get_best_move(const GameState &game_state) -> Move {
@@ -14,22 +17,22 @@ auto MoveSearch::get_best_move(const GameState &game_state) -> Move {
     int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
     Move best_move;
 
-    for (size_t i = 0; i < moves.size(); ++i) {
-        Move &move = moves[i];
-
-        int32_t heuristic = 0;
+    for (auto &move : moves) {
         if (color_to_move == Colors::WHITE) {
-            heuristic = MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(game_state, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
+            int32_t heuristic = MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(game_state, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
+            if (best_heuristic < heuristic) {
+                best_heuristic = heuristic;
+                best_move = move;
+            }
         } else {
-            heuristic = MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(game_state, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
-        }
-
-        if ((game_state.white_to_move && best_heuristic < heuristic) ||
-            (!game_state.white_to_move && best_heuristic > heuristic)) {
-            best_heuristic = heuristic;
-            best_move = move;
+            int32_t heuristic = MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(game_state, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
+            if (best_heuristic > heuristic) {
+                best_heuristic = heuristic;
+                best_move = move;
+            }
         }
     }
+
     return best_move;
 }
 
@@ -37,68 +40,17 @@ auto MoveSearch::get_position_heuristic(const GameState &game_state) -> int32_t 
     // TODO(EMU): This function can be optimized
     int32_t heuristic = 0;
 
-    // Sum piece values
-    for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
-        switch (game_state.position.get_piece_bit_board(i)) {
-            case PieceCodes::PAWN: {
-                heuristic += PieceValues::PAWN;
-                break;
-            }
-            case PieceCodes::KNIGHT: {
-                heuristic += PieceValues::KNIGHT;
-                break;
-            }
-            case PieceCodes::BISHOP: {
-                heuristic += PieceValues::BISHOP;
-                break;
-            }
-            case PieceCodes::ROOK: {
-                heuristic += PieceValues::ROOK;
-                break;
-            }
-            case PieceCodes::QUEEN: {
-                heuristic += PieceValues::QUEEN;
-                break;
-            }
-            case PieceCodes::KING: {
-                heuristic += PieceValues::KING;
-                break;
-            }
-            default: {
-            }
-        }
-    }
+    std::array<PieceCode, 6> piece_codes = {PieceCodes::PAWN, PieceCodes::KNIGHT, PieceCodes::BISHOP, PieceCodes::ROOK, PieceCodes::QUEEN, PieceCodes::KING};
+    std::array<PieceCode, 6> piece_values = {PieceValues::PAWN, PieceValues::KNIGHT, PieceValues::BISHOP, PieceValues::ROOK, PieceValues::QUEEN, PieceValues::KING};
 
-    for (uint64_t i = PIECES_PER_PLAYER; i < (PIECES_PER_PLAYER * 2); ++i) {
-        switch (game_state.position.get_piece_bit_board(i)) {
-            case PieceCodes::PAWN: {
-                heuristic -= PieceValues::PAWN;
-                break;
+    for (auto &piece_code : piece_codes) {
+        GameUtils::for_each_bit_board(game_state.position.get_piece_bit_board(piece_code), [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
+            if (game_state.position.is_white_occupied(bit_board)) {
+                heuristic += piece_values[piece_code];
+            } else {
+                heuristic -= piece_values[piece_code];
             }
-            case PieceCodes::KNIGHT: {
-                heuristic -= PieceValues::KNIGHT;
-                break;
-            }
-            case PieceCodes::BISHOP: {
-                heuristic -= PieceValues::BISHOP;
-                break;
-            }
-            case PieceCodes::ROOK: {
-                heuristic -= PieceValues::ROOK;
-                break;
-            }
-            case PieceCodes::QUEEN: {
-                heuristic -= PieceValues::QUEEN;
-                break;
-            }
-            case PieceCodes::KING: {
-                heuristic -= PieceValues::KING;
-                break;
-            }
-            case PieceCodes::NUM:
-            default: {
-            }
-        }
+        });
     }
 
     // Put the King in check
@@ -111,11 +63,11 @@ auto MoveSearch::get_position_heuristic(const GameState &game_state) -> int32_t 
     }
 
     // Bad check for Castling
-    if (game_state.black_king_moved && !(game_state.black_rook_1_moved || game_state.black_rook_2_moved)) {
+    if (game_state.black_king_moved && !(game_state.black_rook_A_moved || game_state.black_rook_H_moved)) {
         heuristic += PieceValues::PAWN / 2;
     }
 
-    if (game_state.white_king_moved && !(game_state.white_rook_1_moved || game_state.white_rook_2_moved)) {
+    if (game_state.white_king_moved && !(game_state.white_rook_A_moved || game_state.white_rook_H_moved)) {
         heuristic -= PieceValues::PAWN / 2;
     }
 

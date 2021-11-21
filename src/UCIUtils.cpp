@@ -40,9 +40,7 @@ auto UCIUtils::process_input_command(GameState& game_state, const std::string& c
         } }},
         {"go", [&game_state]() {
              Move best_move = MoveSearch::get_best_move(game_state);
-             // TODO(EMU): Convert the move to a string
-             std::string src_tile;
-             UCIUtils::send_best_move(src_tile);
+             UCIUtils::send_best_move(best_move.to_string());
          }},
         {"stop", []() {}},
         {"ponderhit", []() {}},

@@ -15,13 +15,14 @@ auto print_position(const BitBoard bit_board) -> void;
 
 auto shift_bit_board(const BitBoard bit_board, const int32_t vertical, const int32_t horizontal) -> BitBoard;
 
+auto get_row(const BitBoard bit_board) -> int32_t;
+auto get_col(const BitBoard bit_board) -> int32_t;
 auto get_row_col(const BitBoard bit_board, int32_t &row, int32_t &col) -> void;
 auto get_tile_name(const BitBoard bit_board) -> std::string;
 auto init_standard(GameState &game_state) -> void;
 
 // Conversions
 auto square_to_bit_board(const Square square) -> BitBoard;
-auto position_to_board(const Position &position) -> Board;
 auto bit_board_to_square(const BitBoard bit_board) -> Square;
 
 // Checks

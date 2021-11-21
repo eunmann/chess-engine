@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 #include <stdio.h>
 
+#include <bit>
 #include <iostream>
 #include <string>
 
@@ -47,6 +48,32 @@ auto GameUtils::shift_bit_board(const BitBoard bit_board, const int32_t vertical
     }
 }
 
+auto GameUtils::get_row(const BitBoard bit_board) -> int32_t {
+    BitBoard row_mask = BitBoards::ROW_1;
+
+    for (int i = 0; i < 8; ++i) {
+        if ((bit_board & row_mask) != 0) {
+            return i;
+        }
+        row_mask = row_mask << 8;
+    }
+
+    return -1;
+}
+
+auto GameUtils::get_col(const BitBoard bit_board) -> int32_t {
+    BitBoard col_mask = BitBoards::COL_A;
+
+    for (int i = 0; i < 8; ++i) {
+        if ((bit_board & col_mask) != 0) {
+            return i;
+        }
+        col_mask = col_mask << 1;
+    }
+
+    return -1;
+}
+
 auto GameUtils::get_row_col(const BitBoard bit_board, int32_t &row, int32_t &col) -> void {
     BitBoard row_mask = BitBoards::ROW_1;
     BitBoard col_mask = BitBoards::COL_A;
@@ -84,11 +111,11 @@ auto GameUtils::init_standard(GameState &game_state) -> void {
 
     game_state.white_to_move = true;
     game_state.white_king_moved = false;
-    game_state.white_rook_1_moved = false;
-    game_state.white_rook_2_moved = false;
+    game_state.white_rook_A_moved = false;
+    game_state.white_rook_H_moved = false;
     game_state.black_king_moved = false;
-    game_state.black_rook_1_moved = false;
-    game_state.black_rook_2_moved = false;
+    game_state.black_rook_A_moved = false;
+    game_state.black_rook_H_moved = false;
     game_state.black_king_in_check = false;
 
     game_state.pawn_ep = -128;
@@ -206,12 +233,14 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
             MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
         }
 
-        for (size_t i = 0; i < moves.size(); ++i) {
-            Move &move = moves[i];
-            // TODO(EMU): Wrong, need to convert next_position to move
+        for (auto &move : moves) {
             if (move.get_destination_bit_board() == next_position) {
-                game_state.apply_move(move);
-                need_input = false;
+                GameState check = game_state;
+                check.apply_move(move);
+                if (check.is_legal) {
+                    game_state = check;
+                    need_input = false;
+                }
                 break;
             }
         }
@@ -290,16 +319,18 @@ auto GameUtils::square_name_to_square(const std::string &square_name) -> Square 
 auto GameUtils::move_str_to_move(const std::string &move_str) -> Move {
     // Check string length, min 4 characters required for a move
     if (move_str.size() < 4) {
+        // TODO(EMU): This might cause problems. It might think this is a valid move
         return Move();
     }
 
     auto source_square = GameUtils::square_name_to_square(move_str);
     auto destintion_square = GameUtils::square_name_to_square(move_str.substr(2, 2));
 
-    // TODO(EMU): Deal with promotion
+    Move move(source_square, destintion_square);
+
     // Check if moves promotes a pawn
-    PieceCode promotion_piece_code = PieceCodes::NUM;
     if (move_str.size() == 5) {
+        PieceCode promotion_piece_code = PieceCodes::NUM;
         switch (move_str[4]) {
             case 'n': {
                 promotion_piece_code = PieceCodes::KNIGHT;
@@ -320,9 +351,10 @@ auto GameUtils::move_str_to_move(const std::string &move_str) -> Move {
             default: {
             }
         }
+        move.set_promotion(promotion_piece_code);
     }
 
-    return Move(source_square, destintion_square);
+    return move;
 }
 
 auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {

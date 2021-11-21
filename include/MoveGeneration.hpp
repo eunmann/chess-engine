@@ -3,6 +3,7 @@
 #include "GameState.hpp"
 #include "GameUtils.hpp"
 #include "Move.hpp"
+#include "Moves.hpp"
 #include "assert.h"
 
 namespace MoveGeneration {
@@ -63,13 +64,16 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
     GameUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves, pawn_dir](const BitBoard pawn_bit_board) {
         Square source_square = GameUtils::bit_board_to_square(pawn_bit_board);
         auto add_promotion_moves = [source_square, &moves](const BitBoard destination_bit_board) {
+            Square destination_square = GameUtils::bit_board_to_square(destination_bit_board);
             for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
-                moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
+                Move move(source_square, destination_square);
+                move.set_promotion(i);
+                moves.push_back(move);
             }
         };
 
         // Up
-        BitBoard next_pawn_bit_board = GameUtils::shift_bit_board(pawn_bit_board, 1 * pawn_dir, 0);
+        BitBoard next_pawn_bit_board = GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
         if (game_state.position.is_empty(next_pawn_bit_board)) {
             if constexpr (color == Colors::WHITE) {
                 // Promotion
@@ -81,10 +85,11 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
 
                 // First Move Up 2
                 if (GameUtils::is_piece_in_row(pawn_bit_board, 1)) {
-                    next_pawn_bit_board = GameUtils::shift_bit_board(pawn_bit_board, 2 * pawn_dir, 0);
+                    next_pawn_bit_board = GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
                     if (game_state.position.is_empty(next_pawn_bit_board)) {
-                        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
-                        // TODO(EMU): Set enpassant-able flag
+                        Move move(source_square, next_pawn_bit_board);
+                        move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
+                        moves.push_back(move);
                     }
                 }
             } else if constexpr (color == Colors::BLACK) {
@@ -97,18 +102,19 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
 
                 // First Move Up 2
                 if (GameUtils::is_piece_in_row(pawn_bit_board, 6)) {
-                    next_pawn_bit_board = GameUtils::shift_bit_board(pawn_bit_board, 2 * pawn_dir, 0);
+                    next_pawn_bit_board = GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
                     if (game_state.position.is_empty(next_pawn_bit_board)) {
-                        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
-                        // TODO(EMU): Set enpassant-able flag
+                        Move move(source_square, next_pawn_bit_board);
+                        move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
+                        moves.push_back(move);
                     }
                 }
             }
         }
 
         // Capture Left and Right
-        BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) ? 0 : GameUtils::shift_bit_board(pawn_bit_board, 1 * pawn_dir, -1);
-        BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) ? 0 : GameUtils::shift_bit_board(pawn_bit_board, 1 * pawn_dir, 1);
+        BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) ? 0 : GameUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
+        BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) ? 0 : GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
 
         if constexpr (color == Colors::WHITE) {
             if (game_state.position.is_black_occupied(pawn_bit_board_left_capture)) {
@@ -148,7 +154,19 @@ constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void
             }
         }
 
-        // TODO(EMU): En Passant
+        // En Passant
+        int32_t en_pawn_col = game_state.pawn_ep;
+        int32_t pawn_col = GameUtils::get_col(pawn_bit_board);
+        BitBoard source_bit_board = GameUtils::square_to_bit_board(source_square);
+        constexpr int32_t source_row = color == Colors::WHITE ? 5 : 4;
+
+        if (GameUtils::is_piece_in_row(source_bit_board, source_row)) {
+            if ((en_pawn_col - 1) == pawn_col) {
+                moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
+            } else if ((en_pawn_col + 1) == pawn_col) {
+                moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
+            }
+        }
     });
 }
 
@@ -302,36 +320,42 @@ constexpr auto get_king_moves(const GameState &game_state, Moves &moves) -> void
             // Castling
             if (!game_state.white_king_moved && !game_state.white_king_in_check) {
                 // Queen Side
-                if (!game_state.white_rook_1_moved) {
-                    BitBoard next_king_bit_board = GameUtils::shift_bit_board<0, -2>(king_bit_board);
-                    BitBoard next_rook_position = GameUtils::shift_bit_board<0, 1>(next_king_bit_board);
-                    BitBoard empty_position = GameUtils::shift_bit_board<0, -1>(next_king_bit_board);
-                    //moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
+                if (!game_state.white_rook_A_moved &&
+                    game_state.position.is_empty(BitBoards::WHITE_QUEEN_CASTLE) &&
+                    !game_state.position.is_black_threaten(BitBoards::WHITE_QUEEN_CASTLE)) {
+                    Move move;
+                    move.set_castle(Castles::WHITE_QUEEN);
+                    moves.push_back(move);
                 }
 
                 // King Side
-                if (!game_state.white_rook_2_moved) {
-                    BitBoard next_king_bit_board = GameUtils::shift_bit_board<0, 2>(king_bit_board);
-                    BitBoard next_rook_position = GameUtils::shift_bit_board<0, -1>(next_king_bit_board);
-                    //moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
+                if (!game_state.white_rook_H_moved &&
+                    game_state.position.is_empty(BitBoards::WHITE_KING_CASTLE) &&
+                    !game_state.position.is_black_threaten(BitBoards::WHITE_KING_CASTLE)) {
+                    Move move;
+                    move.set_castle(Castles::WHITE_KING);
+                    moves.push_back(move);
                 }
             }
         } else if constexpr (color == Colors::BLACK) {
             // Castling
             if (!game_state.black_king_moved && !game_state.black_king_in_check) {
                 // Queen Side
-                if (!game_state.black_rook_1_moved) {
-                    BitBoard next_king_bit_board = GameUtils::shift_bit_board<0, -2>(king_bit_board);
-                    BitBoard next_rook_position = GameUtils::shift_bit_board<0, 1>(next_king_bit_board);
-                    BitBoard empty_position = GameUtils::shift_bit_board<0, -1>(next_king_bit_board);
-                    //moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
+                if (!game_state.black_rook_A_moved &&
+                    game_state.position.is_empty(BitBoards::BLACK_QUEEN_CASTLE) &&
+                    !game_state.position.is_white_threaten(BitBoards::BLACK_QUEEN_CASTLE)) {
+                    Move move;
+                    move.set_castle(Castles::BLACK_QUEEN);
+                    moves.push_back(move);
                 }
 
                 // King Side
-                if (!game_state.black_rook_2_moved) {
-                    BitBoard next_king_bit_board = GameUtils::shift_bit_board<0, 2>(king_bit_board);
-                    BitBoard next_rook_position = GameUtils::shift_bit_board<0, -1>(next_king_bit_board);
-                    //moves.push_back(0);  // TODO(EMU): PLACEHOLDER VALUES
+                if (!game_state.black_rook_H_moved &&
+                    game_state.position.is_empty(BitBoards::BLACK_KING_CASTLE) &&
+                    !game_state.position.is_white_threaten(BitBoards::BLACK_KING_CASTLE)) {
+                    Move move;
+                    move.set_castle(Castles::BLACK_KING);
+                    moves.push_back(move);
                 }
             }
         }

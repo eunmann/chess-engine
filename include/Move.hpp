@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string>
 
 #include "Definitions.hpp"
 
@@ -16,28 +17,40 @@ class Move {
     auto get_source_bit_board() const -> BitBoard;
     auto get_destination_bit_board() const -> BitBoard;
 
-    auto operator==(const Move& move) const -> bool {
-        return this->m_move == move.m_move;
-    }
+    auto get_promotion() const -> PieceCode;
+    auto get_en_passant() const -> int32_t;
+    auto get_castle() const -> Castle;
+
+    auto set_promotion(const PieceCode piece_code) -> void;
+    auto set_en_passant(const int32_t column_index) -> void;
+    auto set_castle(const Castle castle) -> void;
+
+    auto is_promotion() const -> bool;
+    auto is_en_passantable() const -> bool;
+    auto is_castle() const -> bool;
+
+    auto to_string() const -> std::string;
+
+    auto operator==(const Move& move) const -> bool;
 
    private:
-    // Bits [0-6] Source
-    // Bits [7-13] Dest
     int32_t m_move = 0;
-    static constexpr int32_t MASK = 0b0011'1111;
-};
+    static constexpr int32_t SOURCE_OFFSET = 0;
+    static constexpr int32_t SOURCE_BIT_NUM = 6;
 
-class Moves {
-   public:
-    Moves();
+    static constexpr int32_t DEST_OFFSET = SOURCE_OFFSET + SOURCE_BIT_NUM;
+    static constexpr int32_t DEST_BIT_NUM = 6;
 
-    auto push_back(const Move move) -> void;
-    auto size() -> std::size_t;
-    auto operator[](const std::size_t index) -> Move&;
-    auto begin() -> Move*;
-    auto end() -> Move*;
+    static constexpr int32_t PROMO_OFFSET = DEST_OFFSET + DEST_BIT_NUM;
+    static constexpr int32_t PROMO_BIT_NUM = 3;
 
-   private:
-    std::array<Move, MAX_NUM_MOVES> m_moves_array;
-    std::size_t m_index;
+    static constexpr int32_t EN_OFFSET = PROMO_OFFSET + PROMO_BIT_NUM;
+    static constexpr int32_t EN_BIT_NUM = 4;
+
+    static constexpr int32_t CASTLE_OFFSET = EN_OFFSET + EN_BIT_NUM;
+    static constexpr int32_t CASTLE_BIT_NUM = 3;
+
+    static constexpr int32_t MASK_6_BITS = 0b0011'1111;
+    static constexpr int32_t MASK_4_BITS = 0b0000'1111;
+    static constexpr int32_t MASK_3_BITS = 0b0000'0111;
 };
