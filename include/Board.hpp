@@ -9,13 +9,14 @@
 typedef int32_t BoardValue;
 
 namespace BoardValues {
+constexpr BoardValue EMPTY = 0;
 constexpr BoardValue PAWN = 1;
 constexpr BoardValue KNIGHT = 2;
 constexpr BoardValue BISHOP = 3;
 constexpr BoardValue ROOK = 4;
 constexpr BoardValue QUEEN = 5;
 constexpr BoardValue KING = 6;
-constexpr std::array<BoardValue,6> ALL{PAWN,KNIGHT,BISHOP,ROOK,QUEEN,KING};
+constexpr std::array<BoardValue, 6> ALL{PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 };  // namespace BoardValues
 
 class Board {

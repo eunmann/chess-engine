@@ -1,7 +1,6 @@
 #include "GameUtils.hpp"
 
 #include <assert.h>
-#include <bits/stdc++.h>
 #include <stdio.h>
 
 #include <bit>
@@ -12,7 +11,7 @@
 #include "MoveGeneration.hpp"
 
 auto GameUtils::square_to_bit_board(const Square square) -> BitBoard {
-    return 0b1 << (square - 1);
+    return 0b1ULL << square;
 }
 
 auto GameUtils::print_position(const BitBoard bit_board) -> void {
@@ -104,23 +103,6 @@ auto GameUtils::get_tile_name(const BitBoard bit_board) -> std::string {
     return name;
 }
 
-auto GameUtils::init_standard(GameState &game_state) -> void {
-    game_state.position.init();
-
-    game_state.white_to_move = true;
-
-    game_state.white_to_move = true;
-    game_state.white_king_moved = false;
-    game_state.white_rook_A_moved = false;
-    game_state.white_rook_H_moved = false;
-    game_state.black_king_moved = false;
-    game_state.black_rook_A_moved = false;
-    game_state.black_rook_H_moved = false;
-    game_state.black_king_in_check = false;
-
-    game_state.pawn_ep = -128;
-}
-
 auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) -> bool {
     return (bit_board_1 & bit_board_2) != 0;
 }
@@ -176,7 +158,6 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
 
         BitBoard selected_col;
         BitBoard selected_row;
-        int32_t piece_index = -1;
 
         if (input.size() == 2) {
             char column_name = input[0];
@@ -185,17 +166,9 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
             selected_col = column_name - 'a';
             selected_row = row_name - '1';
 
-            BitBoard curr_position = GameUtils::shift_bit_board(0b1, selected_row, selected_col);
+            const BitBoard selected_position_bit_board = GameUtils::shift_bit_board(0b1ULL, selected_row, selected_col);
 
-            for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
-                BitBoard bit_board = game_state.position.get_piece_bit_board(i);
-                if (curr_position == bit_board) {
-                    piece_index = i;
-                    break;
-                }
-            }
-
-            if (piece_index == -1) {
+            if (!game_state.position.is_occupied(selected_position_bit_board)) {
                 printf("Invalid selection. No piece found.\n");
                 continue;
             }
@@ -207,7 +180,7 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
         }
 
         printf("Select destination: ");
-        std::getline(std::cin, input);
+        input = GameUtils::get_user_input();
 
         BitBoard dest_col;
         BitBoard dest_row;
@@ -223,7 +196,7 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
             continue;
         }
 
-        BitBoard next_position = GameUtils::shift_bit_board(0b1, dest_row, dest_col);
+        BitBoard next_position = GameUtils::shift_bit_board(0b1ULL, dest_row, dest_col);
 
         Moves moves;
         Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
@@ -234,6 +207,8 @@ auto GameUtils::perform_user_move(GameState &game_state) -> int32_t {
         }
 
         for (auto &move : moves) {
+            printf("Move: %s\n", move.to_string().c_str());
+
             if (move.get_destination_bit_board() == next_position) {
                 GameState check = game_state;
                 check.apply_move(move);
@@ -358,22 +333,36 @@ auto GameUtils::move_str_to_move(const std::string &move_str) -> Move {
 }
 
 auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
-    return ffsl(bit_board) - 1;
+    for (int i = 0; i < sizeof(BitBoard) * 8; i++) {
+        BitBoard test = 0b1ULL << i;
+        if ((test & bit_board) != 0) {
+            return i;
+        }
+    }
+    return -1;
 }
 
-auto GameUtils::for_each_set_bit(const BitBoard bit_board, const std::function<void(Square square)> &func) -> void {
+auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::function<void(Square square)> &func) -> void {
     BitBoard temp_bit_board = bit_board;
-    while (int32_t index = ffsl(temp_bit_board)) {
-        func(index);
-        temp_bit_board ^= GameUtils::square_to_bit_board(index);
+    while (true) {
+        Square square = GameUtils::bit_board_to_square(temp_bit_board);
+        if (square == -1) {
+            break;
+        }
+        func(square);
+        temp_bit_board &= ~GameUtils::square_to_bit_board(square);
     };
 }
 
 auto GameUtils::for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)> &func) -> void {
     BitBoard temp_bit_board = bit_board;
-    while (int32_t index = ffsl(temp_bit_board)) {
-        BitBoard single_bit_board = GameUtils::square_to_bit_board(index);
+    while (true) {
+        Square square = GameUtils::bit_board_to_square(temp_bit_board);
+        if (square == -1) {
+            break;
+        }
+        BitBoard single_bit_board = GameUtils::square_to_bit_board(square);
         func(single_bit_board);
-        temp_bit_board ^= single_bit_board;
+        temp_bit_board &= ~single_bit_board;
     };
 }

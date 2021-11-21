@@ -9,6 +9,7 @@ class GameState {
    public:
     GameState();
 
+    auto init() -> void;
     auto apply_move(const Move move) -> void;
 
     Position position;

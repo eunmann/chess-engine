@@ -13,6 +13,23 @@ GameState::GameState()
       pawn_ep(-128) {
 }
 
+auto GameState::init() -> void {
+    this->position.init();
+
+    this->white_to_move = true;
+
+    this->white_to_move = true;
+    this->white_king_moved = false;
+    this->white_rook_A_moved = false;
+    this->white_rook_H_moved = false;
+    this->black_king_moved = false;
+    this->black_rook_A_moved = false;
+    this->black_rook_H_moved = false;
+    this->black_king_in_check = false;
+
+    this->pawn_ep = -128;
+}
+
 auto GameState::apply_move(const Move move) -> void {
     BitBoard source_bit_board = move.get_source_bit_board();
     BitBoard destination_bit_board = move.get_destination_bit_board();

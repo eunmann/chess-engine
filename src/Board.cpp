@@ -36,7 +36,7 @@ auto Board::init_standard() -> void {
 }
 
 auto Board::clear() -> void {
-    std::fill(this->positions.begin(), this->positions.end(), 0);
+    std::fill(this->positions.begin(), this->positions.end(), BoardValues::EMPTY);
 }
 
 auto Board::print() const -> void {
@@ -55,31 +55,31 @@ auto Board::print() const -> void {
                 out += "\033[1;34m";
             }
             switch (value) {
-                case PieceCodes::NUM:
+                case BoardValues::EMPTY:
                     out += ' ';
                     break;
-                case PieceCodes::PAWN:
-                    //case -1 * PieceCodes::PAWN:
+                case BoardValues::PAWN:
+                case -1 * BoardValues::PAWN:
                     out += 'p';
                     break;
-                case PieceCodes::KNIGHT:
-                case -1 * PieceCodes::KNIGHT:
+                case BoardValues::KNIGHT:
+                case -1 * BoardValues::KNIGHT:
                     out += 'N';
                     break;
-                case PieceCodes::BISHOP:
-                case -1 * PieceCodes::BISHOP:
+                case BoardValues::BISHOP:
+                case -1 * BoardValues::BISHOP:
                     out += 'B';
                     break;
-                case PieceCodes::ROOK:
-                case -1 * PieceCodes::ROOK:
+                case BoardValues::ROOK:
+                case -1 * BoardValues::ROOK:
                     out += 'R';
                     break;
-                case PieceCodes::QUEEN:
-                case -1 * PieceCodes::QUEEN:
+                case BoardValues::QUEEN:
+                case -1 * BoardValues::QUEEN:
                     out += 'Q';
                     break;
-                case PieceCodes::KING:
-                case -1 * PieceCodes::KING:
+                case BoardValues::KING:
+                case -1 * BoardValues::KING:
                     out += 'K';
                     break;
                 default:

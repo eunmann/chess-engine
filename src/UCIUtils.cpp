@@ -26,10 +26,10 @@ auto UCIUtils::process_input_command(GameState& game_state, const std::string& c
         {"isready", []() { UCIUtils::send_ready_ok(); }},
         {"setoption", []() {}},
         {"register", []() {}},
-        {"ucinewgame", [&game_state]() { GameUtils::init_standard(game_state); }},
+        {"ucinewgame", [&game_state]() { game_state.init(); }},
         {"position", [&line_split, &game_state]() {
             if (line_split[1].compare("startpos") == 0) {
-                GameUtils::init_standard(game_state);
+                game_state.init();
             }
             for (size_t i = 3; i < line_split.size(); ++i) {
                 std::string move_str = line_split[i];

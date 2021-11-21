@@ -9,36 +9,34 @@ Position::Position() {
 
 auto Position::init() -> void {
     // Pawns
-    for (int i = 0; i < 8; ++i) {
-        this->piece_positions[PieceCodes::PAWN] |= GameUtils::shift_bit_board(0b1, 1, i);
-        this->piece_positions[PieceCodes::PAWN] |= GameUtils::shift_bit_board(0b1, 6, i);
-    }
+    this->piece_positions[PieceCodes::PAWN] |= BitBoards::ROW_2;
+    this->piece_positions[PieceCodes::PAWN] |= BitBoards::ROW_7;
 
     // Knights
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 1>(0b1);
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 6>(0b1);
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 1>(0b1);
-    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 6>(0b1);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 1>(0b1ULL);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 6>(0b1ULL);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 1>(0b1ULL);
+    this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 6>(0b1ULL);
 
     // Bishops
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 2>(0b1);
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 5>(0b1);
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 2>(0b1);
-    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 5>(0b1);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 2>(0b1ULL);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 5>(0b1ULL);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 2>(0b1ULL);
+    this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 5>(0b1ULL);
 
     // Rooks
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 0>(0b1);
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 7>(0b1);
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 0>(0b1);
-    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 7>(0b1);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 0>(0b1ULL);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 7>(0b1ULL);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 0>(0b1ULL);
+    this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 7>(0b1ULL);
 
     // Queens
-    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<0, 3>(0b1);
-    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<7, 3>(0b1);
+    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<0, 3>(0b1ULL);
+    this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<7, 3>(0b1ULL);
 
     // Kings
-    this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<0, 4>(0b1);
-    this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<7, 4>(0b1);
+    this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<0, 4>(0b1ULL);
+    this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<7, 4>(0b1ULL);
 
     // Color Position
     this->color_positions[Colors::WHITE] = BitBoards::ROW_1 | BitBoards::ROW_2;
@@ -114,7 +112,7 @@ auto Position::get_piece_type(const BitBoard bit_board) const -> PieceCode {
 }
 
 auto Position::clear(const BitBoard bit_board) -> void {
-    const BitBoard negated_bit_board = !bit_board;
+    const BitBoard negated_bit_board = ~bit_board;
 
     // Loop through all Piece BitBoards because it might be a capture
     for (PieceCode pc = 0; pc < PieceCodes::NUM; pc++) {
@@ -168,8 +166,8 @@ auto Position::to_board() const -> Board {
 
         const BitBoard piece_bit_board = this->get_piece_bit_board(piece_code);
 
-        GameUtils::for_each_bit_board(piece_bit_board, [this, board_value, &board](auto bit_board) {
-            const Square square = GameUtils::bit_board_to_square(bit_board);
+        GameUtils::for_each_set_square(piece_bit_board, [this, board_value, &board](auto square) {
+            BitBoard bit_board = GameUtils::square_to_bit_board(square);
             if (this->is_white_occupied(bit_board)) {
                 board.positions[square] = board_value;
             } else {

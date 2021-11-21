@@ -87,7 +87,7 @@ auto Move::to_string() const -> std::string {
             }
         }
     } else {
-        move_str += GameUtils::get_tile_name(this->get_destination_bit_board());
+        move_str += GameUtils::get_tile_name(this->get_source_bit_board());
         move_str += GameUtils::get_tile_name(this->get_destination_bit_board());
         if (this->is_promotion()) {
             switch (this->get_promotion()) {

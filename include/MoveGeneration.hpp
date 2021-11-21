@@ -58,11 +58,12 @@ constexpr auto get_moves_in_direction(const GameState &game_state, BitBoard bit_
 
 template <const Color color>
 constexpr auto get_pawn_moves(const GameState &game_state, Moves &moves) -> void {
-    constexpr int64_t pawn_dir = color ? 1 : -1;
+    constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     const BitBoard pawns_bit_board = game_state.position.get_piece_color_bit_board(PieceCodes::PAWN, color);
 
     GameUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves, pawn_dir](const BitBoard pawn_bit_board) {
         Square source_square = GameUtils::bit_board_to_square(pawn_bit_board);
+
         auto add_promotion_moves = [source_square, &moves](const BitBoard destination_bit_board) {
             Square destination_square = GameUtils::bit_board_to_square(destination_bit_board);
             for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {

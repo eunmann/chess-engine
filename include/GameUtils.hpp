@@ -19,7 +19,6 @@ auto get_row(const BitBoard bit_board) -> int32_t;
 auto get_col(const BitBoard bit_board) -> int32_t;
 auto get_row_col(const BitBoard bit_board, int32_t &row, int32_t &col) -> void;
 auto get_tile_name(const BitBoard bit_board) -> std::string;
-auto init_standard(GameState &game_state) -> void;
 
 // Conversions
 auto square_to_bit_board(const Square square) -> BitBoard;
@@ -51,7 +50,7 @@ auto move_str_to_move(const std::string &move_str) -> Move;
 auto get_best_move(const GameState &game_state) -> Move;
 
 // Bit Utils
-auto for_each_set_bit(const BitBoard bit_board, const std::function<void(int32_t bit_index)> &func) -> void;
+auto for_each_set_square(const BitBoard bit_board, const std::function<void(int32_t bit_index)> &func) -> void;
 auto for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)> &func) -> void;
 
 // Template functions

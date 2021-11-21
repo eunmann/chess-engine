@@ -34,26 +34,24 @@ int main() {
     setbuf(stdout, NULL);
     setbuf(stdin, NULL);
 
-    // Prints out the board after each move, for debugging
-    auto console = true;
-
     init_pseduo_moves();
 
     GameState game_state;
+    game_state.init();
 
+    // Prints out the board after each move, for debugging
+    auto console = true;
     if (console) {
-        GameUtils::init_standard(game_state);
-        print_bit_board(game_state.position);
-    }
-
-    // Game Loop
-    while (true) {
-        auto input_command = GameUtils::get_user_input();
-        if (!UCIUtils::process_input_command(game_state, input_command)) {
-            break;
-        };
-        if (console) {
+        do {
             print_bit_board(game_state.position);
+            GameUtils::perform_user_move(game_state);
+        } while (true);
+    } else {
+        while (true) {
+            auto input_command = GameUtils::get_user_input();
+            if (!UCIUtils::process_input_command(game_state, input_command)) {
+                break;
+            }
         }
     }
 
