@@ -6,7 +6,8 @@ Move::Move() : m_move(0) {}
 
 Move::Move(const int source, const int dest) : m_move(source | (dest << 6)) {
     this->set_promotion(PieceCodes::NUM);
-    this->set_en_passant(9);
+    this->set_en_passant(16);
+    this->set_castle(Castles::NONE);
 }
 
 Move::Move(const int& move) : m_move(move) {}

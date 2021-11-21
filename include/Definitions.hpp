@@ -121,6 +121,7 @@ static std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KNIGHT;
 
 typedef int32_t Castle;
 namespace Castles {
+constexpr Castle NONE = 0b000;
 constexpr Castle WHITE_KING = 0b100;
 constexpr Castle WHITE_QUEEN = 0b101;
 constexpr Castle BLACK_KING = 0b110;
