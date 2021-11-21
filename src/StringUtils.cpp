@@ -1,18 +1,18 @@
 #include "StringUtils.hpp"
 
 auto StringUtils::split(const std::string& str) -> std::vector<std::string> {
-    std::vector<std::string> split;
-    std::string temp;
-    for (size_t i = 0; i < str.size(); ++i) {
-        char c = str[i];
+  std::vector<std::string> split;
+  std::string temp;
+  for (size_t i = 0; i < str.size(); ++i) {
+    char c = str[i];
 
-        if (c == ' ') {
-            split.push_back(temp);
-            temp = "";
-        } else {
-            temp.push_back(c);
-        }
+    if (c == ' ') {
+      split.push_back(temp);
+      temp = "";
+    } else {
+      temp.push_back(c);
     }
-    split.push_back(temp);
-    return split;
+  }
+  split.push_back(temp);
+  return split;
 }

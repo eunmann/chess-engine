@@ -15,25 +15,21 @@ typedef int32_t Square;
 
 namespace Squares {
 constexpr Square A1 = 0, A2 = 1, A3 = 2, A4 = 3, A5 = 4, A6 = 5, A7 = 6, A8 = 7,
-                 B1 = 8, B2 = 9, B3 = 10, B4 = 11, B5 = 12, B6 = 13, B7 = 14, B8 = 15,
-                 C1 = 16, C2 = 17, C3 = 18, C4 = 19, C5 = 20, C6 = 21, C7 = 22, C8 = 23,
-                 D1 = 24, D2 = 25, D3 = 26, D4 = 27, D5 = 28, D6 = 29, D7 = 30, D8 = 31,
-                 E1 = 32, E2 = 33, E3 = 34, E4 = 35, E5 = 36, E6 = 37, E7 = 38, E8 = 39,
-                 F1 = 40, F2 = 41, F3 = 42, F4 = 43, F5 = 44, F6 = 45, F7 = 46, F8 = 47,
-                 G1 = 48, G2 = 49, G3 = 50, G4 = 51, G5 = 52, G6 = 53, G7 = 54, G8 = 55,
-                 H1 = 56, H2 = 57, H3 = 58, H4 = 59, H5 = 60, H6 = 61, H7 = 62, H8 = 63,
+                 B1 = 8, B2 = 9, B3 = 10, B4 = 11, B5 = 12, B6 = 13, B7 = 14,
+                 B8 = 15, C1 = 16, C2 = 17, C3 = 18, C4 = 19, C5 = 20, C6 = 21,
+                 C7 = 22, C8 = 23, D1 = 24, D2 = 25, D3 = 26, D4 = 27, D5 = 28,
+                 D6 = 29, D7 = 30, D8 = 31, E1 = 32, E2 = 33, E3 = 34, E4 = 35,
+                 E5 = 36, E6 = 37, E7 = 38, E8 = 39, F1 = 40, F2 = 41, F3 = 42,
+                 F4 = 43, F5 = 44, F6 = 45, F7 = 46, F8 = 47, G1 = 48, G2 = 49,
+                 G3 = 50, G4 = 51, G5 = 52, G6 = 53, G7 = 54, G8 = 55, H1 = 56,
+                 H2 = 57, H3 = 58, H4 = 59, H5 = 60, H6 = 61, H7 = 62, H8 = 63,
                  NUM = 64;
 }
 
 typedef int32_t PieceCode;
 namespace PieceCodes {
-constexpr PieceCode PAWN = 0,
-                    KNIGHT = 1,
-                    BISHOP = 2,
-                    ROOK = 3,
-                    QUEEN = 4,
-                    KING = 5,
-                    NUM = 6;
+constexpr PieceCode PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4,
+                    KING = 5, NUM = 6;
 constexpr std::array<PieceCode, 6> ALL{PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 auto to_char(PieceCode piece_code) -> char;
 }  // namespace PieceCodes
@@ -41,21 +37,14 @@ auto to_char(PieceCode piece_code) -> char;
 typedef int32_t PieceValue;
 
 namespace PieceValues {
-constexpr PieceValue PAWN = 100,
-                     KNIGHT = 300,
-                     BISHOP = 300,
-                     ROOK = 500,
-                     QUEEN = 900,
-                     KING = 300000,
-                     POS_INFINITY = KING + 1,
+constexpr PieceValue PAWN = 100, KNIGHT = 300, BISHOP = 300, ROOK = 500,
+                     QUEEN = 900, KING = 300000, POS_INFINITY = KING + 1,
                      NEG_INFINITY = -1 * POS_INFINITY;
 };
 
 typedef int32_t Color;
 namespace Colors {
-constexpr Color WHITE = 0,
-                BLACK = 1,
-                NUM = 2;
+constexpr Color WHITE = 0, BLACK = 1, NUM = 2;
 auto bool_to_color(bool white_to_move) -> Color;
 };  // namespace Colors
 
