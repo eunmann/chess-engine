@@ -14,7 +14,7 @@ TestCase::TestCase(const std::string& description)
 
 auto TestCase::run() -> void {
   printf("\tTest Case: %s\n", this->description.c_str());
-  for (auto test : this->tests) {
+  for (auto& test : this->tests) {
     test.run();
   }
 }
@@ -24,7 +24,7 @@ UnitTest::UnitTest(const std::string& description)
 
 auto UnitTest::run() -> void {
   printf("Unit Test: %s\n", this->description.c_str());
-  for (auto test_case : this->test_cases) {
+  for (auto& test_case : this->test_cases) {
     test_case.run();
   }
 }

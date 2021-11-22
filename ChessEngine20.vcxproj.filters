@@ -98,5 +98,11 @@
     <ClInclude Include="include\Tests.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dep\include\color\color.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

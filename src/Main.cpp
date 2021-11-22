@@ -13,6 +13,7 @@
 #include "Board.hpp"
 #include "Definitions.hpp"
 #include "GameUtils.hpp"
+#include "Log.hpp"
 #include "Position.hpp"
 #include "Tests.hpp"
 #include "UCIUtils.hpp"
@@ -38,7 +39,9 @@ int main() {
 
   init_pseduo_moves();
 
-  auto run_tests = true;
+  std::vector<int> temp{1, 2, 3};
+
+  auto run_tests = false;
   if (run_tests) {
     Tests::run_tests();
     return 0;

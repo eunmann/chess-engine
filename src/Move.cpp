@@ -1,5 +1,7 @@
 #include "Move.hpp"
 
+#include <assert.h>
+
 #include "GameUtils.hpp"
 
 Move::Move() : m_move(0) {}
@@ -17,7 +19,7 @@ auto Move::get_source_square() const -> Square {
 }
 
 auto Move::get_destination_square() const -> Square {
-  return static_cast<Square>((this->m_move >> 6) & Move::MASK_6_BITS);
+  return static_cast<Square>((this->m_move >> DEST_OFFSET) & Move::MASK_6_BITS);
 }
 
 auto Move::get_source_bit_board() const -> BitBoard {
@@ -25,51 +27,53 @@ auto Move::get_source_bit_board() const -> BitBoard {
 }
 
 auto Move::get_destination_bit_board() const -> BitBoard {
-  GameUtils::square_to_bit_board(this->get_destination_square());
-  return 0x1UL << (this->get_destination_square() - 1);
+  return GameUtils::square_to_bit_board(this->get_destination_square());
 }
 
 auto Move::get_promotion() const -> PieceCode {
-  return (this->m_move >> PROMO_OFFSET) & MASK_6_BITS;
+  return (this->m_move >> Move::PROMO_OFFSET) & Move::MASK_3_BITS;
 }
 
 auto Move::get_en_passant() const -> int32_t {
-  return (this->m_move >> EN_OFFSET) & MASK_4_BITS;
+  return (this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS;
 }
 
 auto Move::get_castle() const -> Castle {
-  return (this->m_move >> CASTLE_OFFSET) & MASK_3_BITS;
+  return (this->m_move >> Move::CASTLE_OFFSET) & Move::MASK_3_BITS;
 }
 
 auto Move::set_promotion(const PieceCode piece_code) -> void {
-  this->m_move |= piece_code << PROMO_OFFSET;
+  this->m_move |= (piece_code & Move::MASK_3_BITS) << Move::PROMO_OFFSET;
 }
 
 auto Move::set_en_passant(const int32_t column_index) -> void {
-  this->m_move |= column_index << EN_OFFSET;
+  this->m_move |= (column_index & Move::MASK_4_BITS) << Move::EN_OFFSET;
 }
 
 auto Move::set_castle(const Castle castle) -> void {
-  this->m_move |= castle << CASTLE_OFFSET;
+  this->m_move |= (castle & Move::MASK_3_BITS) << Move::CASTLE_OFFSET;
 }
 
 auto Move::is_promotion() const -> bool {
-  return ((this->m_move >> PROMO_OFFSET) & MASK_6_BITS) != PieceCodes::NUM;
+  return ((this->m_move >> Move::PROMO_OFFSET) & Move::MASK_3_BITS) !=
+         PieceCodes::NUM;
 }
 
 auto Move::is_en_passantable() const -> bool {
-  return ((this->m_move >> EN_OFFSET) & MASK_4_BITS) < 8;
+  return ((this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS) < 8;
 }
 
 auto Move::is_castle() const -> bool {
-  return ((this->m_move >> CASTLE_OFFSET) & MASK_3_BITS) != 0;
+  return ((this->m_move >> Move::CASTLE_OFFSET) & Move::MASK_3_BITS) != 0;
 }
 
 auto Move::to_string() const -> std::string {
   std::string move_str = "";
 
-  if (this->is_castle()) {
-    switch (this->get_castle()) {
+  auto is_castle = this->is_castle();
+  if (is_castle) {
+    auto castle = this->get_castle();
+    switch (castle) {
       case Castles::WHITE_KING: {
         move_str = "e1g1";
         break;
@@ -85,6 +89,9 @@ auto Move::to_string() const -> std::string {
       case Castles::BLACK_QUEEN: {
         move_str = "e8c8";
         break;
+      }
+      default: {
+        assert(false);
       }
     }
   } else {
@@ -107,6 +114,9 @@ auto Move::to_string() const -> std::string {
         case PieceCodes::QUEEN: {
           move_str += 'q';
           break;
+        }
+        default: {
+          assert(false);
         }
       }
     }

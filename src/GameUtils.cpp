@@ -220,8 +220,23 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
     } else {
       MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
     }
+    printf("Found %llu psuedo-legal moves for %s\n", moves.size(),
+           color_to_move == Colors::WHITE ? "white" : "black");
 
-    for (auto move : moves) {
+    auto is_move_legal = [&game_state](const Move move) {
+      GameState check = game_state;
+      check.apply_move(move);
+      return check.is_legal;
+    };
+
+    Moves legal_moves;
+    std::copy_if(moves.begin(), moves.end(), legal_moves.begin(),
+                 is_move_legal);
+
+    printf("Found %llu legal moves for %s\n", legal_moves.size(),
+           color_to_move == Colors::WHITE ? "white" : "black");
+
+    for (auto move : legal_moves) {
       printf("Move: %s\n", move.to_string().c_str());
 
       if (move.get_destination_bit_board() == next_position) {

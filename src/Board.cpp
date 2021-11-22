@@ -3,9 +3,11 @@
 #include <stdio.h>
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 
 #include "Definitions.hpp"
+#include "color/color.hpp"
 
 Board::Board() { this->clear(); };
 
@@ -33,70 +35,86 @@ auto Board::clear() -> void {
 }
 
 auto Board::print() const -> void {
+#ifdef __linux__
   std::string out;
-  out.reserve(256);
+  out.reserve(512);
+#elif _WIN32
+  auto out = dye::vanilla("");
+#endif
 
-  out += '\n';
+  out += "\n";
 
-  for (int i = BOARD_DIM - 1; i >= 0; --i) {
-    out += '1' + i;
+  for (char i = BOARD_DIM - 1; i >= 0; --i) {
+    out += std::string(1, '1' + i);
     out += " |";
     for (uint64_t j = 0; j < BOARD_DIM; ++j) {
       int8_t value = this->positions[i * BOARD_DIM + j];
 
+#ifdef __linux__
       if (value < 0) {
         out += "\033[1;34m";
       }
+#endif
+      std::string c;
       switch (value) {
         case BoardValues::EMPTY:
-          out += ' ';
+          c = ' ';
           break;
         case BoardValues::PAWN:
         case -1 * BoardValues::PAWN:
-          out += 'p';
+          c = 'p';
           break;
         case BoardValues::KNIGHT:
         case -1 * BoardValues::KNIGHT:
-          out += 'N';
+          c = 'N';
           break;
         case BoardValues::BISHOP:
         case -1 * BoardValues::BISHOP:
-          out += 'B';
+          c = 'B';
           break;
         case BoardValues::ROOK:
         case -1 * BoardValues::ROOK:
-          out += 'R';
+          c = 'R';
           break;
         case BoardValues::QUEEN:
         case -1 * BoardValues::QUEEN:
-          out += 'Q';
+          c = 'Q';
           break;
         case BoardValues::KING:
         case -1 * BoardValues::KING:
-          out += 'K';
+          c = 'K';
           break;
         default:
-          out += ' ';
+          c = ' ';
           break;
       }
 
+#ifdef __linux__
       if (value < 0) {
+        out += c;
         out += "\033[0m";
       }
+#elif _WIN32
+      if (value < 0) {
+        out += dye::purple(c);
+      } else {
+        out += c;
+      }
+#endif
 
-      out += '|';
+      out += "|";
     }
-    out += '\n';
+    out += "\n";
   }
 
   out += "\n  ";
 
-  for (int i = 0; i < 8; ++i) {
-    out += ' ';
-    out += 'a' + i;
+  for (char i = 0; i < 8; i++) {
+    out += " ";
+    out += std::string(1, 'a' + i);
   }
 
-  out += '\n';
+  out += "\n";
 
-  printf("%s", out.c_str());
+  std::cout << out << "\n";
 }
