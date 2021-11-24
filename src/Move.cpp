@@ -6,13 +6,23 @@
 
 Move::Move() : m_move(0) {}
 
-Move::Move(const int source, const int dest) : m_move(source | (dest << 6)) {
-  this->set_promotion(PieceCodes::NUM);
-  this->set_en_passant(16);
+Move::Move(const Square source, const Square dest) : m_move(0) {
+  this->set_source_square(source);
+  this->set_destination_square(dest);
+  this->set_promotion(Move::MASK_3_BITS);
+  this->set_en_passant(Move::MASK_4_BITS);
   this->set_castle(Castles::NONE);
 }
 
 Move::Move(const int& move) : m_move(move) {}
+
+auto Move::set_source_square(const Square square) -> void {
+  this->m_move |= (square & Move::MASK_6_BITS) << Move::SOURCE_OFFSET;
+}
+
+auto Move::set_destination_square(const Square square) -> void {
+  this->m_move |= (square & Move::MASK_6_BITS) << Move::DEST_OFFSET;
+}
 
 auto Move::get_source_square() const -> Square {
   return static_cast<Square>(this->m_move & Move::MASK_6_BITS);
@@ -43,24 +53,28 @@ auto Move::get_castle() const -> Castle {
 }
 
 auto Move::set_promotion(const PieceCode piece_code) -> void {
-  this->m_move |= (piece_code & Move::MASK_3_BITS) << Move::PROMO_OFFSET;
+  this->m_move = (this->m_move & ~(Move::MASK_3_BITS << Move::PROMO_OFFSET)) |
+                 (piece_code & Move::MASK_3_BITS) << Move::PROMO_OFFSET;
 }
 
 auto Move::set_en_passant(const int32_t column_index) -> void {
-  this->m_move |= (column_index & Move::MASK_4_BITS) << Move::EN_OFFSET;
+  this->m_move = (this->m_move & ~(Move::MASK_4_BITS << Move::EN_OFFSET)) |
+                 (column_index & Move::MASK_4_BITS) << Move::EN_OFFSET;
 }
 
 auto Move::set_castle(const Castle castle) -> void {
-  this->m_move |= (castle & Move::MASK_3_BITS) << Move::CASTLE_OFFSET;
+  this->m_move = (this->m_move & ~(Move::MASK_3_BITS << Move::CASTLE_OFFSET)) |
+                 (castle & Move::MASK_3_BITS) << Move::CASTLE_OFFSET;
 }
 
 auto Move::is_promotion() const -> bool {
   return ((this->m_move >> Move::PROMO_OFFSET) & Move::MASK_3_BITS) !=
-         PieceCodes::NUM;
+         Move::MASK_3_BITS;
 }
 
 auto Move::is_en_passantable() const -> bool {
-  return ((this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS) < 8;
+  return ((this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS) !=
+         Move::MASK_4_BITS;
 }
 
 auto Move::is_castle() const -> bool {

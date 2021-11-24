@@ -283,18 +283,16 @@ auto GameUtils::process_user_move(GameState& game_state, const Move move)
     return rv;
   }
 
-  bool input_move_legal = false;
-
-  std::any_of(legal_moves.begin(), legal_moves.end(),
-              [&game_state, &input_move_legal, move](Move legal_move) {
-                if (move == legal_move) {
-                  input_move_legal = true;
-                  game_state.apply_move(move);
-                  return false;
-                } else {
-                  return true;
-                }
-              });
+  bool input_move_legal =
+      std::any_of(legal_moves.begin(), legal_moves.end(),
+                  [&game_state, &input_move_legal, move](Move legal_move) {
+                    if (move == legal_move) {
+                      game_state.apply_move(move);
+                      return true;
+                    } else {
+                      return true;
+                    }
+                  });
 
   if (!input_move_legal) {
     rv = 0;

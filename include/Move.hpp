@@ -8,8 +8,11 @@
 class Move {
  public:
   Move();
-  Move(const int source, const int dest);
+  Move(const Square source, const Square dest);
   Move(const int& move);
+
+  auto set_source_square(const Square square) -> void;
+  auto set_destination_square(const Square square) -> void;
 
   auto get_source_square() const -> Square;
   auto get_destination_square() const -> Square;
@@ -34,23 +37,23 @@ class Move {
   auto operator==(const Move& move) const -> bool;
 
  private:
-  int32_t m_move = 0;
-  static constexpr int32_t SOURCE_OFFSET = 0;
-  static constexpr int32_t SOURCE_BIT_NUM = 6;
+  uint32_t m_move = 0;
+  static constexpr uint32_t SOURCE_OFFSET = 0;
+  static constexpr uint32_t SOURCE_BIT_NUM = 6;
 
-  static constexpr int32_t DEST_OFFSET = SOURCE_OFFSET + SOURCE_BIT_NUM;
-  static constexpr int32_t DEST_BIT_NUM = 6;
+  static constexpr uint32_t DEST_OFFSET = SOURCE_OFFSET + SOURCE_BIT_NUM;
+  static constexpr uint32_t DEST_BIT_NUM = 6;
 
-  static constexpr int32_t PROMO_OFFSET = DEST_OFFSET + DEST_BIT_NUM;
-  static constexpr int32_t PROMO_BIT_NUM = 3;
+  static constexpr uint32_t PROMO_OFFSET = DEST_OFFSET + DEST_BIT_NUM;
+  static constexpr uint32_t PROMO_BIT_NUM = 3;
 
-  static constexpr int32_t EN_OFFSET = PROMO_OFFSET + PROMO_BIT_NUM;
-  static constexpr int32_t EN_BIT_NUM = 4;
+  static constexpr uint32_t EN_OFFSET = PROMO_OFFSET + PROMO_BIT_NUM;
+  static constexpr uint32_t EN_BIT_NUM = 4;
 
-  static constexpr int32_t CASTLE_OFFSET = EN_OFFSET + EN_BIT_NUM;
-  static constexpr int32_t CASTLE_BIT_NUM = 3;
+  static constexpr uint32_t CASTLE_OFFSET = EN_OFFSET + EN_BIT_NUM;
+  static constexpr uint32_t CASTLE_BIT_NUM = 3;
 
-  static constexpr int32_t MASK_6_BITS = 0b0011'1111;
-  static constexpr int32_t MASK_4_BITS = 0b0000'1111;
-  static constexpr int32_t MASK_3_BITS = 0b0000'0111;
+  static constexpr uint32_t MASK_6_BITS = 0b0011'1111;
+  static constexpr uint32_t MASK_4_BITS = 0b0000'1111;
+  static constexpr uint32_t MASK_3_BITS = 0b0000'0111;
 };

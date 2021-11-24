@@ -39,8 +39,6 @@ int main() {
 
   init_pseduo_moves();
 
-  std::vector<int> temp{1, 2, 3};
-
   auto run_tests = false;
   if (run_tests) {
     Tests::run_tests();
@@ -58,12 +56,10 @@ int main() {
       GameUtils::perform_user_move(game_state);
     } while (true);
   } else {
-    while (true) {
-      auto input_command = GameUtils::get_user_input();
-      if (!UCIUtils::process_input_command(game_state, input_command)) {
-        break;
-      }
-    }
+    std::string input_command;
+    do {
+      input_command = GameUtils::get_user_input();
+    } while (!UCIUtils::process_input_command(game_state, input_command));
   }
 
   return 0;
