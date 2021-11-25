@@ -3,10 +3,10 @@
 auto StringUtils::split(const std::string& str) -> std::vector<std::string> {
   std::vector<std::string> split;
   std::string temp;
-  for (size_t i = 0; i < str.size(); ++i) {
+  for(size_t i = 0; i < str.size(); ++i) {
     char c = str[i];
 
-    if (c == ' ') {
+    if(c == ' ') {
       split.push_back(temp);
       temp = "";
     } else {

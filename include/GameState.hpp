@@ -6,7 +6,7 @@
 #include "Position.hpp"
 
 class GameState {
- public:
+public:
   GameState();
 
   auto init() -> void;
@@ -14,6 +14,41 @@ class GameState {
 
   auto is_white_in_check() const -> bool;
   auto is_black_in_check() const -> bool;
+  template <const Color color>
+  auto is_color_in_check() const -> bool {
+    constexpr Color opponent_color =
+      color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+    const BitBoard king_bit_board =
+      this->position.get_piece_color_bit_board<PieceCodes::KING, color>();
+    return this->position.is_threaten<opponent_color>(king_bit_board);
+  }
+
+  template <const Color color>
+  auto has_king_moved() const -> bool {
+    if constexpr(color == Colors::WHITE) {
+      return this->white_king_moved;
+    } else {
+      return this->black_king_moved;
+    }
+  }
+
+  template <const Color color>
+  auto has_rook_A_moved() const -> bool {
+    if constexpr(color == Colors::WHITE) {
+      return this->white_rook_A_moved;
+    } else {
+      return this->black_rook_A_moved;
+    }
+  }
+
+  template <const Color color>
+  auto has_rook_H_moved() const -> bool {
+    if constexpr(color == Colors::WHITE) {
+      return this->white_rook_H_moved;
+    } else {
+      return this->black_rook_H_moved;
+    }
+  }
 
   Position position;
   // TODO(EMU): Mask this a bit mask instead

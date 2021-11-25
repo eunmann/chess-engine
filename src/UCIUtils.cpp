@@ -31,12 +31,12 @@ auto UCIUtils::process_input_command(GameState& game_state,
       {"ucinewgame", [&game_state]() { game_state.init(); }},
       {"position",
        [&line_split, &game_state]() {
-         if (line_split[1].compare("startpos") == 0) {
+         if(line_split[1].compare("startpos") == 0) {
            game_state.init();
          }
-         for (size_t i = 3; i < line_split.size(); ++i) {
+         for(size_t i = 3; i < line_split.size(); ++i) {
            std::string move_str = line_split[i];
-           if (!GameUtils::process_user_move(game_state, move_str)) {
+           if(!GameUtils::process_user_move(game_state, move_str)) {
              printf("info string cannot process move %s\n", move_str.c_str());
            }
          }
@@ -51,7 +51,7 @@ auto UCIUtils::process_input_command(GameState& game_state,
       {"quit", [&rv]() { rv = 0; }},
   };
 
-  if (command_map.contains(command_action)) {
+  if(command_map.contains(command_action)) {
     auto command_func = command_map.find(command_action)->second;
     command_func();
   }
@@ -64,9 +64,13 @@ auto UCIUtils::send_id() -> void {
   printf("id author Evan Unmann\n");
 }
 
-auto UCIUtils::send_uci_ok() -> void { printf("uciok\n"); }
+auto UCIUtils::send_uci_ok() -> void {
+  printf("uciok\n");
+}
 
-auto UCIUtils::send_ready_ok() -> void { printf("readyok\n"); }
+auto UCIUtils::send_ready_ok() -> void {
+  printf("readyok\n");
+}
 
 auto UCIUtils::send_best_move(const std::string& move_str) -> void {
   printf("bestmove %s\n", move_str.c_str());

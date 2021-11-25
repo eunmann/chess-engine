@@ -1,5 +1,5 @@
 #pragma once
 
 namespace Tests {
-auto run_tests() -> void;
+  auto run_tests() -> void;
 }

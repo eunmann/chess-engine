@@ -6,10 +6,10 @@
 #include "TestFW.hpp"
 
 namespace Tests {
-auto run_tests() -> void {
-  TestFW::UnitTest game_utils_unit_test("GameUtils");
-  TestFW::TestCase conversion_test_case("Conversions");
-  conversion_test_case.tests.push_back(
+  auto run_tests() -> void {
+    TestFW::UnitTest game_utils_unit_test("GameUtils");
+    TestFW::TestCase conversion_test_case("Conversions");
+    conversion_test_case.tests.push_back(
       TestFW::Test("GameUtils::bit_board_to_square", []() {
         BitBoard bit_board = 0b101ULL;
         int32_t counter = 0;
@@ -21,9 +21,9 @@ auto run_tests() -> void {
 
           counter++;
           bit_board <<= 1;
-        } while (bit_board != 0);
+        } while(bit_board != 0);
       }));
-  conversion_test_case.tests.push_back(
+    conversion_test_case.tests.push_back(
       TestFW::Test("GameUtils::square_to_bit_board", []() {
         Square square = 0;
         do {
@@ -33,12 +33,12 @@ auto run_tests() -> void {
           TFW_ASSERT_EQ(expected_bit_board, actual_bit_board);
 
           square++;
-        } while (square < 64);
+        } while(square < 64);
       }));
-  game_utils_unit_test.test_cases.push_back(conversion_test_case);
+    game_utils_unit_test.test_cases.push_back(conversion_test_case);
 
-  TestFW::TestCase shifts_test_case("Shifts");
-  shifts_test_case.tests.push_back(
+    TestFW::TestCase shifts_test_case("Shifts");
+    shifts_test_case.tests.push_back(
       TestFW::Test("GameUtils::shift_bit_board", []() {
         const BitBoard start = 0b10'0000'0000;
 
@@ -70,30 +70,30 @@ auto run_tests() -> void {
         assert((GameUtils::shift_bit_board(start, 1, -1) == expected_up_right));
 
         assert(
-            (GameUtils::shift_bit_board<-1, 1>(start) == expected_down_left));
+          (GameUtils::shift_bit_board<-1, 1>(start) == expected_down_left));
         assert(
-            (GameUtils::shift_bit_board(start, -1, 1) == expected_down_left));
+          (GameUtils::shift_bit_board(start, -1, 1) == expected_down_left));
 
         assert(
-            (GameUtils::shift_bit_board<-1, -1>(start) == expected_down_right));
+          (GameUtils::shift_bit_board<-1, -1>(start) == expected_down_right));
         assert(
-            (GameUtils::shift_bit_board(start, -1, -1) == expected_down_right));
+          (GameUtils::shift_bit_board(start, -1, -1) == expected_down_right));
       }));
-  game_utils_unit_test.test_cases.push_back(shifts_test_case);
+    game_utils_unit_test.test_cases.push_back(shifts_test_case);
 
-  TestFW::TestCase move_test_case("Move");
-  move_test_case.tests.push_back(TestFW::Test("Move::get_source_square", []() {
-    for (int i = 0; i < 64; i++) {
-      Move move(i, 0);
-      assert(i == move.get_source_square());
-      assert(!move.is_castle());
-      assert(!move.is_en_passantable());
-      assert(!move.is_promotion());
-    }
-  }));
-  move_test_case.tests.push_back(
+    TestFW::TestCase move_test_case("Move");
+    move_test_case.tests.push_back(TestFW::Test("Move::get_source_square", []() {
+      for(int i = 0; i < 64; i++) {
+        Move move(i, 0);
+        assert(i == move.get_source_square());
+        assert(!move.is_castle());
+        assert(!move.is_en_passantable());
+        assert(!move.is_promotion());
+      }
+                                   }));
+    move_test_case.tests.push_back(
       TestFW::Test("Move::get_destination_square", []() {
-        for (int i = 0; i < 64; i++) {
+        for(int i = 0; i < 64; i++) {
           Move move(0, i);
           assert(i == move.get_destination_square());
           assert(!move.is_castle());
@@ -101,9 +101,9 @@ auto run_tests() -> void {
           assert(!move.is_promotion());
         }
       }));
-  move_test_case.tests.push_back(TestFW::Test(
+    move_test_case.tests.push_back(TestFW::Test(
       "Move::get_source_square & Move::get_destination_square", []() {
-        for (int i = 0; i < 64; i++) {
+        for(int i = 0; i < 64; i++) {
           int source = 63 - i;
           int dest = i;
           Move move(source, dest);
@@ -114,27 +114,27 @@ auto run_tests() -> void {
           assert(!move.is_promotion());
         }
       }));
-  move_test_case.tests.push_back(TestFW::Test("Move::get_en_passant", []() {
-    Move move(1, 1);
-    move.set_en_passant(3);
-    TFW_ASSERT_EQ(true, move.is_en_passantable());
-    TFW_ASSERT_EQ(3, move.get_en_passant());
-  }));
-  move_test_case.tests.push_back(TestFW::Test("Move::get_castle", []() {
-    Move move(1, 1);
-    move.set_castle(Castles::WHITE_QUEEN);
-    TFW_ASSERT_EQ(true, move.is_castle());
-    TFW_ASSERT_EQ(Castles::WHITE_QUEEN, move.get_castle());
-  }));
-  move_test_case.tests.push_back(TestFW::Test("Move::get_promotion", []() {
-    Move move(1, 1);
-    TFW_ASSERT_EQ(false, move.is_promotion());
-    move.set_promotion(PieceCodes::BISHOP);
-    TFW_ASSERT_EQ(true, move.is_promotion());
-    TFW_ASSERT_EQ(PieceCodes::BISHOP, move.get_promotion());
-  }));
-  game_utils_unit_test.test_cases.push_back(move_test_case);
+    move_test_case.tests.push_back(TestFW::Test("Move::get_en_passant", []() {
+      Move move(1, 1);
+      move.set_en_passant(3);
+      TFW_ASSERT_EQ(true, move.is_en_passantable());
+      TFW_ASSERT_EQ(3, move.get_en_passant());
+                                   }));
+    move_test_case.tests.push_back(TestFW::Test("Move::get_castle", []() {
+      Move move(1, 1);
+      move.set_castle(Castles::WHITE_QUEEN);
+      TFW_ASSERT_EQ(true, move.is_castle());
+      TFW_ASSERT_EQ(Castles::WHITE_QUEEN, move.get_castle());
+                                   }));
+    move_test_case.tests.push_back(TestFW::Test("Move::get_promotion", []() {
+      Move move(1, 1);
+      TFW_ASSERT_EQ(false, move.is_promotion());
+      move.set_promotion(PieceCodes::BISHOP);
+      TFW_ASSERT_EQ(true, move.is_promotion());
+      TFW_ASSERT_EQ(PieceCodes::BISHOP, move.get_promotion());
+                                   }));
+    game_utils_unit_test.test_cases.push_back(move_test_case);
 
-  game_utils_unit_test.run();
-}
+    game_utils_unit_test.run();
+  }
 }  // namespace Tests

@@ -1,16 +1,16 @@
 #include "GameState.hpp"
 
 GameState::GameState()
-    : position(),
-      white_to_move(true),
-      white_king_moved(false),
-      white_rook_A_moved(false),
-      white_rook_H_moved(false),
-      black_king_moved(false),
-      black_rook_A_moved(false),
-      black_rook_H_moved(false),
-      is_legal(true),
-      pawn_ep(15) {}
+  : position(),
+  white_to_move(true),
+  white_king_moved(false),
+  white_rook_A_moved(false),
+  white_rook_H_moved(false),
+  black_king_moved(false),
+  black_rook_A_moved(false),
+  black_rook_H_moved(false),
+  is_legal(true),
+  pawn_ep(15) {}
 
 auto GameState::init() -> void {
   this->position.init();
@@ -34,35 +34,21 @@ auto GameState::apply_move(const Move move) -> void {
   const Color color = this->position.get_color(source_bit_board);
 
   // TODO(EMU): Does this check make sense here?
-  if ((color == Colors::WHITE && !this->white_to_move) ||
-      (color == Colors::BLACK && this->white_to_move)) {
+  if((color == Colors::WHITE && !this->white_to_move) ||
+     (color == Colors::BLACK && this->white_to_move)) {
     this->is_legal = false;
     return;
   }
-
-  if ((color == Colors::WHITE &&
-       this->position.is_white_occupied(destination_bit_board)) ||
-      (color == Colors::BLACK &&
-       this->position.is_black_occupied(destination_bit_board))) {
-    this->is_legal = false;
-    return;
-  }
-
-  this->pawn_ep = move.get_en_passant();
 
   PieceCode piece_code = 0;
-  if (move.is_promotion()) {
-    piece_code = move.get_promotion();
-  } else {
-    piece_code = this->position.get_piece_type(source_bit_board);
-  }
-
   const bool is_castle = move.is_castle();
   const Castle castle = move.get_castle();
 
-  if (is_castle) {
-    if (color == Colors::WHITE) {
-      if (castle == Castles::WHITE_KING) {
+  if(is_castle) {
+    piece_code = PieceCodes::KING;
+
+    if(color == Colors::WHITE) {
+      if(castle == Castles::WHITE_KING) {
         this->position.clear(BitBoards::WHITE_KING_START |
                              BitBoards::WHITE_ROOK_H_START);
         this->position.add(PieceCodes::KING, color,
@@ -78,7 +64,7 @@ auto GameState::apply_move(const Move move) -> void {
                            BitBoards::WHITE_ROOK_QUEEN_CASTLE);
       }
     } else {
-      if (castle == Castles::BLACK_KING) {
+      if(castle == Castles::BLACK_KING) {
         this->position.clear(BitBoards::BLACK_KING_START |
                              BitBoards::BLACK_ROOK_H_START);
         this->position.add(PieceCodes::KING, color,
@@ -95,13 +81,29 @@ auto GameState::apply_move(const Move move) -> void {
       }
     }
   } else {
+    if((color == Colors::WHITE &&
+       this->position.is_white_occupied(destination_bit_board)) ||
+       (color == Colors::BLACK &&
+       this->position.is_black_occupied(destination_bit_board))) {
+      this->is_legal = false;
+      return;
+    }
+
+    this->pawn_ep = move.get_en_passant();
+
+    if(move.is_promotion()) {
+      piece_code = move.get_promotion();
+    } else {
+      piece_code = this->position.get_piece_type(source_bit_board);
+    }
+
     this->position.clear(source_bit_board | destination_bit_board);
     this->position.add(piece_code, color, destination_bit_board);
   }
 
   this->position.recompute_threaten();
 
-  if (color == Colors::WHITE) {
+  if(color == Colors::WHITE) {
     this->is_legal = !this->is_white_in_check();
   } else {
     this->is_legal = !this->is_black_in_check();
@@ -109,39 +111,35 @@ auto GameState::apply_move(const Move move) -> void {
 
   this->white_to_move = !this->white_to_move;
   this->white_king_moved =
-      color == Colors::WHITE && (piece_code == PieceCodes::KING || is_castle);
+    color == Colors::WHITE && (piece_code == PieceCodes::KING || is_castle);
   this->white_rook_A_moved =
-      color == Colors::WHITE &&
-      ((piece_code == PieceCodes::ROOK &&
-        source_bit_board == BitBoards::WHITE_ROOK_A_START) ||
-       castle == Castles::WHITE_QUEEN);
+    color == Colors::WHITE &&
+    ((piece_code == PieceCodes::ROOK &&
+     source_bit_board == BitBoards::WHITE_ROOK_A_START) ||
+     castle == Castles::WHITE_QUEEN);
   this->white_rook_H_moved =
-      color == Colors::WHITE &&
-      ((piece_code == PieceCodes::ROOK &&
-        source_bit_board == BitBoards::WHITE_ROOK_H_START) ||
-       castle == Castles::WHITE_KING);
+    color == Colors::WHITE &&
+    ((piece_code == PieceCodes::ROOK &&
+     source_bit_board == BitBoards::WHITE_ROOK_H_START) ||
+     castle == Castles::WHITE_KING);
 
   this->black_king_moved =
-      color == Colors::BLACK && (piece_code == PieceCodes::KING || is_castle);
+    color == Colors::BLACK && (piece_code == PieceCodes::KING || is_castle);
   this->black_rook_A_moved =
-      color == Colors::BLACK &&
-      ((piece_code == PieceCodes::ROOK &&
-        source_bit_board == BitBoards::WHITE_ROOK_A_START) ||
-       castle == Castles::BLACK_QUEEN);
+    color == Colors::BLACK &&
+    ((piece_code == PieceCodes::ROOK &&
+     source_bit_board == BitBoards::WHITE_ROOK_A_START) ||
+     castle == Castles::BLACK_QUEEN);
   this->black_rook_H_moved =
-      color == Colors::BLACK &&
-      ((piece_code == PieceCodes::ROOK &&
-        source_bit_board == BitBoards::WHITE_ROOK_H_START) ||
-       castle == Castles::BLACK_KING);
+    color == Colors::BLACK &&
+    ((piece_code == PieceCodes::ROOK &&
+     source_bit_board == BitBoards::WHITE_ROOK_H_START) ||
+     castle == Castles::BLACK_KING);
 }
 
 auto GameState::is_white_in_check() const -> bool {
-  const BitBoard king_bit_board =
-      this->position.get_piece_color_bit_board(PieceCodes::KING, Colors::WHITE);
-  return this->position.is_black_threaten(king_bit_board);
+  return this->is_color_in_check<Colors::WHITE>();
 }
 auto GameState::is_black_in_check() const -> bool {
-  const BitBoard king_bit_board =
-      this->position.get_piece_color_bit_board(PieceCodes::KING, Colors::BLACK);
-  return this->position.is_white_threaten(king_bit_board);
+  return this->is_color_in_check<Colors::BLACK>();
 }

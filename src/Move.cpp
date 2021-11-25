@@ -54,27 +54,27 @@ auto Move::get_castle() const -> Castle {
 
 auto Move::set_promotion(const PieceCode piece_code) -> void {
   this->m_move = (this->m_move & ~(Move::MASK_3_BITS << Move::PROMO_OFFSET)) |
-                 (piece_code & Move::MASK_3_BITS) << Move::PROMO_OFFSET;
+    (piece_code & Move::MASK_3_BITS) << Move::PROMO_OFFSET;
 }
 
 auto Move::set_en_passant(const int32_t column_index) -> void {
   this->m_move = (this->m_move & ~(Move::MASK_4_BITS << Move::EN_OFFSET)) |
-                 (column_index & Move::MASK_4_BITS) << Move::EN_OFFSET;
+    (column_index & Move::MASK_4_BITS) << Move::EN_OFFSET;
 }
 
 auto Move::set_castle(const Castle castle) -> void {
   this->m_move = (this->m_move & ~(Move::MASK_3_BITS << Move::CASTLE_OFFSET)) |
-                 (castle & Move::MASK_3_BITS) << Move::CASTLE_OFFSET;
+    (castle & Move::MASK_3_BITS) << Move::CASTLE_OFFSET;
 }
 
 auto Move::is_promotion() const -> bool {
   return ((this->m_move >> Move::PROMO_OFFSET) & Move::MASK_3_BITS) !=
-         Move::MASK_3_BITS;
+    Move::MASK_3_BITS;
 }
 
 auto Move::is_en_passantable() const -> bool {
   return ((this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS) !=
-         Move::MASK_4_BITS;
+    Move::MASK_4_BITS;
 }
 
 auto Move::is_castle() const -> bool {
@@ -85,51 +85,61 @@ auto Move::to_string() const -> std::string {
   std::string move_str = "";
 
   auto is_castle = this->is_castle();
-  if (is_castle) {
+  if(is_castle) {
     auto castle = this->get_castle();
-    switch (castle) {
-      case Castles::WHITE_KING: {
+    switch(castle) {
+      case Castles::WHITE_KING:
+      {
         move_str = "e1g1";
         break;
       }
-      case Castles::WHITE_QUEEN: {
+      case Castles::WHITE_QUEEN:
+      {
         move_str = "e1c1";
         break;
       }
-      case Castles::BLACK_KING: {
+      case Castles::BLACK_KING:
+      {
         move_str = "e8g8";
         break;
       }
-      case Castles::BLACK_QUEEN: {
+      case Castles::BLACK_QUEEN:
+      {
         move_str = "e8c8";
         break;
       }
-      default: {
+      default:
+      {
         assert(false);
       }
     }
   } else {
     move_str += GameUtils::get_tile_name(this->get_source_bit_board());
     move_str += GameUtils::get_tile_name(this->get_destination_bit_board());
-    if (this->is_promotion()) {
-      switch (this->get_promotion()) {
-        case PieceCodes::BISHOP: {
+    if(this->is_promotion()) {
+      switch(this->get_promotion()) {
+        case PieceCodes::BISHOP:
+        {
           move_str += 'b';
           break;
         }
-        case PieceCodes::KNIGHT: {
+        case PieceCodes::KNIGHT:
+        {
           move_str += 'k';
           break;
         }
-        case PieceCodes::ROOK: {
+        case PieceCodes::ROOK:
+        {
           move_str += 'r';
           break;
         }
-        case PieceCodes::QUEEN: {
+        case PieceCodes::QUEEN:
+        {
           move_str += 'q';
           break;
         }
-        default: {
+        default:
+        {
           assert(false);
         }
       }

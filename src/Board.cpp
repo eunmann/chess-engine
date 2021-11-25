@@ -9,7 +9,9 @@
 #include "Definitions.hpp"
 #include "color/color.hpp"
 
-Board::Board() { this->clear(); };
+Board::Board() {
+  this->clear();
+};
 
 auto Board::init_standard() -> void {
   constexpr std::array<PieceCode, 8> init_rank{
@@ -18,14 +20,14 @@ auto Board::init_standard() -> void {
       PieceCodes::KNIGHT, PieceCodes::ROOK};
 
   const int bottom_start = 8 * 6;
-  for (int i = 0; i < 8; ++i) {
+  for(int i = 0; i < 8; ++i) {
     this->positions[i] = init_rank[i] * -1;
     this->positions[i + 8] = 1 * -1;
     this->positions[bottom_start + 8 + i] = init_rank[i];
     this->positions[bottom_start + i] = 1;
   }
 
-  for (int i = 8 * 2; i < bottom_start; i++) {
+  for(int i = 8 * 2; i < bottom_start; i++) {
     this->positions[i] = 0;
   }
 }
@@ -44,19 +46,19 @@ auto Board::print() const -> void {
 
   out += "\n";
 
-  for (char i = BOARD_DIM - 1; i >= 0; --i) {
+  for(char i = BOARD_DIM - 1; i >= 0; --i) {
     out += std::string(1, '1' + i);
     out += " |";
-    for (uint64_t j = 0; j < BOARD_DIM; ++j) {
+    for(uint64_t j = 0; j < BOARD_DIM; ++j) {
       int8_t value = this->positions[i * BOARD_DIM + j];
 
 #ifdef __linux__
-      if (value < 0) {
+      if(value < 0) {
         out += "\033[1;34m";
       }
 #endif
       std::string c;
-      switch (value) {
+      switch(value) {
         case BoardValues::EMPTY:
           c = ' ';
           break;
@@ -90,12 +92,12 @@ auto Board::print() const -> void {
       }
 
 #ifdef __linux__
-      if (value < 0) {
+      if(value < 0) {
         out += c;
         out += "\033[0m";
       }
 #elif _WIN32
-      if (value < 0) {
+      if(value < 0) {
         out += dye::purple(c);
       } else {
         out += c;
@@ -109,7 +111,7 @@ auto Board::print() const -> void {
 
   out += "\n  ";
 
-  for (char i = 0; i < 8; i++) {
+  for(char i = 0; i < 8; i++) {
     out += " ";
     out += std::string(1, 'a' + i);
   }

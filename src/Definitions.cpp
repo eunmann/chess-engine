@@ -1,26 +1,33 @@
 #include "Definitions.hpp"
 
 auto PieceCodes::to_char(PieceCode piece_code) -> char {
-  switch (piece_code) {
-    case PieceCodes::PAWN: {
+  switch(piece_code) {
+    case PieceCodes::PAWN:
+    {
       return ' ';
     }
-    case PieceCodes::KNIGHT: {
+    case PieceCodes::KNIGHT:
+    {
       return 'N';
     }
-    case PieceCodes::BISHOP: {
+    case PieceCodes::BISHOP:
+    {
       return 'B';
     }
-    case PieceCodes::ROOK: {
+    case PieceCodes::ROOK:
+    {
       return 'R';
     }
-    case PieceCodes::QUEEN: {
+    case PieceCodes::QUEEN:
+    {
       return 'Q';
     }
-    case PieceCodes::KING: {
+    case PieceCodes::KING:
+    {
       return 'K';
     }
-    default: {
+    default:
+    {
       return '-';
     }
   }

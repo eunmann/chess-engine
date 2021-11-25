@@ -6,7 +6,7 @@
 #include "Definitions.hpp"
 
 class Move {
- public:
+public:
   Move();
   Move(const Square source, const Square dest);
   Move(const int& move);
@@ -14,15 +14,15 @@ class Move {
   auto set_source_square(const Square square) -> void;
   auto set_destination_square(const Square square) -> void;
 
-  auto get_source_square() const -> Square;
-  auto get_destination_square() const -> Square;
+  auto get_source_square() const->Square;
+  auto get_destination_square() const->Square;
 
-  auto get_source_bit_board() const -> BitBoard;
-  auto get_destination_bit_board() const -> BitBoard;
+  auto get_source_bit_board() const->BitBoard;
+  auto get_destination_bit_board() const->BitBoard;
 
-  auto get_promotion() const -> PieceCode;
-  auto get_en_passant() const -> int32_t;
-  auto get_castle() const -> Castle;
+  auto get_promotion() const->PieceCode;
+  auto get_en_passant() const->int32_t;
+  auto get_castle() const->Castle;
 
   auto set_promotion(const PieceCode piece_code) -> void;
   auto set_en_passant(const int32_t column_index) -> void;
@@ -32,11 +32,11 @@ class Move {
   auto is_en_passantable() const -> bool;
   auto is_castle() const -> bool;
 
-  auto to_string() const -> std::string;
+  auto to_string() const->std::string;
 
   auto operator==(const Move& move) const -> bool;
 
- private:
+private:
   uint32_t m_move = 0;
   static constexpr uint32_t SOURCE_OFFSET = 0;
   static constexpr uint32_t SOURCE_BIT_NUM = 6;

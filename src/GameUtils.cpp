@@ -23,9 +23,9 @@ auto GameUtils::print_position(const BitBoard bit_board) -> void {
   std::string output;
   output.reserve(64);
 
-  for (int32_t j = 0; j < 8; ++j) {
-    for (int32_t i = 0; i < 8; ++i) {
-      if (left_bit & temp_bit_board) {
+  for(int32_t j = 0; j < 8; ++j) {
+    for(int32_t i = 0; i < 8; ++i) {
+      if(left_bit & temp_bit_board) {
         output += '1';
       } else {
         output += '0';
@@ -45,7 +45,7 @@ auto GameUtils::shift_bit_board(const BitBoard bit_board,
   assert(horizontal > -8 && horizontal < 8);
 
   int32_t shift = vertical * 8 + horizontal;
-  if (shift >= 0) {
+  if(shift >= 0) {
     return bit_board << shift;
   } else {
     return bit_board >> (shift * -1);
@@ -55,8 +55,8 @@ auto GameUtils::shift_bit_board(const BitBoard bit_board,
 auto GameUtils::get_row(const BitBoard bit_board) -> int32_t {
   BitBoard row_mask = BitBoards::ROW_1;
 
-  for (int i = 0; i < 8; ++i) {
-    if ((bit_board & row_mask) != 0) {
+  for(int i = 0; i < 8; ++i) {
+    if((bit_board & row_mask) != 0) {
       return i;
     }
     row_mask = row_mask << 8;
@@ -68,8 +68,8 @@ auto GameUtils::get_row(const BitBoard bit_board) -> int32_t {
 auto GameUtils::get_col(const BitBoard bit_board) -> int32_t {
   BitBoard col_mask = BitBoards::COL_A;
 
-  for (int i = 0; i < 8; ++i) {
-    if ((bit_board & col_mask) != 0) {
+  for(int i = 0; i < 8; ++i) {
+    if((bit_board & col_mask) != 0) {
       return i;
     }
     col_mask = col_mask << 1;
@@ -86,11 +86,11 @@ auto GameUtils::get_row_col(const BitBoard bit_board, int32_t& row,
   row = -1;
   col = -1;
 
-  for (int i = 0; i < 8; ++i) {
-    if ((bit_board & row_mask) != 0) {
+  for(int i = 0; i < 8; ++i) {
+    if((bit_board & row_mask) != 0) {
       row = i;
     }
-    if ((bit_board & col_mask) != 0) {
+    if((bit_board & col_mask) != 0) {
       col = i;
     }
     row_mask = row_mask << 8;
@@ -115,13 +115,13 @@ auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1,
 }
 
 auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row)
-    -> bool {
+-> bool {
   const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
   return GameUtils::do_bit_boards_overlap(row_mask, bit_board);
 }
 
 auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col)
-    -> bool {
+-> bool {
   const BitBoard col_mask = BitBoards::COL_A << col;
   return GameUtils::do_bit_boards_overlap(col_mask, bit_board);
 }
@@ -165,22 +165,22 @@ auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) -> bool {
 auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
   bool need_input = true;
 
-  while (need_input) {
+  while(need_input) {
     printf("Input move: ");
     auto input = GameUtils::get_user_input();
 
-    if (input.size() < 4) {
+    if(input.size() < 4) {
       printf("Invalid input.\n");
       continue;
     }
 
-    if (input == "exit") {
+    if(input == "exit") {
       return -1;
     }
 
     Moves moves;
     Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
-    if (color_to_move == Colors::WHITE) {
+    if(color_to_move == Colors::WHITE) {
       MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
     } else {
       MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
@@ -195,8 +195,8 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
     };
 
     Moves legal_moves;
-    for (auto move : moves) {
-      if (is_move_legal(move)) {
+    for(auto move : moves) {
+      if(is_move_legal(move)) {
         legal_moves.push_back(move);
       } else {
         printf("Illegal Move: %s\n", move.to_string().c_str());
@@ -206,15 +206,16 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
     printf("Found %llu legal moves for %s\n", legal_moves.size(),
            color_to_move == Colors::WHITE ? "white" : "black");
 
-    for (auto legal_move : legal_moves) {
-      if (legal_move.to_string() == input) {
+    for(auto legal_move : legal_moves) {
+      printf("Legel Move: %s\n", legal_move.to_string().c_str());
+      if(legal_move.to_string() == input) {
         game_state.apply_move(legal_move);
         need_input = false;
         break;
       }
     }
 
-    if (need_input) {
+    if(need_input) {
       printf("Invalid input.\n");
     } else {
       break;
@@ -236,7 +237,7 @@ auto GameUtils::process_user_move(GameState& game_state,
 
   Moves moves;
   Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
-  if (color_to_move == Colors::WHITE) {
+  if(color_to_move == Colors::WHITE) {
     MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
   } else {
     MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
@@ -248,8 +249,8 @@ auto GameUtils::process_user_move(GameState& game_state,
     return check.is_legal;
   };
 
-  for (auto move : moves) {
-    if (is_move_legal(move) && move.to_string() == move_str) {
+  for(auto move : moves) {
+    if(is_move_legal(move) && move.to_string() == move_str) {
       game_state.apply_move(move);
       rv = 1;
       break;
@@ -260,9 +261,9 @@ auto GameUtils::process_user_move(GameState& game_state,
 }
 
 auto GameUtils::square_name_to_square(const std::string& square_name)
-    -> Square {
+-> Square {
   // Check string length, min 2 characters required for a move
-  if (square_name.size() < 2) {
+  if(square_name.size() < 2) {
     return 0;
   }
 
@@ -271,7 +272,7 @@ auto GameUtils::square_name_to_square(const std::string& square_name)
 
   auto invalid_input_range = [](int32_t num) { return (num < 0 || num > 7); };
 
-  if (invalid_input_range(col_index) || invalid_input_range(row_index)) {
+  if(invalid_input_range(col_index) || invalid_input_range(row_index)) {
     return 0;
   }
 
@@ -280,38 +281,43 @@ auto GameUtils::square_name_to_square(const std::string& square_name)
 
 auto GameUtils::move_str_to_move(const std::string& move_str) -> Move {
   // Check string length, min 4 characters required for a move
-  if (move_str.size() < 4) {
+  if(move_str.size() < 4) {
     // TODO(EMU): This might cause problems. It might think this is a valid move
     return Move();
   }
 
   auto source_square = GameUtils::square_name_to_square(move_str);
   auto destintion_square =
-      GameUtils::square_name_to_square(move_str.substr(2, 2));
+    GameUtils::square_name_to_square(move_str.substr(2, 2));
 
   Move move(source_square, destintion_square);
 
   // Check if moves promotes a pawn
-  if (move_str.size() == 5) {
+  if(move_str.size() == 5) {
     PieceCode promotion_piece_code = PieceCodes::NUM;
-    switch (move_str[4]) {
-      case 'n': {
+    switch(move_str[4]) {
+      case 'n':
+      {
         promotion_piece_code = PieceCodes::KNIGHT;
         break;
       }
-      case 'b': {
+      case 'b':
+      {
         promotion_piece_code = PieceCodes::BISHOP;
         break;
       }
-      case 'r': {
+      case 'r':
+      {
         promotion_piece_code = PieceCodes::ROOK;
         break;
       }
-      case 'q': {
+      case 'q':
+      {
         promotion_piece_code = PieceCodes::QUEEN;
         break;
       }
-      default: {
+      default:
+      {
         break;
       }
     }
@@ -322,9 +328,9 @@ auto GameUtils::move_str_to_move(const std::string& move_str) -> Move {
 }
 
 auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
-  for (int i = 0; i < sizeof(BitBoard) * 8; i++) {
+  for(int i = 0; i < sizeof(BitBoard) * 8; i++) {
     BitBoard test = 0b1ULL << i;
-    if ((test & bit_board) != 0) {
+    if((test & bit_board) != 0) {
       return i;
     }
   }
@@ -332,12 +338,12 @@ auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
 }
 
 auto GameUtils::for_each_set_square(
-    const BitBoard bit_board, const std::function<void(Square square)>& func)
-    -> void {
+  const BitBoard bit_board, const std::function<void(Square square)>& func)
+  -> void {
   BitBoard temp_bit_board = bit_board;
-  while (true) {
+  while(true) {
     Square square = GameUtils::bit_board_to_square(temp_bit_board);
-    if (square == -1) {
+    if(square == -1) {
       break;
     }
     func(square);
@@ -346,12 +352,12 @@ auto GameUtils::for_each_set_square(
 }
 
 auto GameUtils::for_each_bit_board(
-    const BitBoard bit_board,
-    const std::function<void(BitBoard bit_board)>& func) -> void {
+  const BitBoard bit_board,
+  const std::function<void(BitBoard bit_board)>& func) -> void {
   BitBoard temp_bit_board = bit_board;
-  while (true) {
+  while(true) {
     Square square = GameUtils::bit_board_to_square(temp_bit_board);
-    if (square == -1) {
+    if(square == -1) {
       break;
     }
     BitBoard single_bit_board = GameUtils::square_to_bit_board(square);

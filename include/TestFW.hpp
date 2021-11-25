@@ -29,33 +29,33 @@
 
 namespace TestFW {
 
-class Test {
- public:
-  Test(const std::string& description, const std::function<void()> test);
+  class Test {
+  public:
+    Test(const std::string& description, const std::function<void()> test);
 
-  auto run() -> void;
+    auto run() -> void;
 
-  std::string description;
-  std::function<void()> test;
-};
+    std::string description;
+    std::function<void()> test;
+  };
 
-class TestCase {
- public:
-  TestCase(const std::string& description);
+  class TestCase {
+  public:
+    TestCase(const std::string& description);
 
-  auto run() -> void;
+    auto run() -> void;
 
-  std::string description;
-  std::vector<Test> tests;
-};
+    std::string description;
+    std::vector<Test> tests;
+  };
 
-class UnitTest {
- public:
-  UnitTest(const std::string& description);
+  class UnitTest {
+  public:
+    UnitTest(const std::string& description);
 
-  auto run() -> void;
+    auto run() -> void;
 
-  std::string description;
-  std::vector<TestCase> test_cases;
-};
+    std::string description;
+    std::vector<TestCase> test_cases;
+  };
 }  // namespace TestFW
