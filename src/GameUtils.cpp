@@ -207,7 +207,7 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
            color_to_move == Colors::WHITE ? "white" : "black");
 
     for(auto legal_move : legal_moves) {
-      printf("Legel Move: %s\n", legal_move.to_string().c_str());
+      printf("Legal Move: %s\n", legal_move.to_string().c_str());
       if(legal_move.to_string() == input) {
         game_state.apply_move(legal_move);
         need_input = false;

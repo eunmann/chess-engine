@@ -157,7 +157,7 @@ auto Position::recompute_threaten() -> void {
 }
 
 auto Position::is_empty(const BitBoard bit_board) const -> bool {
-  return (this->get_empty_bit_board() & bit_board) != 0;
+  return !this->is_occupied(bit_board);
 }
 
 auto Position::is_occupied(const BitBoard bit_board) const -> bool {

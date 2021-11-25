@@ -85,8 +85,7 @@ namespace MoveGeneration {
           if(GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
             add_promotion_moves(next_pawn_bit_board);
           } else {
-            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
-              next_pawn_bit_board)));
+            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
           }
 
           // First Move Up 2
@@ -94,8 +93,7 @@ namespace MoveGeneration {
             next_pawn_bit_board =
               GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
             if(game_state.position.is_empty(next_pawn_bit_board)) {
-              Move move(source_square,
-                        GameUtils::bit_board_to_square(next_pawn_bit_board));
+              Move move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board));
               move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
               moves.push_back(move);
             }
@@ -112,24 +110,18 @@ namespace MoveGeneration {
           ? 0
           : GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
 
-        if(game_state.position.is_occupied<opponent_color>(
-          pawn_bit_board_left_capture)) {
+        if(game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture)) {
           // Promotions
-          if(GameUtils::is_piece_in_row(pawn_bit_board_left_capture,
-             promotion_row)) {
+          if(GameUtils::is_piece_in_row(pawn_bit_board_left_capture, promotion_row)) {
             add_promotion_moves(pawn_bit_board_left_capture);
           } else {
-            moves.push_back(Move(
-              source_square,
-              GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
+            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
           }
         }
 
-        if(game_state.position.is_occupied<opponent_color>(
-          pawn_bit_board_right_capture)) {
+        if(game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_right_capture)) {
           // Promotions
-          if(GameUtils::is_piece_in_row(pawn_bit_board_right_capture,
-             promotion_row)) {
+          if(GameUtils::is_piece_in_row(pawn_bit_board_right_capture, promotion_row)) {
             add_promotion_moves(pawn_bit_board_right_capture);
           } else {
             moves.push_back(Move(
@@ -147,13 +139,9 @@ namespace MoveGeneration {
 
         if(GameUtils::is_piece_in_row(source_bit_board, source_row)) {
           if((en_pawn_col - 1) == pawn_col) {
-            moves.push_back(Move(
-              source_square,
-              GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
+            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
           } else if((en_pawn_col + 1) == pawn_col) {
-            moves.push_back(Move(
-              source_square,
-              GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
+            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
           }
         }
       });
@@ -397,9 +385,11 @@ namespace MoveGeneration {
              game_state.position.is_empty(queen_castle) &&
              !game_state.position.is_threaten<opponent_color>(queen_castle)) {
             Move move;
-            constexpr Castle king_side =
-              color == Colors::WHITE ? Castles::WHITE_KING : Castles::BLACK_KING;
-            move.set_castle(king_side);
+            constexpr Castle queen_side = color == Colors::WHITE
+              ? Castles::WHITE_QUEEN
+              : Castles::BLACK_QUEEN;
+
+            move.set_castle(queen_side);
             moves.push_back(move);
           }
 
@@ -407,14 +397,13 @@ namespace MoveGeneration {
             ? BitBoards::WHITE_KING_CASTLE
             : BitBoards::BLACK_KING_CASTLE;
           // King Side
-          if(!game_state.has_rook_H_moved<color> &&
+          if(!game_state.has_rook_H_moved<color>() &&
              game_state.position.is_empty(king_castle) &&
              !game_state.position.is_threaten<opponent_color>(king_castle)) {
             Move move;
-            constexpr Castle queen_side = color == Colors::WHITE
-              ? Castles::WHITE_QUEEN
-              : Castles::BLACK_QUEEN;
-            move.set_castle(queen_side);
+            constexpr Castle king_side =
+              color == Colors::WHITE ? Castles::WHITE_KING : Castles::BLACK_KING;
+            move.set_castle(king_side);
             moves.push_back(move);
           }
         }

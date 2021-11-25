@@ -16,19 +16,19 @@ public:
 
   auto get_piece_bit_board(const PieceCode piece_code) const->BitBoard;
   template <const PieceCode piece_code>
-  constexpr auto get_piece_bit_board() const -> BitBoard {
+  auto get_piece_bit_board() const -> BitBoard {
     return this->piece_positions[piece_code];
   }
 
   auto get_color_bit_board(const Color color) const->BitBoard;
   template <const Color color>
-  constexpr auto get_color_bit_board() const -> BitBoard {
+  auto get_color_bit_board() const -> BitBoard {
     return this->color_positions[color];
   }
   auto get_piece_color_bit_board(const PieceCode piece_code,
                                  const Color color) const->BitBoard;
   template <const PieceCode piece_code, const Color color>
-  constexpr auto get_piece_color_bit_board() -> BitBoard {
+  auto get_piece_color_bit_board() const-> BitBoard {
     return this->get_piece_bit_board<piece_code>() &
       this->get_color_bit_board<color>();
   }
@@ -42,7 +42,7 @@ public:
   auto get_white_bit_board() const->BitBoard;
   auto get_black_bit_board() const->BitBoard;
   template <const Color color>
-  constexpr auto get_bit_board() const -> BitBoard {
+  auto get_bit_board() const -> BitBoard {
     if constexpr(color == Colors::WHITE) {
       return this->get_white_bit_board();
     } else {
@@ -53,7 +53,7 @@ public:
   auto get_white_threaten() const->BitBoard;
   auto get_black_threaten() const->BitBoard;
   template <const Color color>
-  constexpr auto get_threaten() const -> BitBoard {
+  auto get_threaten() const -> BitBoard {
     return this->threaten_positions[color];
   }
 
