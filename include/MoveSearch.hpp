@@ -21,13 +21,16 @@ constexpr auto alpha_beta_pruning_search(const GameState& game_state,
 
   Moves moves;
   MoveGeneration::get_moves<max_color>(game_state, moves);
+  auto is_move_legal = [&game_state](const Move move) {
+    GameState check = game_state;
+    check.apply_move(move);
+    return check.is_legal;
+  };
 
   if constexpr (max_color == Colors::WHITE) {
     int32_t best_heuristic = PieceValues::NEG_INFINITY;
     for (auto move : moves) {
-      GameState check = game_state;
-      check.apply_move(move);
-      if (!check.is_legal) {
+      if (!is_move_legal(move)) {
         continue;
       }
       best_heuristic = std::max(
@@ -42,9 +45,7 @@ constexpr auto alpha_beta_pruning_search(const GameState& game_state,
   } else {
     int32_t best_heuristic = PieceValues::POS_INFINITY;
     for (auto move : moves) {
-      GameState check = game_state;
-      check.apply_move(move);
-      if (!check.is_legal) {
+      if (!is_move_legal(move)) {
         continue;
       }
       best_heuristic = std::min(

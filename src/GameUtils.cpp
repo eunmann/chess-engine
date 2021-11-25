@@ -166,52 +166,17 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
   bool need_input = true;
 
   while (need_input) {
-    printf("Select piece: ");
+    printf("Input move: ");
     auto input = GameUtils::get_user_input();
 
-    BitBoard selected_col;
-    BitBoard selected_row;
+    if (input.size() < 4) {
+      printf("Invalid input.\n");
+      continue;
+    }
 
-    if (input.size() == 2) {
-      char column_name = input[0];
-      char row_name = input[1];
-
-      selected_col = column_name - 'a';
-      selected_row = row_name - '1';
-
-      const BitBoard selected_position_bit_board =
-          GameUtils::shift_bit_board(0b1ULL, selected_row, selected_col);
-
-      if (!game_state.position.is_occupied(selected_position_bit_board)) {
-        printf("Invalid selection. No piece found.\n");
-        continue;
-      }
-    } else if (input.compare("exit") == 0) {
+    if (input == "exit") {
       return -1;
-    } else {
-      printf("Invalid input.\n");
-      continue;
     }
-
-    printf("Select destination: ");
-    input = GameUtils::get_user_input();
-
-    BitBoard dest_col;
-    BitBoard dest_row;
-
-    if (input.size() == 2) {
-      char column_name = input[0];
-      char row_name = input[1];
-
-      dest_col = column_name - 'a';
-      dest_row = row_name - '1';
-    } else {
-      printf("Invalid input.\n");
-      continue;
-    }
-
-    BitBoard next_position =
-        GameUtils::shift_bit_board(0b1ULL, dest_row, dest_col);
 
     Moves moves;
     Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
@@ -230,28 +195,27 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
     };
 
     Moves legal_moves;
-    std::copy_if(moves.begin(), moves.end(), legal_moves.begin(),
-                 is_move_legal);
+    for (auto move : moves) {
+      if (is_move_legal(move)) {
+        legal_moves.push_back(move);
+      } else {
+        printf("Illegal Move: %s\n", move.to_string().c_str());
+      }
+    }
 
     printf("Found %llu legal moves for %s\n", legal_moves.size(),
            color_to_move == Colors::WHITE ? "white" : "black");
 
-    for (auto move : legal_moves) {
-      printf("Move: %s\n", move.to_string().c_str());
-
-      if (move.get_destination_bit_board() == next_position) {
-        GameState check = game_state;
-        check.apply_move(move);
-        if (check.is_legal) {
-          game_state = check;
-          need_input = false;
-        }
+    for (auto legal_move : legal_moves) {
+      if (legal_move.to_string() == input) {
+        game_state.apply_move(legal_move);
+        need_input = false;
         break;
       }
     }
 
     if (need_input) {
-      printf("Invalid input, that piece cannot move there.\n");
+      printf("Invalid input.\n");
     } else {
       break;
     }
@@ -266,37 +230,30 @@ auto GameUtils::get_user_input() -> std::string {
   return input;
 }
 
-auto GameUtils::process_user_move(GameState& game_state, const Move move)
-    -> int32_t {
-  int32_t rv = 1;
+auto GameUtils::process_user_move(GameState& game_state,
+                                  const std::string& move_str) -> int32_t {
+  int32_t rv = 0;
 
-  Moves legal_moves;
+  Moves moves;
   Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
   if (color_to_move == Colors::WHITE) {
-    MoveGeneration::get_moves<Colors::WHITE>(game_state, legal_moves);
+    MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
   } else {
-    MoveGeneration::get_moves<Colors::BLACK>(game_state, legal_moves);
+    MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
   }
 
-  // TODO(EMU): No moves, should return value to indicate?
-  if (legal_moves.size() == 0) {
-    return rv;
-  }
+  auto is_move_legal = [&game_state](const Move move) {
+    GameState check = game_state;
+    check.apply_move(move);
+    return check.is_legal;
+  };
 
-  bool input_move_legal =
-      std::any_of(legal_moves.begin(), legal_moves.end(),
-                  [&game_state, &input_move_legal, move](Move legal_move) {
-                    if (move == legal_move) {
-                      game_state.apply_move(move);
-                      return true;
-                    } else {
-                      return true;
-                    }
-                  });
-
-  if (!input_move_legal) {
-    rv = 0;
-    return rv;
+  for (auto move : moves) {
+    if (is_move_legal(move) && move.to_string() == move_str) {
+      game_state.apply_move(move);
+      rv = 1;
+      break;
+    }
   }
 
   return rv;
@@ -355,6 +312,7 @@ auto GameUtils::move_str_to_move(const std::string& move_str) -> Move {
         break;
       }
       default: {
+        break;
       }
     }
     move.set_promotion(promotion_piece_code);

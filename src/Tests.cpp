@@ -128,6 +128,7 @@ auto run_tests() -> void {
   }));
   move_test_case.tests.push_back(TestFW::Test("Move::get_promotion", []() {
     Move move(1, 1);
+    TFW_ASSERT_EQ(false, move.is_promotion());
     move.set_promotion(PieceCodes::BISHOP);
     TFW_ASSERT_EQ(true, move.is_promotion());
     TFW_ASSERT_EQ(PieceCodes::BISHOP, move.get_promotion());

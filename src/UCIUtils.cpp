@@ -36,8 +36,7 @@ auto UCIUtils::process_input_command(GameState& game_state,
          }
          for (size_t i = 3; i < line_split.size(); ++i) {
            std::string move_str = line_split[i];
-           Move move = GameUtils::move_str_to_move(move_str);
-           if (!GameUtils::process_user_move(game_state, move)) {
+           if (!GameUtils::process_user_move(game_state, move_str)) {
              printf("info string cannot process move %s\n", move_str.c_str());
            }
          }

@@ -1,6 +1,7 @@
 #include "MoveSearch.hpp"
 
 #include <algorithm>
+#include <ranges>
 
 #include "GameUtils.hpp"
 #include "MoveGeneration.hpp"
@@ -17,22 +18,34 @@ auto MoveSearch::get_best_move(const GameState& game_state) -> Move {
   int32_t best_heuristic = color_to_move == Colors::WHITE
                                ? PieceValues::NEG_INFINITY
                                : PieceValues::POS_INFINITY;
+
+  auto is_move_legal = [&game_state](const Move move) {
+    GameState check = game_state;
+    check.apply_move(move);
+    return check.is_legal;
+  };
   Move best_move;
 
   for (auto move : moves) {
-    if (color_to_move == Colors::WHITE) {
-      int32_t heuristic = MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(
-          game_state, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
-      if (best_heuristic < heuristic) {
-        best_heuristic = heuristic;
-        best_move = move;
-      }
-    } else {
-      int32_t heuristic = MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(
-          game_state, 6, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
-      if (best_heuristic > heuristic) {
-        best_heuristic = heuristic;
-        best_move = move;
+    if (is_move_legal(move)) {
+      if (color_to_move == Colors::WHITE) {
+        int32_t heuristic =
+            MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(
+                game_state, 6, PieceValues::NEG_INFINITY,
+                PieceValues::POS_INFINITY);
+        if (best_heuristic < heuristic) {
+          best_heuristic = heuristic;
+          best_move = move;
+        }
+      } else {
+        int32_t heuristic =
+            MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(
+                game_state, 6, PieceValues::NEG_INFINITY,
+                PieceValues::POS_INFINITY);
+        if (best_heuristic > heuristic) {
+          best_heuristic = heuristic;
+          best_move = move;
+        }
       }
     }
   }
@@ -65,11 +78,11 @@ auto MoveSearch::get_position_heuristic(const GameState& game_state)
   }
 
   // Put the King in check
-  if (game_state.black_king_in_check) {
+  if (game_state.is_black_in_check()) {
     heuristic += PieceValues::PAWN / 2;
   }
 
-  if (game_state.white_king_in_check) {
+  if (game_state.is_white_in_check()) {
     heuristic -= PieceValues::PAWN / 2;
   }
 

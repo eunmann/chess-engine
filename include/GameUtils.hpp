@@ -41,15 +41,13 @@ auto is_piece_in_right_2_col(const BitBoard bit_board) -> bool;
 
 // GameState Modifiers
 auto perform_user_move(GameState& game_state) -> int32_t;
-auto process_user_move(GameState& game_state, const Move move) -> int32_t;
+auto process_user_move(GameState& game_state, const std::string& move_str)
+    -> int32_t;
 
 // Input
 auto get_user_input() -> std::string;
 auto square_name_to_square(const std::string& square_name) -> Square;
 auto move_str_to_move(const std::string& move_str) -> Move;
-
-// Output
-auto get_best_move(const GameState& game_state) -> Move;
 
 // Bit Utils
 auto for_each_set_square(const BitBoard bit_board,

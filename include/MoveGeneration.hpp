@@ -65,6 +65,8 @@ template <const Color color>
 constexpr auto get_pawn_moves(const GameState& game_state, Moves& moves)
     -> void {
   constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
+  constexpr int32_t promotion_row = color == Colors::WHITE ? 7 : 0;
+  constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
   const BitBoard pawns_bit_board =
       game_state.position.get_piece_color_bit_board(PieceCodes::PAWN, color);
 
@@ -89,43 +91,23 @@ constexpr auto get_pawn_moves(const GameState& game_state, Moves& moves)
     BitBoard next_pawn_bit_board =
         GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
     if (game_state.position.is_empty(next_pawn_bit_board)) {
-      if constexpr (color == Colors::WHITE) {
-        // Promotion
-        if (GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
-          add_promotion_moves(next_pawn_bit_board);
-        } else {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
-                                                  next_pawn_bit_board)));
-        }
+      // Promotion
+      if (GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
+        add_promotion_moves(next_pawn_bit_board);
+      } else {
+        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
+                                                next_pawn_bit_board)));
+      }
 
-        // First Move Up 2
-        if (GameUtils::is_piece_in_row(pawn_bit_board, 1)) {
-          next_pawn_bit_board =
-              GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-          if (game_state.position.is_empty(next_pawn_bit_board)) {
-            Move move(source_square, next_pawn_bit_board);
-            move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
-            moves.push_back(move);
-          }
-        }
-      } else if constexpr (color == Colors::BLACK) {
-        // Promotion
-        if (GameUtils::is_piece_in_bottom_row(next_pawn_bit_board)) {
-          add_promotion_moves(next_pawn_bit_board);
-        } else {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
-                                                  next_pawn_bit_board)));
-        }
-
-        // First Move Up 2
-        if (GameUtils::is_piece_in_row(pawn_bit_board, 6)) {
-          next_pawn_bit_board =
-              GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-          if (game_state.position.is_empty(next_pawn_bit_board)) {
-            Move move(source_square, next_pawn_bit_board);
-            move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
-            moves.push_back(move);
-          }
+      // First Move Up 2
+      if (GameUtils::is_piece_in_row(pawn_bit_board, starting_row)) {
+        next_pawn_bit_board =
+            GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
+        if (game_state.position.is_empty(next_pawn_bit_board)) {
+          Move move(source_square,
+                    GameUtils::bit_board_to_square(next_pawn_bit_board));
+          move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
+          moves.push_back(move);
         }
       }
     }
@@ -143,7 +125,8 @@ constexpr auto get_pawn_moves(const GameState& game_state, Moves& moves)
     if constexpr (color == Colors::WHITE) {
       if (game_state.position.is_black_occupied(pawn_bit_board_left_capture)) {
         // Promotions
-        if (GameUtils::is_piece_in_top_row(pawn_bit_board_left_capture)) {
+        if (GameUtils::is_piece_in_row(pawn_bit_board_left_capture,
+                                       promotion_row)) {
           add_promotion_moves(pawn_bit_board_left_capture);
         } else {
           moves.push_back(Move(
@@ -154,7 +137,8 @@ constexpr auto get_pawn_moves(const GameState& game_state, Moves& moves)
 
       if (game_state.position.is_black_occupied(pawn_bit_board_right_capture)) {
         // Promotions
-        if (GameUtils::is_piece_in_top_row(pawn_bit_board_right_capture)) {
+        if (GameUtils::is_piece_in_row(pawn_bit_board_right_capture,
+                                       promotion_row)) {
           add_promotion_moves(pawn_bit_board_right_capture);
         } else {
           moves.push_back(Move(
@@ -165,7 +149,8 @@ constexpr auto get_pawn_moves(const GameState& game_state, Moves& moves)
     } else if constexpr (color == Colors::BLACK) {
       if (game_state.position.is_white_occupied(pawn_bit_board_left_capture)) {
         // Promotions
-        if (GameUtils::is_piece_in_top_row(pawn_bit_board_left_capture)) {
+        if (GameUtils::is_piece_in_row(pawn_bit_board_left_capture,
+                                       promotion_row)) {
           add_promotion_moves(pawn_bit_board_left_capture);
         } else {
           moves.push_back(Move(
@@ -176,7 +161,8 @@ constexpr auto get_pawn_moves(const GameState& game_state, Moves& moves)
 
       if (game_state.position.is_white_occupied(pawn_bit_board_right_capture)) {
         // Promotions
-        if (GameUtils::is_piece_in_top_row(pawn_bit_board_right_capture)) {
+        if (GameUtils::is_piece_in_row(pawn_bit_board_right_capture,
+                                       promotion_row)) {
           add_promotion_moves(pawn_bit_board_right_capture);
         } else {
           moves.push_back(Move(
@@ -429,7 +415,7 @@ constexpr auto get_king_moves(const GameState& game_state, Moves& moves)
 
     if constexpr (color == Colors::WHITE) {
       // Castling
-      if (!game_state.white_king_moved && !game_state.white_king_in_check) {
+      if (!game_state.white_king_moved && !game_state.is_white_in_check()) {
         // Queen Side
         if (!game_state.white_rook_A_moved &&
             game_state.position.is_empty(BitBoards::WHITE_QUEEN_CASTLE) &&
@@ -452,7 +438,7 @@ constexpr auto get_king_moves(const GameState& game_state, Moves& moves)
       }
     } else if constexpr (color == Colors::BLACK) {
       // Castling
-      if (!game_state.black_king_moved && !game_state.black_king_in_check) {
+      if (!game_state.black_king_moved && !game_state.is_black_in_check()) {
         // Queen Side
         if (!game_state.black_rook_A_moved &&
             game_state.position.is_empty(BitBoards::BLACK_QUEEN_CASTLE) &&
@@ -559,8 +545,8 @@ constexpr auto get_knight_capture_positions(const Position& position)
       position.get_piece_color_bit_board(PieceCodes::KNIGHT, color);
   GameUtils::for_each_bit_board(
       knights_bit_board, [&capturable_bit_board](BitBoard knight_bit_board) {
-        // TODO(EMU): These if statements can be condensed. Also, better checks
-        // might be possible
+        // TODO(EMU): These if statements can be condensed. Also, better
+        // checks might be possible
         if (!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
               GameUtils::is_piece_in_left_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =

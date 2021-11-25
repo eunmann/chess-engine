@@ -110,9 +110,9 @@ auto Position::get_black_threaten() const -> BitBoard {
 }
 
 auto Position::get_color(const BitBoard bit_board) const -> Color {
-  if (this->color_positions[Colors::WHITE] | bit_board) {
+  if (this->is_white_occupied(bit_board)) {
     return Colors::WHITE;
-  } else if (this->color_positions[Colors::BLACK] | bit_board) {
+  } else if (this->is_black_occupied(bit_board)) {
     return Colors::BLACK;
   } else {
     return Colors::NUM;
@@ -121,7 +121,7 @@ auto Position::get_color(const BitBoard bit_board) const -> Color {
 
 auto Position::get_piece_type(const BitBoard bit_board) const -> PieceCode {
   for (PieceCode p = PieceCodes::PAWN; p < PieceCodes::NUM; p++) {
-    if (this->piece_positions[p] | bit_board) {
+    if ((this->piece_positions[p] & bit_board) != 0) {
       return p;
     }
   }

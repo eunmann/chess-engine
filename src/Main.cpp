@@ -49,17 +49,16 @@ int main() {
   game_state.init();
 
   // Prints out the board after each move, for debugging
-  auto console = true;
+  auto console = false;
   if (console) {
     do {
       print_bit_board(game_state.position);
-      GameUtils::perform_user_move(game_state);
-    } while (true);
+    } while (GameUtils::perform_user_move(game_state));
   } else {
     std::string input_command;
     do {
       input_command = GameUtils::get_user_input();
-    } while (!UCIUtils::process_input_command(game_state, input_command));
+    } while (UCIUtils::process_input_command(game_state, input_command));
   }
 
   return 0;
