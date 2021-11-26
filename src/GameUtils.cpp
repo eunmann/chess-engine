@@ -13,11 +13,11 @@
 #include "MoveGeneration.hpp"
 #include "Moves.hpp"
 
-auto GameUtils::square_to_bit_board(const Square square) -> BitBoard {
+auto GameUtils::square_to_bit_board(const Square square) noexcept -> BitBoard {
   return 0b1ULL << square;
 }
 
-auto GameUtils::print_position(const BitBoard bit_board) -> void {
+auto GameUtils::print_position(const BitBoard bit_board) noexcept -> void {
   const BitBoard left_bit = 1ULL << 63;
   BitBoard temp_bit_board = bit_board;
   std::string output;
@@ -40,7 +40,7 @@ auto GameUtils::print_position(const BitBoard bit_board) -> void {
 
 auto GameUtils::shift_bit_board(const BitBoard bit_board,
                                 const int32_t vertical,
-                                const int32_t horizontal) -> BitBoard {
+                                const int32_t horizontal) noexcept -> BitBoard {
   assert(vertical > -8 && vertical < 8);
   assert(horizontal > -8 && horizontal < 8);
 
@@ -52,7 +52,7 @@ auto GameUtils::shift_bit_board(const BitBoard bit_board,
   }
 }
 
-auto GameUtils::get_row(const BitBoard bit_board) -> int32_t {
+auto GameUtils::get_row(const BitBoard bit_board) noexcept -> int32_t {
   BitBoard row_mask = BitBoards::ROW_1;
 
   for(int i = 0; i < 8; ++i) {
@@ -65,7 +65,7 @@ auto GameUtils::get_row(const BitBoard bit_board) -> int32_t {
   return -1;
 }
 
-auto GameUtils::get_col(const BitBoard bit_board) -> int32_t {
+auto GameUtils::get_col(const BitBoard bit_board) noexcept -> int32_t {
   BitBoard col_mask = BitBoards::COL_A;
 
   for(int i = 0; i < 8; ++i) {
@@ -79,7 +79,7 @@ auto GameUtils::get_col(const BitBoard bit_board) -> int32_t {
 }
 
 auto GameUtils::get_row_col(const BitBoard bit_board, int32_t& row,
-                            int32_t& col) -> void {
+                            int32_t& col) noexcept -> void {
   BitBoard row_mask = BitBoards::ROW_1;
   BitBoard col_mask = BitBoards::COL_A;
 
@@ -98,7 +98,7 @@ auto GameUtils::get_row_col(const BitBoard bit_board, int32_t& row,
   }
 }
 
-auto GameUtils::get_tile_name(const BitBoard bit_board) -> std::string {
+auto GameUtils::get_tile_name(const BitBoard bit_board) noexcept -> std::string {
   int32_t row, col;
   GameUtils::get_row_col(bit_board, row, col);
 
@@ -110,59 +110,59 @@ auto GameUtils::get_tile_name(const BitBoard bit_board) -> std::string {
 }
 
 auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1,
-                                      const BitBoard bit_board_2) -> bool {
+                                      const BitBoard bit_board_2) noexcept -> bool {
   return (bit_board_1 & bit_board_2) != 0;
 }
 
 auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row)
--> bool {
+noexcept -> bool {
   const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
   return GameUtils::do_bit_boards_overlap(row_mask, bit_board);
 }
 
 auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col)
--> bool {
+noexcept -> bool {
   const BitBoard col_mask = BitBoards::COL_A << col;
   return GameUtils::do_bit_boards_overlap(col_mask, bit_board);
 }
 
-auto GameUtils::is_piece_in_top_row(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_top_row(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::ROW_8, bit_board);
 }
 
-auto GameUtils::is_piece_in_top_2_row(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_top_2_row(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::ROW_8 | BitBoards::ROW_7,
                                           bit_board);
 }
 
-auto GameUtils::is_piece_in_bottom_row(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::ROW_1, bit_board);
 }
 
-auto GameUtils::is_piece_in_bottom_2_row(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_bottom_2_row(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::ROW_1 | BitBoards::ROW_2,
                                           bit_board);
 }
 
-auto GameUtils::is_piece_in_left_col(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_left_col(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::COL_A, bit_board);
 }
 
-auto GameUtils::is_piece_in_left_2_col(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_left_2_col(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::COL_A | BitBoards::COL_B,
                                           bit_board);
 }
 
-auto GameUtils::is_piece_in_right_col(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_right_col(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::COL_H, bit_board);
 }
 
-auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) -> bool {
+auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) noexcept -> bool {
   return GameUtils::do_bit_boards_overlap(BitBoards::COL_H | BitBoards::COL_G,
                                           bit_board);
 }
 
-auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
+auto GameUtils::perform_user_move(GameState& game_state) noexcept -> int32_t {
   bool need_input = true;
 
   while(need_input) {
@@ -225,14 +225,14 @@ auto GameUtils::perform_user_move(GameState& game_state) -> int32_t {
   return 1;
 }
 
-auto GameUtils::get_user_input() -> std::string {
+auto GameUtils::get_user_input() noexcept -> std::string {
   std::string input;
   std::getline(std::cin, input);
   return input;
 }
 
 auto GameUtils::process_user_move(GameState& game_state,
-                                  const std::string& move_str) -> int32_t {
+                                  const std::string& move_str) noexcept -> int32_t {
   int32_t rv = 0;
 
   Moves moves;
@@ -260,8 +260,7 @@ auto GameUtils::process_user_move(GameState& game_state,
   return rv;
 }
 
-auto GameUtils::square_name_to_square(const std::string& square_name)
--> Square {
+auto GameUtils::square_name_to_square(const std::string& square_name) noexcept -> Square {
   // Check string length, min 2 characters required for a move
   if(square_name.size() < 2) {
     return 0;
@@ -279,7 +278,7 @@ auto GameUtils::square_name_to_square(const std::string& square_name)
   return row_index * 8 + col_index;
 }
 
-auto GameUtils::move_str_to_move(const std::string& move_str) -> Move {
+auto GameUtils::move_str_to_move(const std::string& move_str) noexcept -> Move {
   // Check string length, min 4 characters required for a move
   if(move_str.size() < 4) {
     // TODO(EMU): This might cause problems. It might think this is a valid move
@@ -327,7 +326,7 @@ auto GameUtils::move_str_to_move(const std::string& move_str) -> Move {
   return move;
 }
 
-auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
+auto GameUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Square {
   for(int i = 0; i < sizeof(BitBoard) * 8; i++) {
     BitBoard test = 0b1ULL << i;
     if((test & bit_board) != 0) {
@@ -337,9 +336,7 @@ auto GameUtils::bit_board_to_square(const BitBoard bit_board) -> Square {
   return -1;
 }
 
-auto GameUtils::for_each_set_square(
-  const BitBoard bit_board, const std::function<void(Square square)>& func)
-  -> void {
+auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::function<void(Square square)>& func) noexcept  -> void {
   BitBoard temp_bit_board = bit_board;
   while(true) {
     Square square = GameUtils::bit_board_to_square(temp_bit_board);
@@ -353,7 +350,7 @@ auto GameUtils::for_each_set_square(
 
 auto GameUtils::for_each_bit_board(
   const BitBoard bit_board,
-  const std::function<void(BitBoard bit_board)>& func) -> void {
+  const std::function<void(BitBoard bit_board)>& func) noexcept -> void {
   BitBoard temp_bit_board = bit_board;
   while(true) {
     Square square = GameUtils::bit_board_to_square(temp_bit_board);

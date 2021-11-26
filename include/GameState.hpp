@@ -7,15 +7,15 @@
 
 class GameState {
 public:
-  GameState();
+  GameState() noexcept;
 
-  auto init() -> void;
-  auto apply_move(const Move move) -> void;
+  auto init() noexcept -> void;
+  auto apply_move(const Move move) noexcept -> void;
 
-  auto is_white_in_check() const -> bool;
-  auto is_black_in_check() const -> bool;
+  auto is_white_in_check() const noexcept -> bool;
+  auto is_black_in_check() const noexcept -> bool;
   template <const Color color>
-  auto is_color_in_check() const -> bool {
+  auto is_color_in_check() const noexcept -> bool {
     constexpr Color opponent_color =
       color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
     const BitBoard king_bit_board =
@@ -24,7 +24,7 @@ public:
   }
 
   template <const Color color>
-  auto has_king_moved() const -> bool {
+  auto has_king_moved() const noexcept -> bool {
     if constexpr(color == Colors::WHITE) {
       return this->white_king_moved;
     } else {
@@ -33,7 +33,7 @@ public:
   }
 
   template <const Color color>
-  auto has_rook_A_moved() const -> bool {
+  auto has_rook_A_moved() const noexcept -> bool {
     if constexpr(color == Colors::WHITE) {
       return this->white_rook_A_moved;
     } else {
@@ -42,7 +42,7 @@ public:
   }
 
   template <const Color color>
-  auto has_rook_H_moved() const -> bool {
+  auto has_rook_H_moved() const noexcept -> bool {
     if constexpr(color == Colors::WHITE) {
       return this->white_rook_H_moved;
     } else {

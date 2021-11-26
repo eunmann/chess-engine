@@ -411,7 +411,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  constexpr auto get_moves(const GameState& game_state, Moves& moves) -> void {
+  constexpr auto get_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     // Add moves in order of piece value
     MoveGeneration::get_king_moves<color>(game_state, moves);
     MoveGeneration::get_queen_moves<color>(game_state, moves);
@@ -424,7 +424,7 @@ namespace MoveGeneration {
   // Threaten Squares Templates
   template <const int V, const int H>
   constexpr auto get_captures_in_direction(const Position& position,
-                                           BitBoard bit_board) -> BitBoard {
+                                           BitBoard bit_board) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
 
     for(int i = 0; i < 8; ++i) {
@@ -704,7 +704,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  constexpr auto get_capture_positions(const Position& position) -> BitBoard {
+  constexpr auto get_capture_positions(const Position& position) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     capturable_bit_board |=
       MoveGeneration::get_pawn_capture_positions<color>(position);

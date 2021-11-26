@@ -7,8 +7,8 @@
 
 namespace MoveSearch {
 
-  auto get_best_move(const GameState& game_state)->Move;
-  auto get_position_heuristic(const GameState& game_state)->int32_t;
+  auto get_best_move(const GameState& game_state)noexcept ->Move;
+  auto get_position_heuristic(const GameState& game_state)noexcept ->int32_t;
 
   // Templates
   template <const Color max_color>

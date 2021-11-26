@@ -5,10 +5,10 @@
 #include "color/color.hpp"
 
 namespace TestFW {
-  Test::Test(const std::string& description, const std::function<void()> test)
+  Test::Test(const std::string& description, const std::function<void()> test) noexcept
     : description(description), test(test) {}
 
-  auto Test::run() -> void {
+  auto Test::run() noexcept -> void {
     printf("\t\t%s", this->description.c_str());
     try {
       this->test();
@@ -21,20 +21,20 @@ namespace TestFW {
     std::cout << " - " << dye::green("PASSED") << "\n";
   }
 
-  TestCase::TestCase(const std::string& description)
+  TestCase::TestCase(const std::string& description) noexcept
     : description(description), tests() {}
 
-  auto TestCase::run() -> void {
+  auto TestCase::run() noexcept -> void {
     printf("\t%s\n", this->description.c_str());
     for(auto& test : this->tests) {
       test.run();
     }
   }
 
-  UnitTest::UnitTest(const std::string& description)
+  UnitTest::UnitTest(const std::string& description) noexcept
     : description(description), test_cases() {}
 
-  auto UnitTest::run() -> void {
+  auto UnitTest::run() noexcept -> void {
     printf("TFW Unit Tests\n%s\n", this->description.c_str());
     for(auto& test_case : this->test_cases) {
       test_case.run();

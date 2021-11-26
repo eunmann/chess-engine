@@ -6,7 +6,7 @@
 #include "TestFW.hpp"
 
 namespace Tests {
-  auto run_tests() -> void {
+  auto run_tests() noexcept -> void {
     TestFW::UnitTest game_utils_unit_test("GameUtils");
     TestFW::TestCase conversion_test_case("Conversions");
     conversion_test_case.tests.push_back(
@@ -83,7 +83,7 @@ namespace Tests {
 
     TestFW::TestCase move_test_case("Move");
     move_test_case.tests.push_back(TestFW::Test("Move::get_source_square", []() {
-      for(int i = 0; i < 64; i++) {
+      for(int i = 1; i < 64; i++) {
         Move move(i, 0);
         assert(i == move.get_source_square());
         assert(!move.is_castle());
@@ -93,7 +93,7 @@ namespace Tests {
                                    }));
     move_test_case.tests.push_back(
       TestFW::Test("Move::get_destination_square", []() {
-        for(int i = 0; i < 64; i++) {
+        for(int i = 1; i < 64; i++) {
           Move move(0, i);
           assert(i == move.get_destination_square());
           assert(!move.is_castle());
@@ -106,6 +106,9 @@ namespace Tests {
         for(int i = 0; i < 64; i++) {
           int source = 63 - i;
           int dest = i;
+          if(source == dest) {
+            continue;
+          }
           Move move(source, dest);
           assert(source == move.get_source_square());
           assert(dest == move.get_destination_square());
@@ -115,25 +118,38 @@ namespace Tests {
         }
       }));
     move_test_case.tests.push_back(TestFW::Test("Move::get_en_passant", []() {
-      Move move(1, 1);
+      Move move(1, 2);
       move.set_en_passant(3);
       TFW_ASSERT_EQ(true, move.is_en_passantable());
       TFW_ASSERT_EQ(3, move.get_en_passant());
                                    }));
     move_test_case.tests.push_back(TestFW::Test("Move::get_castle", []() {
-      Move move(1, 1);
+      Move move(1, 3);
       move.set_castle(Castles::WHITE_QUEEN);
       TFW_ASSERT_EQ(true, move.is_castle());
       TFW_ASSERT_EQ(Castles::WHITE_QUEEN, move.get_castle());
                                    }));
     move_test_case.tests.push_back(TestFW::Test("Move::get_promotion", []() {
-      Move move(1, 1);
+      Move move(1, 4);
       TFW_ASSERT_EQ(false, move.is_promotion());
       move.set_promotion(PieceCodes::BISHOP);
       TFW_ASSERT_EQ(true, move.is_promotion());
       TFW_ASSERT_EQ(PieceCodes::BISHOP, move.get_promotion());
                                    }));
     game_utils_unit_test.test_cases.push_back(move_test_case);
+
+    TestFW::TestCase process_move_test_case("Process Move");
+    process_move_test_case.tests.push_back(TestFW::Test("GameUtils::process_user_move", []() {
+
+      GameState game_state;
+      game_state.init();
+      std::vector<std::string> moves{"e2e4", "d7d6", "d2d4", "g8f6", "b1c3", "g7g6", "c1e3", "f8g7", "d1d2", "c7c6", "f2f3", "b7b5", "g1e2", "b8d7", "e3h6", "g7h6", "d2h6", "c8b7", "a2a3", "e7e5", "e1c1", "d8e7", "c1b1", "a7a6", "e2c1", "e8c8", "c1b3", "e5d4", "d1d4", "c6c5", "d4d1", "d7b6", "g2g3", "c8b8", "b3a5", "b7a8", "f1h3", "d6d5", "h6f4", "b8a7", "h1e1", "d5d4", "c3d5", "b6d5", "e4d5", "e7d6", "d1d4", "c5d4", "e1e7", "a7b6", "f4d4", "b6a5", "b2b4", "a5a4", "d4c3", "d6d5", "e7a7", "a8b7", "a7b7", "d5c4", "c3f6", "a4a3", "f6a6", "a3b4", "c2c3", "b4c3", "a6a1", "c3d2", "a1b2", "d2d1", "h3f1", "d8d2", "b7d7", "d2d7", "f1c4", "b5c4", "b2h8", "d7d3", "h8a8", "c4c3", "a8a4", "d1e1", "f3f4", "f7f5", "b1c1", "d3d2", "a4a7"};
+      for(auto& move : moves) {
+        GameUtils::process_user_move(game_state, move);
+        TFW_ASSERT_EQ(true, game_state.is_legal);
+      }
+                                           }));
+    game_utils_unit_test.test_cases.push_back(process_move_test_case);
 
     game_utils_unit_test.run();
   }

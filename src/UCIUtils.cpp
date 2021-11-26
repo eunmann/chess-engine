@@ -10,7 +10,7 @@
 #include "StringUtils.hpp"
 
 auto UCIUtils::process_input_command(GameState& game_state,
-                                     const std::string& command) -> int32_t {
+                                     const std::string& command) noexcept -> int32_t {
   auto line_split = StringUtils::split(command);
   assert(line_split.size() > 0);
 
@@ -59,30 +59,30 @@ auto UCIUtils::process_input_command(GameState& game_state,
   return rv;
 }
 
-auto UCIUtils::send_id() -> void {
+auto UCIUtils::send_id() noexcept -> void {
   printf("id name ChessEngine\n");
   printf("id author Evan Unmann\n");
 }
 
-auto UCIUtils::send_uci_ok() -> void {
+auto UCIUtils::send_uci_ok() noexcept -> void {
   printf("uciok\n");
 }
 
-auto UCIUtils::send_ready_ok() -> void {
+auto UCIUtils::send_ready_ok() noexcept -> void {
   printf("readyok\n");
 }
 
-auto UCIUtils::send_best_move(const std::string& move_str) -> void {
+auto UCIUtils::send_best_move(const std::string& move_str) noexcept -> void {
   printf("bestmove %s\n", move_str.c_str());
 }
-auto UCIUtils::send_copyright_protection() -> void {
+auto UCIUtils::send_copyright_protection() noexcept -> void {
   printf("copyrightprotection checking\n");
   printf("copyrightprotection ok\n");
 }
-auto UCIUtils::send_registration() -> void {
+auto UCIUtils::send_registration() noexcept -> void {
   printf("registration checking\n");
   printf("registration ok\n");
 }
-auto UCIUtils::send_info() -> void {}
+auto UCIUtils::send_info() noexcept -> void {}
 
-auto UCIUtils::send_option() -> void {}
+auto UCIUtils::send_option() noexcept -> void {}

@@ -22,11 +22,11 @@ namespace BoardValues {
 
 class Board {
 public:
-  Board();
+  Board() noexcept;
 
-  auto init_standard() -> void;
-  auto clear() -> void;
-  auto print() const -> void;
+  auto init_standard() noexcept -> void;
+  auto clear() noexcept -> void;
+  auto print() const noexcept -> void;
 
   std::array<int32_t, BOARD_DIM* BOARD_DIM> positions;
 };

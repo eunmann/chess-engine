@@ -7,34 +7,34 @@
 
 class Move {
 public:
-  Move();
-  Move(const Square source, const Square dest);
-  Move(const int& move);
+  Move() noexcept;
+  Move(const Square source, const Square dest) noexcept;
+  Move(const int& move) noexcept;
 
-  auto set_source_square(const Square square) -> void;
-  auto set_destination_square(const Square square) -> void;
+  auto set_source_square(const Square square) noexcept -> void;
+  auto set_destination_square(const Square square) noexcept -> void;
 
-  auto get_source_square() const->Square;
-  auto get_destination_square() const->Square;
+  auto get_source_square() const noexcept ->Square;
+  auto get_destination_square() const noexcept ->Square;
 
-  auto get_source_bit_board() const->BitBoard;
-  auto get_destination_bit_board() const->BitBoard;
+  auto get_source_bit_board() const noexcept ->BitBoard;
+  auto get_destination_bit_board() const noexcept ->BitBoard;
 
-  auto get_promotion() const->PieceCode;
-  auto get_en_passant() const->int32_t;
-  auto get_castle() const->Castle;
+  auto get_promotion() const noexcept ->PieceCode;
+  auto get_en_passant() const noexcept ->int32_t;
+  auto get_castle() const noexcept ->Castle;
 
-  auto set_promotion(const PieceCode piece_code) -> void;
-  auto set_en_passant(const int32_t column_index) -> void;
-  auto set_castle(const Castle castle) -> void;
+  auto set_promotion(const PieceCode piece_code) noexcept -> void;
+  auto set_en_passant(const int32_t column_index) noexcept -> void;
+  auto set_castle(const Castle castle) noexcept -> void;
 
-  auto is_promotion() const -> bool;
-  auto is_en_passantable() const -> bool;
-  auto is_castle() const -> bool;
+  auto is_promotion() const noexcept -> bool;
+  auto is_en_passantable() const noexcept -> bool;
+  auto is_castle() const noexcept -> bool;
 
-  auto to_string() const->std::string;
+  auto to_string() const noexcept ->std::string;
 
-  auto operator==(const Move& move) const -> bool;
+  auto operator==(const Move& move) const noexcept -> bool;
 
 private:
   uint32_t m_move = 0;

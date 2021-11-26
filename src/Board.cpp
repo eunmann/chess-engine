@@ -9,11 +9,11 @@
 #include "Definitions.hpp"
 #include "color/color.hpp"
 
-Board::Board() {
+Board::Board() noexcept {
   this->clear();
 };
 
-auto Board::init_standard() -> void {
+auto Board::init_standard() noexcept -> void {
   constexpr std::array<PieceCode, 8> init_rank{
       PieceCodes::ROOK,   PieceCodes::KNIGHT, PieceCodes::BISHOP,
       PieceCodes::QUEEN,  PieceCodes::KING,   PieceCodes::BISHOP,
@@ -32,11 +32,11 @@ auto Board::init_standard() -> void {
   }
 }
 
-auto Board::clear() -> void {
+auto Board::clear() noexcept -> void {
   std::fill(this->positions.begin(), this->positions.end(), BoardValues::EMPTY);
 }
 
-auto Board::print() const -> void {
+auto Board::print() const noexcept -> void {
 #ifdef __linux__
   std::string out;
   out.reserve(512);

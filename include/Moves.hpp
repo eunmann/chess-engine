@@ -4,12 +4,12 @@
 
 class Moves {
 public:
-  Moves();
+  Moves() noexcept;
 
-  auto push_back(const Move move) -> void;
-  auto size()->std::size_t;
-  auto begin()->std::array<Move, MAX_NUM_MOVES>::iterator;
-  auto end()->std::array<Move, MAX_NUM_MOVES>::iterator;
+  auto push_back(const Move move) noexcept -> void;
+  auto size()noexcept ->std::size_t;
+  auto begin()noexcept ->std::array<Move, MAX_NUM_MOVES>::iterator;
+  auto end()noexcept ->std::array<Move, MAX_NUM_MOVES>::iterator;
 
 private:
   std::array<Move, MAX_NUM_MOVES> m_moves_array;

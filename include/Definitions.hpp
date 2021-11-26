@@ -31,7 +31,7 @@ namespace PieceCodes {
   constexpr PieceCode PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4,
     KING = 5, NUM = 6;
   constexpr std::array<PieceCode, 6> ALL{PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
-  auto to_char(PieceCode piece_code) -> char;
+  auto to_char(PieceCode piece_code) noexcept -> char;
 }  // namespace PieceCodes
 
 typedef int32_t PieceValue;
@@ -45,7 +45,7 @@ namespace PieceValues {
 typedef int32_t Color;
 namespace Colors {
   constexpr Color WHITE = 0, BLACK = 1, NUM = 2;
-  auto bool_to_color(bool white_to_move)->Color;
+  auto bool_to_color(bool white_to_move)noexcept ->Color;
 };  // namespace Colors
 
 typedef uint64_t BitBoard;

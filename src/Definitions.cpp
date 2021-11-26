@@ -1,6 +1,6 @@
 #include "Definitions.hpp"
 
-auto PieceCodes::to_char(PieceCode piece_code) -> char {
+auto PieceCodes::to_char(PieceCode piece_code) noexcept -> char {
   switch(piece_code) {
     case PieceCodes::PAWN:
     {
@@ -33,6 +33,6 @@ auto PieceCodes::to_char(PieceCode piece_code) -> char {
   }
 }
 
-auto Colors::bool_to_color(bool white_to_move) -> Color {
+auto Colors::bool_to_color(bool white_to_move) noexcept -> Color {
   return white_to_move ? Colors::WHITE : Colors::BLACK;
 }

@@ -31,9 +31,9 @@ namespace TestFW {
 
   class Test {
   public:
-    Test(const std::string& description, const std::function<void()> test);
+    Test(const std::string& description, const std::function<void()> test) noexcept;
 
-    auto run() -> void;
+    auto run() noexcept -> void;
 
     std::string description;
     std::function<void()> test;
@@ -41,9 +41,9 @@ namespace TestFW {
 
   class TestCase {
   public:
-    TestCase(const std::string& description);
+    TestCase(const std::string& description) noexcept;
 
-    auto run() -> void;
+    auto run() noexcept -> void;
 
     std::string description;
     std::vector<Test> tests;
@@ -51,9 +51,9 @@ namespace TestFW {
 
   class UnitTest {
   public:
-    UnitTest(const std::string& description);
+    UnitTest(const std::string& description) noexcept;
 
-    auto run() -> void;
+    auto run() noexcept -> void;
 
     std::string description;
     std::vector<TestCase> test_cases;

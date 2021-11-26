@@ -18,11 +18,11 @@
 #include "Tests.hpp"
 #include "UCIUtils.hpp"
 
-auto print_bit_board(const Position& position) -> void {
+auto print_bit_board(const Position& position) noexcept -> void {
   position.to_board().print();
 }
 
-constexpr auto init_pseduo_moves() -> void {
+constexpr auto init_pseduo_moves() noexcept -> void {
   std::iota(BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
             BitBoards::PSEDUO_MOVES_KNIGHT.end(), 1);
 
@@ -39,7 +39,7 @@ int main() {
 
   init_pseduo_moves();
 
-  auto run_tests = false;
+  auto run_tests = true;
   if(run_tests) {
     Tests::run_tests();
     return 0;
@@ -49,7 +49,7 @@ int main() {
   game_state.init();
 
   // Prints out the board after each move, for debugging
-  auto console = false;
+  auto console = true;
   if(console) {
     do {
       print_bit_board(game_state.position);

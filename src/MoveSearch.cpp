@@ -6,7 +6,7 @@
 #include "GameUtils.hpp"
 #include "MoveGeneration.hpp"
 
-auto MoveSearch::get_best_move(const GameState& game_state) -> Move {
+auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
   Moves moves;
   Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
   if(color_to_move == Colors::WHITE) {
@@ -53,8 +53,7 @@ auto MoveSearch::get_best_move(const GameState& game_state) -> Move {
   return best_move;
 }
 
-auto MoveSearch::get_position_heuristic(const GameState& game_state)
--> int32_t {
+auto MoveSearch::get_position_heuristic(const GameState& game_state) noexcept -> int32_t {
   // TODO(EMU): This function can be optimized
   int32_t heuristic = 0;
 

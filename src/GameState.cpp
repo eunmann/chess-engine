@@ -1,6 +1,6 @@
 #include "GameState.hpp"
 
-GameState::GameState()
+GameState::GameState() noexcept
   : position(),
   white_to_move(true),
   white_king_moved(false),
@@ -12,7 +12,7 @@ GameState::GameState()
   is_legal(true),
   pawn_ep(15) {}
 
-auto GameState::init() -> void {
+auto GameState::init() noexcept -> void {
   this->position.init();
 
   this->white_to_move = true;
@@ -28,7 +28,7 @@ auto GameState::init() -> void {
   this->pawn_ep = 15;
 }
 
-auto GameState::apply_move(const Move move) -> void {
+auto GameState::apply_move(const Move move) noexcept -> void {
   const BitBoard source_bit_board = move.get_source_bit_board();
   const BitBoard destination_bit_board = move.get_destination_bit_board();
   const Color color = this->position.get_color(source_bit_board);
@@ -137,9 +137,9 @@ auto GameState::apply_move(const Move move) -> void {
      castle == Castles::BLACK_KING);
 }
 
-auto GameState::is_white_in_check() const -> bool {
+auto GameState::is_white_in_check() const noexcept -> bool {
   return this->is_color_in_check<Colors::WHITE>();
 }
-auto GameState::is_black_in_check() const -> bool {
+auto GameState::is_black_in_check() const noexcept -> bool {
   return this->is_color_in_check<Colors::BLACK>();
 }
