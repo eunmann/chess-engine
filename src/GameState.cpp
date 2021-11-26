@@ -31,7 +31,7 @@ auto GameState::init() noexcept -> void {
 auto GameState::apply_move(const Move move) noexcept -> void {
   const BitBoard source_bit_board = move.get_source_bit_board();
   const BitBoard destination_bit_board = move.get_destination_bit_board();
-  const Color color = this->position.get_color(source_bit_board);
+  const Color color = Colors::bool_to_color(this->white_to_move);
 
   // TODO(EMU): Does this check make sense here?
   if((color == Colors::WHITE && !this->white_to_move) ||

@@ -1,7 +1,0 @@
-position startpos moves e2e4
-go
-bestmove g8f6
-position startpos moves e2e4 g8f6 f2f4
-Cannot process move e2e4
-Cannot process move g8f6
-quit

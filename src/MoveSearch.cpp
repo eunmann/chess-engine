@@ -5,6 +5,7 @@
 
 #include "GameUtils.hpp"
 #include "MoveGeneration.hpp"
+#include <inttypes.h>
 
 auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
   Moves moves;
@@ -25,13 +26,14 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
     return check.is_legal;
   };
   Move best_move;
+  constexpr int32_t max_search_depth = 4;
 
   for(auto move : moves) {
     if(is_move_legal(move)) {
       if(color_to_move == Colors::WHITE) {
         int32_t heuristic =
           MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(
-            game_state, 6, PieceValues::NEG_INFINITY,
+            game_state, max_search_depth, PieceValues::NEG_INFINITY,
             PieceValues::POS_INFINITY);
         if(best_heuristic < heuristic) {
           best_heuristic = heuristic;
@@ -40,7 +42,7 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
       } else {
         int32_t heuristic =
           MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(
-            game_state, 6, PieceValues::NEG_INFINITY,
+            game_state, max_search_depth, PieceValues::NEG_INFINITY,
             PieceValues::POS_INFINITY);
         if(best_heuristic > heuristic) {
           best_heuristic = heuristic;

@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="src\Board.cpp" />
     <ClCompile Include="src\Definitions.cpp" />
+    <ClCompile Include="src\FormatUtils.cpp" />
     <ClCompile Include="src\GameState.cpp" />
     <ClCompile Include="src\GameUtils.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -142,12 +143,14 @@
     <ClCompile Include="src\StringUtils.cpp" />
     <ClCompile Include="src\TestFW.cpp" />
     <ClCompile Include="src\Tests.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\UCIUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dep\include\color\color.hpp" />
     <ClInclude Include="include\Board.hpp" />
     <ClInclude Include="include\Definitions.hpp" />
+    <ClInclude Include="include\FormatUtils.hpp" />
     <ClInclude Include="include\GameState.hpp" />
     <ClInclude Include="include\GameUtils.hpp" />
     <ClInclude Include="include\Log.hpp" />
@@ -159,6 +162,7 @@
     <ClInclude Include="include\StringUtils.hpp" />
     <ClInclude Include="include\TestFW.hpp" />
     <ClInclude Include="include\Tests.hpp" />
+    <ClInclude Include="include\Timer.hpp" />
     <ClInclude Include="include\UCIUtils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

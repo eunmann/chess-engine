@@ -133,7 +133,6 @@ auto Position::get_piece_type(const BitBoard bit_board) const noexcept -> PieceC
 auto Position::clear(const BitBoard bit_board) noexcept -> void {
   const BitBoard negated_bit_board = ~bit_board;
 
-  // Loop through all Piece BitBoards because it might be a capture
   for(PieceCode pc = 0; pc < PieceCodes::NUM; pc++) {
     this->piece_positions[pc] &= negated_bit_board;
   }

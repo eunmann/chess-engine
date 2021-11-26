@@ -4,7 +4,7 @@
 
 #include "GameUtils.hpp"
 
-Move::Move() noexcept : m_move(0) {}
+Move::Move() noexcept : Move(1, 2) {}
 
 Move::Move(const Square source, const Square dest) noexcept : m_move(0) {
   assert(source != dest);

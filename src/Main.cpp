@@ -39,7 +39,7 @@ int main() {
 
   init_pseduo_moves();
 
-  auto run_tests = true;
+  auto run_tests = false;
   if(run_tests) {
     Tests::run_tests();
     return 0;
@@ -49,7 +49,7 @@ int main() {
   game_state.init();
 
   // Prints out the board after each move, for debugging
-  auto console = true;
+  auto console = false;
   if(console) {
     do {
       print_bit_board(game_state.position);

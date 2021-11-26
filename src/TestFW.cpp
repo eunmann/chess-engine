@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "Timer.hpp"
+
 #include "color/color.hpp"
 
 namespace TestFW {
@@ -10,15 +12,18 @@ namespace TestFW {
 
   auto Test::run() noexcept -> void {
     printf("\t\t%s", this->description.c_str());
+    Timer timer;
     try {
       this->test();
+      timer.end();
     } catch(std::string failure_message) {
-      std::cout << " - " << dye::red("FAILED") << "\n";
+      timer.end();
+      std::cout << " - " << dye::red("FAILED ") << timer.time_string() << "\n";
       printf("\t\t\t%s\n", failure_message.c_str());
       return;
     }
 
-    std::cout << " - " << dye::green("PASSED") << "\n";
+    std::cout << " - " << dye::green("PASSED ") << timer.time_string() << "\n";
   }
 
   TestCase::TestCase(const std::string& description) noexcept
