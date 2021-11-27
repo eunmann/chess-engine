@@ -111,19 +111,16 @@ auto GameUtils::get_tile_name(const BitBoard bit_board) noexcept -> std::string 
   return name;
 }
 
-auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1,
-  const BitBoard bit_board_2) noexcept -> bool {
+auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) noexcept -> bool {
   return (bit_board_1 & bit_board_2) != 0;
 }
 
-auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row)
-noexcept -> bool {
+auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row) noexcept -> bool {
   const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
   return GameUtils::do_bit_boards_overlap(row_mask, bit_board);
 }
 
-auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col)
-noexcept -> bool {
+auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col) noexcept -> bool {
   const BitBoard col_mask = BitBoards::COL_A << col;
   return GameUtils::do_bit_boards_overlap(col_mask, bit_board);
 }
@@ -164,7 +161,7 @@ auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) noexcept -> bo
     bit_board);
 }
 
-auto GameUtils::perform_user_move(GameState& game_state) noexcept -> int32_t {
+auto GameUtils::perform_user_move(GameState& game_state) noexcept -> bool {
   bool need_input = true;
 
   while (need_input) {
@@ -177,7 +174,7 @@ auto GameUtils::perform_user_move(GameState& game_state) noexcept -> int32_t {
     }
 
     if (input == "exit") {
-      return -1;
+      return false;
     }
 
     Moves moves;
@@ -224,7 +221,7 @@ auto GameUtils::perform_user_move(GameState& game_state) noexcept -> int32_t {
     }
   }
 
-  return 1;
+  return true;
 }
 
 auto GameUtils::get_user_input() noexcept -> std::string {
@@ -233,9 +230,7 @@ auto GameUtils::get_user_input() noexcept -> std::string {
   return input;
 }
 
-auto GameUtils::process_user_move(GameState& game_state,
-  const std::string& move_str) noexcept -> int32_t {
-  int32_t rv = 0;
+auto GameUtils::process_user_move(GameState& game_state, const std::string& move_str) noexcept -> bool {
 
   Moves moves;
   Color color_to_move = Colors::bool_to_color(game_state.is_white_to_move());
@@ -254,12 +249,11 @@ auto GameUtils::process_user_move(GameState& game_state,
   for (auto move : moves) {
     if (is_move_legal(move) && move.to_string() == move_str) {
       game_state.apply_move(move);
-      rv = 1;
-      break;
+      return true;
     }
   }
 
-  return rv;
+  return false;
 }
 
 auto GameUtils::square_name_to_square(const std::string& square_name) noexcept -> Square {
@@ -339,10 +333,10 @@ auto GameUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Square
   return index;
 }
 
-auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::function<void(Square square)>& func) noexcept  -> void {
+auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::function<void(Square square)>& func) noexcept -> void {
   BitBoard temp_bit_board = bit_board;
   while (true) {
-    Square square = GameUtils::bit_board_to_square(temp_bit_board);
+    const Square square = GameUtils::bit_board_to_square(temp_bit_board);
     if (square == -1) {
       break;
     }
@@ -351,16 +345,14 @@ auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::functio
   };
 }
 
-auto GameUtils::for_each_bit_board(
-  const BitBoard bit_board,
-  const std::function<void(BitBoard bit_board)>& func) noexcept -> void {
+auto GameUtils::for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)>& func) noexcept -> void {
   BitBoard temp_bit_board = bit_board;
   while (true) {
-    Square square = GameUtils::bit_board_to_square(temp_bit_board);
+    const Square square = GameUtils::bit_board_to_square(temp_bit_board);
     if (square == -1) {
       break;
     }
-    BitBoard single_bit_board = GameUtils::square_to_bit_board(square);
+    const BitBoard single_bit_board = GameUtils::square_to_bit_board(square);
     func(single_bit_board);
     temp_bit_board &= ~single_bit_board;
   };

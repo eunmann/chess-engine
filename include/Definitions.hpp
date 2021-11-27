@@ -5,10 +5,7 @@
 #include <array>
 
 constexpr uint64_t BOARD_DIM = 8;
-constexpr uint64_t NUM_SQUARES = 64;
 constexpr uint64_t NUM_PIECES = 6;
-constexpr uint64_t PIECES_PER_PLAYER = 16;
-constexpr uint64_t NUM_COLORS = 2;
 constexpr uint64_t MAX_NUM_MOVES = 256;
 
 typedef int32_t Square;
@@ -106,10 +103,10 @@ namespace BitBoards {
 
   constexpr BitBoard CENTER_4_SQUARES = (ROW_4 | ROW_5) & (COL_D | COL_E);
   constexpr BitBoard CENTER_16_SQUARES = (ROW_3 | ROW_4 | ROW_5 | ROW_6) & (COL_C | COL_D | COL_E | COL_F);
-
-  // TODO(EMU): Fill the psuedomoves at compile time!
-  static std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KNIGHT;
 }  // namespace BitBoards
+
+extern std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KNIGHT;
+extern std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KING;
 
 typedef int32_t Castle;
 namespace Castles {

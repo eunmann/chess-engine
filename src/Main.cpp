@@ -9,6 +9,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <ranges>
 
 #include "Board.hpp"
 #include "Definitions.hpp"
@@ -17,19 +18,18 @@
 #include "Position.hpp"
 #include "Tests.hpp"
 #include "UCIUtils.hpp"
+#include "MoveGeneration.hpp"
 
 auto print_bit_board(const Position& position) noexcept -> void {
   position.to_board().print();
 }
 
-constexpr auto init_pseduo_moves() noexcept -> void {
-  std::iota(BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
-    BitBoards::PSEDUO_MOVES_KNIGHT.end(), 1);
-
-  std::transform(BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
-    BitBoards::PSEDUO_MOVES_KNIGHT.end(),
-    BitBoards::PSEDUO_MOVES_KNIGHT.begin(),
-    [](auto el) { return 0; });
+auto init_psuedo_moves() {
+  for (auto square : std::views::iota(0, Squares::NUM)) {
+    const BitBoard bit_board = GameUtils::square_to_bit_board(square);
+    PSEDUO_MOVES_KNIGHT[square] = MoveGeneration::get_knight_capture_positions(bit_board);
+    PSEDUO_MOVES_KING[square] = MoveGeneration::get_king_capture_positions(bit_board);
+  }
 }
 
 int main() {
@@ -37,9 +37,9 @@ int main() {
   setbuf(stdout, NULL);
   setbuf(stdin, NULL);
 
-  init_pseduo_moves();
+  init_psuedo_moves();
 
-  auto run_tests = true;
+  auto run_tests = false;
   if (run_tests) {
     Tests::run_tests();
     return 0;
@@ -50,6 +50,7 @@ int main() {
 
   // Prints out the board after each move, for debugging
   auto console = false;
+
   if (console) {
     do {
       print_bit_board(game_state.position);

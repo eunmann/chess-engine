@@ -15,7 +15,7 @@ namespace MoveSearch {
   auto get_position_heuristic(const GameState& game_state)noexcept ->int32_t;
 
   template <const Color max_color>
-  constexpr auto alpha_beta_pruning_search(const GameState& game_state, const int32_t ply_depth, int32_t alpha, int32_t beta) noexcept {
+  auto alpha_beta_pruning_search(const GameState& game_state, const int32_t ply_depth, int32_t alpha, int32_t beta) noexcept {
     if (ply_depth == 0) {
       leaf_nodes_counter++;
       return MoveSearch::get_position_heuristic(game_state);

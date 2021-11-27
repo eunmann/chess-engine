@@ -22,7 +22,7 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
 
   int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
   Move best_move;
-  constexpr int32_t max_search_depth = 8;
+  constexpr int32_t max_search_depth = 6;
 
   counter = moves.size();
   leaf_nodes_counter = 0;
@@ -47,17 +47,18 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
       }
     }
   }
+  #ifdef DEBUG
   timer.end();
   timer.print();
-  printf("Moves considered: %llu\n", counter);
-  printf("Leaf nodes: %llu\n", leaf_nodes_counter);
-  printf("Time Pruned: %llu \n", times_pruned);
+  printf("info Moves considered: %llu\n", counter);
+  printf("info Leaf nodes: %llu\n", leaf_nodes_counter);
+  printf("info Time Pruned: %llu \n", times_pruned);
+  #endif
 
   return best_move;
 }
 
 auto MoveSearch::get_position_heuristic(const GameState& game_state) noexcept -> int32_t {
-  // TODO(EMU): This function can be optimized
   int32_t heuristic = 0;
 
   std::array<PieceCode, 6> piece_codes = {
@@ -83,18 +84,11 @@ auto MoveSearch::get_position_heuristic(const GameState& game_state) noexcept ->
   heuristic += game_state.is_black_in_check() * PieceValues::PAWN / 2;
   heuristic -= game_state.is_white_in_check() * PieceValues::PAWN / 2;
 
-  // Bad check for Castling
-  const bool can_black_castle = game_state.has_king_moved<Colors::BLACK>() && !(game_state.has_rook_A_moved<Colors::BLACK>() || game_state.has_rook_H_moved<Colors::BLACK>());
-  heuristic += (!can_black_castle) * PieceValues::PAWN / 2;
-
-  const bool can_white_castle = game_state.has_king_moved<Colors::WHITE>() && !(game_state.has_rook_A_moved<Colors::WHITE>() || game_state.has_rook_H_moved<Colors::WHITE>());
-  heuristic -= (!can_white_castle) * PieceValues::PAWN / 2;
-
   // Center Control
-  heuristic += game_state.position.is_white_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 4;
-  heuristic -= game_state.position.is_black_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 4;
-  heuristic += game_state.position.is_white_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 2;
-  heuristic -= game_state.position.is_black_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 2;
+  heuristic += game_state.position.is_white_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 2;
+  heuristic -= game_state.position.is_black_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 2;
+  heuristic += game_state.position.is_white_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 4;
+  heuristic -= game_state.position.is_black_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 4;
 
   return heuristic;
 }

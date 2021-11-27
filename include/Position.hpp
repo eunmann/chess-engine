@@ -14,20 +14,22 @@ class Position {
   auto init() noexcept -> void;
   auto clear() noexcept -> void;
 
-  auto get_piece_bit_board(const PieceCode piece_code) const noexcept
-    -> BitBoard;
+  auto get_piece_bit_board(const PieceCode piece_code) const noexcept -> BitBoard;
+
   template <const PieceCode piece_code>
   auto get_piece_bit_board() const noexcept -> BitBoard {
     return this->piece_positions[piece_code];
   }
 
   auto get_color_bit_board(const Color color) const noexcept -> BitBoard;
+
   template <const Color color>
   auto get_color_bit_board() const noexcept -> BitBoard {
     return this->color_positions[color];
   }
-  auto get_piece_color_bit_board(const PieceCode piece_code,
-    const Color color) const noexcept -> BitBoard;
+
+  auto get_piece_color_bit_board(const PieceCode piece_code, const Color color) const noexcept -> BitBoard;
+
   template <const PieceCode piece_code, const Color color>
   auto get_piece_color_bit_board() const noexcept -> BitBoard {
     return this->get_piece_bit_board<piece_code>() &
