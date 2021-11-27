@@ -1,56 +1,57 @@
 #include "MoveSearch.hpp"
 
+#include <inttypes.h>
+
 #include <algorithm>
 #include <ranges>
 
 #include "GameUtils.hpp"
 #include "MoveGeneration.hpp"
-#include <inttypes.h>
+#include "Timer.hpp"
 
 auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
+
+  Timer timer;
   Moves moves;
-  Color color_to_move = Colors::bool_to_color(game_state.white_to_move);
-  if(color_to_move == Colors::WHITE) {
+  Color color_to_move = Colors::bool_to_color(game_state.is_white_to_move());
+  if (color_to_move == Colors::WHITE) {
     MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
   } else {
     MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
   }
 
-  int32_t best_heuristic = color_to_move == Colors::WHITE
-    ? PieceValues::NEG_INFINITY
-    : PieceValues::POS_INFINITY;
+  int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+  Move best_move;
+  constexpr int32_t max_search_depth = 8;
 
-  auto is_move_legal = [&game_state](const Move move) {
+  counter = moves.size();
+  leaf_nodes_counter = 0;
+  times_pruned = 0;
+  for (auto move : moves) {
     GameState check = game_state;
     check.apply_move(move);
-    return check.is_legal;
-  };
-  Move best_move;
-  constexpr int32_t max_search_depth = 4;
+    if (check.is_legal()) {
 
-  for(auto move : moves) {
-    if(is_move_legal(move)) {
-      if(color_to_move == Colors::WHITE) {
-        int32_t heuristic =
-          MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(
-            game_state, max_search_depth, PieceValues::NEG_INFINITY,
-            PieceValues::POS_INFINITY);
-        if(best_heuristic < heuristic) {
+      if (color_to_move == Colors::WHITE) {
+        int32_t heuristic = MoveSearch::alpha_beta_pruning_search<Colors::BLACK>(check, max_search_depth, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
+        if (best_heuristic < heuristic) {
           best_heuristic = heuristic;
           best_move = move;
         }
       } else {
-        int32_t heuristic =
-          MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(
-            game_state, max_search_depth, PieceValues::NEG_INFINITY,
-            PieceValues::POS_INFINITY);
-        if(best_heuristic > heuristic) {
+        int32_t heuristic = MoveSearch::alpha_beta_pruning_search<Colors::WHITE>(check, max_search_depth, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
+        if (best_heuristic > heuristic) {
           best_heuristic = heuristic;
           best_move = move;
         }
       }
     }
   }
+  timer.end();
+  timer.print();
+  printf("Moves considered: %llu\n", counter);
+  printf("Leaf nodes: %llu\n", leaf_nodes_counter);
+  printf("Time Pruned: %llu \n", times_pruned);
 
   return best_move;
 }
@@ -66,37 +67,34 @@ auto MoveSearch::get_position_heuristic(const GameState& game_state) noexcept ->
       PieceValues::PAWN, PieceValues::KNIGHT, PieceValues::BISHOP,
       PieceValues::ROOK, PieceValues::QUEEN,  PieceValues::KING};
 
-  for(auto& piece_code : piece_codes) {
-    GameUtils::for_each_bit_board(
-      game_state.position.get_piece_bit_board(piece_code),
-      [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
-        if(game_state.position.is_white_occupied(bit_board)) {
-          heuristic += piece_values[piece_code];
-        } else {
-          heuristic -= piece_values[piece_code];
-        }
+  for (auto& piece_code : piece_codes) {
+    const BitBoard white_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code, Colors::WHITE);
+    GameUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
+      heuristic += piece_values[piece_code];
+      });
+
+    const BitBoard black_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code, Colors::BLACK);
+    GameUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
+      heuristic -= piece_values[piece_code];
       });
   }
 
   // Put the King in check
-  if(game_state.is_black_in_check()) {
-    heuristic += PieceValues::PAWN / 2;
-  }
-
-  if(game_state.is_white_in_check()) {
-    heuristic -= PieceValues::PAWN / 2;
-  }
+  heuristic += game_state.is_black_in_check() * PieceValues::PAWN / 2;
+  heuristic -= game_state.is_white_in_check() * PieceValues::PAWN / 2;
 
   // Bad check for Castling
-  if(game_state.black_king_moved &&
-     !(game_state.black_rook_A_moved || game_state.black_rook_H_moved)) {
-    heuristic += PieceValues::PAWN / 2;
-  }
+  const bool can_black_castle = game_state.has_king_moved<Colors::BLACK>() && !(game_state.has_rook_A_moved<Colors::BLACK>() || game_state.has_rook_H_moved<Colors::BLACK>());
+  heuristic += (!can_black_castle) * PieceValues::PAWN / 2;
 
-  if(game_state.white_king_moved &&
-     !(game_state.white_rook_A_moved || game_state.white_rook_H_moved)) {
-    heuristic -= PieceValues::PAWN / 2;
-  }
+  const bool can_white_castle = game_state.has_king_moved<Colors::WHITE>() && !(game_state.has_rook_A_moved<Colors::WHITE>() || game_state.has_rook_H_moved<Colors::WHITE>());
+  heuristic -= (!can_white_castle) * PieceValues::PAWN / 2;
+
+  // Center Control
+  heuristic += game_state.position.is_white_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 4;
+  heuristic -= game_state.position.is_black_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 4;
+  heuristic += game_state.position.is_white_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 2;
+  heuristic -= game_state.position.is_black_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 2;
 
   return heuristic;
 }

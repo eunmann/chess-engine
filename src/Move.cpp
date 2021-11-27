@@ -4,9 +4,10 @@
 
 #include "GameUtils.hpp"
 
-Move::Move() noexcept : Move(1, 2) {}
+Move::Move() noexcept : Move(1, 2) {
+}
 
-Move::Move(const Square source, const Square dest) noexcept : m_move(0) {
+Move::Move(const Square source, const Square dest) noexcept : m_move() {
   assert(source != dest);
   this->set_source_square(source);
   this->set_destination_square(dest);
@@ -15,22 +16,23 @@ Move::Move(const Square source, const Square dest) noexcept : m_move(0) {
   this->set_castle(Castles::NONE);
 }
 
-Move::Move(const int& move) noexcept : m_move(move) {}
+Move::Move(const int& move) noexcept : m_move(move) {
+}
 
 auto Move::set_source_square(const Square square) noexcept -> void {
-  this->m_move |= (square & Move::MASK_6_BITS) << Move::SOURCE_OFFSET;
+  this->m_move.set_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>(square);
 }
 
 auto Move::set_destination_square(const Square square) noexcept -> void {
-  this->m_move |= (square & Move::MASK_6_BITS) << Move::DEST_OFFSET;
+  this->m_move.set_bits<Move::MASK_6_BITS, Move::DEST_OFFSET>(square);
 }
 
 auto Move::get_source_square() const noexcept -> Square {
-  return static_cast<Square>(this->m_move & Move::MASK_6_BITS);
+  return this->m_move.get_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>();
 }
 
 auto Move::get_destination_square() const noexcept -> Square {
-  return static_cast<Square>((this->m_move >> DEST_OFFSET) & Move::MASK_6_BITS);
+  return this->m_move.get_bits<Move::MASK_6_BITS, Move::DEST_OFFSET>();
 }
 
 auto Move::get_source_bit_board() const noexcept -> BitBoard {
@@ -42,53 +44,48 @@ auto Move::get_destination_bit_board() const noexcept -> BitBoard {
 }
 
 auto Move::get_promotion() const noexcept -> PieceCode {
-  return (this->m_move >> Move::PROMO_OFFSET) & Move::MASK_3_BITS;
+  return this->m_move.get_bits<Move::MASK_3_BITS, Move::PROMO_OFFSET>();
 }
 
 auto Move::get_en_passant() const noexcept -> int32_t {
-  return (this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS;
+  return this->m_move.get_bits<Move::MASK_4_BITS, Move::EN_OFFSET>();
 }
 
 auto Move::get_castle() const noexcept -> Castle {
-  return (this->m_move >> Move::CASTLE_OFFSET) & Move::MASK_3_BITS;
+  return this->m_move.get_bits<Move::MASK_3_BITS, Move::CASTLE_OFFSET>();
 }
 
 auto Move::set_promotion(const PieceCode piece_code) noexcept -> void {
-  this->m_move = (this->m_move & ~(Move::MASK_3_BITS << Move::PROMO_OFFSET)) |
-    (piece_code & Move::MASK_3_BITS) << Move::PROMO_OFFSET;
+  this->m_move.set_bits<Move::MASK_3_BITS, Move::PROMO_OFFSET>(piece_code);
 }
 
 auto Move::set_en_passant(const int32_t column_index) noexcept -> void {
-  this->m_move = (this->m_move & ~(Move::MASK_4_BITS << Move::EN_OFFSET)) |
-    (column_index & Move::MASK_4_BITS) << Move::EN_OFFSET;
+  this->m_move.set_bits<Move::MASK_4_BITS, Move::EN_OFFSET>(column_index);
 }
 
 auto Move::set_castle(const Castle castle) noexcept -> void {
-  this->m_move = (this->m_move & ~(Move::MASK_3_BITS << Move::CASTLE_OFFSET)) |
-    (castle & Move::MASK_3_BITS) << Move::CASTLE_OFFSET;
+  this->m_move.set_bits<Move::MASK_3_BITS, Move::CASTLE_OFFSET>(castle);
 }
 
 auto Move::is_promotion() const noexcept -> bool {
-  return ((this->m_move >> Move::PROMO_OFFSET) & Move::MASK_3_BITS) !=
-    Move::MASK_3_BITS;
+  return this->get_promotion() != Move::MASK_3_BITS;
 }
 
 auto Move::is_en_passantable() const noexcept -> bool {
-  return ((this->m_move >> Move::EN_OFFSET) & Move::MASK_4_BITS) !=
-    Move::MASK_4_BITS;
+  return this->get_en_passant() != Move::MASK_4_BITS;
 }
 
 auto Move::is_castle() const noexcept -> bool {
-  return ((this->m_move >> Move::CASTLE_OFFSET) & Move::MASK_3_BITS) != 0;
+  return this->get_castle() != Castles::NONE;
 }
 
 auto Move::to_string() const noexcept -> std::string {
   std::string move_str = "";
 
   auto is_castle = this->is_castle();
-  if(is_castle) {
+  if (is_castle) {
     auto castle = this->get_castle();
-    switch(castle) {
+    switch (castle) {
       case Castles::WHITE_KING:
       {
         move_str = "e1g1";
@@ -117,8 +114,8 @@ auto Move::to_string() const noexcept -> std::string {
   } else {
     move_str += GameUtils::get_tile_name(this->get_source_bit_board());
     move_str += GameUtils::get_tile_name(this->get_destination_bit_board());
-    if(this->is_promotion()) {
-      switch(this->get_promotion()) {
+    if (this->is_promotion()) {
+      switch (this->get_promotion()) {
         case PieceCodes::BISHOP:
         {
           move_str += 'b';

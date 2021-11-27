@@ -11,36 +11,36 @@ namespace MoveGeneration {
   // Pseduo-Legal Moves Templates
   template <const int V, const int H, const Color color>
   constexpr auto get_moves_in_direction(const GameState& game_state,
-                                        BitBoard bit_board, Moves& moves)
+    BitBoard bit_board, Moves& moves)
     -> void {
     Square source_square = GameUtils::bit_board_to_square(bit_board);
-    for(int i = 0; i < 7; ++i) {
-      if constexpr(V > 0) {
-        if(GameUtils::is_piece_in_top_row(bit_board)) {
+    for (int i = 0; i < 7; ++i) {
+      if constexpr (V > 0) {
+        if (GameUtils::is_piece_in_top_row(bit_board)) {
           break;
         }
-      } else if constexpr(V < 0) {
-        if(GameUtils::is_piece_in_bottom_row(bit_board)) {
+      } else if constexpr (V < 0) {
+        if (GameUtils::is_piece_in_bottom_row(bit_board)) {
           break;
         }
       }
 
-      if constexpr(H > 0) {
-        if(GameUtils::is_piece_in_right_col(bit_board)) {
+      if constexpr (H > 0) {
+        if (GameUtils::is_piece_in_right_col(bit_board)) {
           break;
         }
-      } else if constexpr(H < 0) {
-        if(GameUtils::is_piece_in_left_col(bit_board)) {
+      } else if constexpr (H < 0) {
+        if (GameUtils::is_piece_in_left_col(bit_board)) {
           break;
         }
       }
 
       bit_board = GameUtils::shift_bit_board<V, H>(bit_board);
 
-      if(game_state.position.is_empty(bit_board)) {
+      if (game_state.position.is_empty(bit_board)) {
         moves.push_back(
           Move(source_square, GameUtils::bit_board_to_square(bit_board)));
-      } else if(game_state.position.is_color_occupied<color>(bit_board)) {
+      } else if (game_state.position.is_color_occupied<color>(bit_board)) {
         break;
       } else {
         moves.push_back(
@@ -70,7 +70,7 @@ namespace MoveGeneration {
           const BitBoard destination_bit_board) {
             Square destination_square =
               GameUtils::bit_board_to_square(destination_bit_board);
-            for(int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
+            for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
               Move move(source_square, destination_square);
               move.set_promotion(i);
               moves.push_back(move);
@@ -80,20 +80,22 @@ namespace MoveGeneration {
         // Up
         BitBoard next_pawn_bit_board =
           GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
-        if(game_state.position.is_empty(next_pawn_bit_board)) {
+        if (game_state.position.is_empty(next_pawn_bit_board)) {
           // Promotion
-          if(GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
+          if (GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
             add_promotion_moves(next_pawn_bit_board);
           } else {
-            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
+            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
+              next_pawn_bit_board)));
           }
 
           // First Move Up 2
-          if(GameUtils::is_piece_in_row(pawn_bit_board, starting_row)) {
+          if (GameUtils::is_piece_in_row(pawn_bit_board, starting_row)) {
             next_pawn_bit_board =
               GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-            if(game_state.position.is_empty(next_pawn_bit_board)) {
-              Move move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board));
+            if (game_state.position.is_empty(next_pawn_bit_board)) {
+              Move move(source_square,
+                GameUtils::bit_board_to_square(next_pawn_bit_board));
               move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
               moves.push_back(move);
             }
@@ -110,18 +112,24 @@ namespace MoveGeneration {
           ? 0
           : GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
 
-        if(game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture)) {
+        if (game_state.position.is_color_occupied<opponent_color>(
+          pawn_bit_board_left_capture)) {
           // Promotions
-          if(GameUtils::is_piece_in_row(pawn_bit_board_left_capture, promotion_row)) {
+          if (GameUtils::is_piece_in_row(pawn_bit_board_left_capture,
+            promotion_row)) {
             add_promotion_moves(pawn_bit_board_left_capture);
           } else {
-            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
+            moves.push_back(Move(
+              source_square,
+              GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
           }
         }
 
-        if(game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_right_capture)) {
+        if (game_state.position.is_color_occupied<opponent_color>(
+          pawn_bit_board_right_capture)) {
           // Promotions
-          if(GameUtils::is_piece_in_row(pawn_bit_board_right_capture, promotion_row)) {
+          if (GameUtils::is_piece_in_row(pawn_bit_board_right_capture,
+            promotion_row)) {
             add_promotion_moves(pawn_bit_board_right_capture);
           } else {
             moves.push_back(Move(
@@ -131,17 +139,21 @@ namespace MoveGeneration {
         }
 
         // En Passant
-        int32_t en_pawn_col = game_state.pawn_ep;
+        int32_t en_pawn_col = game_state.get_en_passant();
         int32_t pawn_col = GameUtils::get_col(pawn_bit_board);
         BitBoard source_bit_board =
           GameUtils::square_to_bit_board(source_square);
         constexpr int32_t source_row = color == Colors::WHITE ? 5 : 4;
 
-        if(GameUtils::is_piece_in_row(source_bit_board, source_row)) {
-          if((en_pawn_col - 1) == pawn_col) {
-            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
-          } else if((en_pawn_col + 1) == pawn_col) {
-            moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
+        if (GameUtils::is_piece_in_row(source_bit_board, source_row)) {
+          if ((en_pawn_col - 1) == pawn_col) {
+            moves.push_back(Move(
+              source_square,
+              GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
+          } else if ((en_pawn_col + 1) == pawn_col) {
+            moves.push_back(Move(
+              source_square,
+              GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
           }
         }
       });
@@ -159,64 +171,64 @@ namespace MoveGeneration {
       [&game_state, &moves](const BitBoard knight_bit_board) {
         Square source_square = GameUtils::bit_board_to_square(knight_bit_board);
 
-        if(!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<2, -1>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<1, -2>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-1, -2>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-2, -1>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-2, 1>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-1, 2>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<1, 2>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
             next_knight_bit_board)));
         }
 
-        if(!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<2, 1>(knight_bit_board);
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(
@@ -305,7 +317,7 @@ namespace MoveGeneration {
         Square source_square = GameUtils::bit_board_to_square(king_bit_board);
 
         // Up
-        if(!GameUtils::is_piece_in_top_row(king_bit_board)) {
+        if (!GameUtils::is_piece_in_top_row(king_bit_board)) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<1, 0>(king_bit_board);
           moves.push_back(Move(
@@ -313,7 +325,7 @@ namespace MoveGeneration {
         }
 
         // Down
-        if(!GameUtils::is_piece_in_bottom_row(king_bit_board)) {
+        if (!GameUtils::is_piece_in_bottom_row(king_bit_board)) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<-1, 0>(king_bit_board);
           moves.push_back(Move(
@@ -321,7 +333,7 @@ namespace MoveGeneration {
         }
 
         // Left
-        if(!GameUtils::is_piece_in_left_col(king_bit_board)) {
+        if (!GameUtils::is_piece_in_left_col(king_bit_board)) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<0, -1>(king_bit_board);
           moves.push_back(Move(
@@ -329,7 +341,7 @@ namespace MoveGeneration {
         }
 
         // Right
-        if(!GameUtils::is_piece_in_right_col(king_bit_board)) {
+        if (!GameUtils::is_piece_in_right_col(king_bit_board)) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<0, 1>(king_bit_board);
           moves.push_back(Move(
@@ -337,8 +349,8 @@ namespace MoveGeneration {
         }
 
         // Up-Right
-        if(!(GameUtils::is_piece_in_top_row(king_bit_board) ||
-           GameUtils::is_piece_in_right_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(king_bit_board) ||
+          GameUtils::is_piece_in_right_col(king_bit_board))) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<1, 1>(king_bit_board);
           moves.push_back(Move(
@@ -346,8 +358,8 @@ namespace MoveGeneration {
         }
 
         // Up-Left
-        if(!(GameUtils::is_piece_in_top_row(king_bit_board) ||
-           GameUtils::is_piece_in_left_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(king_bit_board) ||
+          GameUtils::is_piece_in_left_col(king_bit_board))) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<1, -1>(king_bit_board);
           moves.push_back(Move(
@@ -355,8 +367,8 @@ namespace MoveGeneration {
         }
 
         // Down-Right
-        if(!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
-           GameUtils::is_piece_in_right_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
+          GameUtils::is_piece_in_right_col(king_bit_board))) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<-1, 1>(king_bit_board);
           moves.push_back(Move(
@@ -364,8 +376,8 @@ namespace MoveGeneration {
         }
 
         // Down-Left
-        if(!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
-           GameUtils::is_piece_in_left_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
+          GameUtils::is_piece_in_left_col(king_bit_board))) {
           BitBoard next_king_bit_board =
             GameUtils::shift_bit_board<-1, -1>(king_bit_board);
           moves.push_back(Move(
@@ -373,17 +385,17 @@ namespace MoveGeneration {
         }
 
         // Castling
-        if(!game_state.has_king_moved<color>() &&
-           !game_state.is_color_in_check<color>()) {
+        if (!game_state.has_king_moved<color>() &&
+          !game_state.is_color_in_check<color>()) {
           constexpr Color opponent_color =
             color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
           constexpr BitBoard queen_castle = color == Colors::WHITE
             ? BitBoards::WHITE_QUEEN_CASTLE
             : BitBoards::BLACK_QUEEN_CASTLE;
           // Queen Side
-          if(!game_state.has_rook_A_moved<color>() &&
-             game_state.position.is_empty(queen_castle) &&
-             !game_state.position.is_threaten<opponent_color>(queen_castle)) {
+          if (!game_state.has_rook_A_moved<color>() &&
+            game_state.position.is_empty(queen_castle) &&
+            !game_state.position.is_threaten<opponent_color>(queen_castle)) {
             Move move;
             constexpr Castle queen_side = color == Colors::WHITE
               ? Castles::WHITE_QUEEN
@@ -397,9 +409,9 @@ namespace MoveGeneration {
             ? BitBoards::WHITE_KING_CASTLE
             : BitBoards::BLACK_KING_CASTLE;
           // King Side
-          if(!game_state.has_rook_H_moved<color>() &&
-             game_state.position.is_empty(king_castle) &&
-             !game_state.position.is_threaten<opponent_color>(king_castle)) {
+          if (!game_state.has_rook_H_moved<color>() &&
+            game_state.position.is_empty(king_castle) &&
+            !game_state.position.is_threaten<opponent_color>(king_castle)) {
             Move move;
             constexpr Castle king_side =
               color == Colors::WHITE ? Castles::WHITE_KING : Castles::BLACK_KING;
@@ -411,7 +423,8 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  constexpr auto get_moves(const GameState& game_state, Moves& moves) noexcept -> void {
+  constexpr auto get_moves(const GameState& game_state, Moves& moves) noexcept
+    -> void {
     // Add moves in order of piece value
     MoveGeneration::get_king_moves<color>(game_state, moves);
     MoveGeneration::get_queen_moves<color>(game_state, moves);
@@ -424,26 +437,27 @@ namespace MoveGeneration {
   // Threaten Squares Templates
   template <const int V, const int H>
   constexpr auto get_captures_in_direction(const Position& position,
-                                           BitBoard bit_board) noexcept -> BitBoard {
+    BitBoard bit_board) noexcept
+    -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
 
-    for(int i = 0; i < 8; ++i) {
-      if constexpr(V > 0) {
-        if(GameUtils::is_piece_in_top_row(bit_board)) {
+    for (int i = 0; i < 8; ++i) {
+      if constexpr (V > 0) {
+        if (GameUtils::is_piece_in_top_row(bit_board)) {
           break;
         }
-      } else if constexpr(V < 0) {
-        if(GameUtils::is_piece_in_bottom_row(bit_board)) {
+      } else if constexpr (V < 0) {
+        if (GameUtils::is_piece_in_bottom_row(bit_board)) {
           break;
         }
       }
 
-      if constexpr(H > 0) {
-        if(GameUtils::is_piece_in_right_col(bit_board)) {
+      if constexpr (H > 0) {
+        if (GameUtils::is_piece_in_right_col(bit_board)) {
           break;
         }
-      } else if constexpr(H < 0) {
-        if(GameUtils::is_piece_in_left_col(bit_board)) {
+      } else if constexpr (H < 0) {
+        if (GameUtils::is_piece_in_left_col(bit_board)) {
           break;
         }
       }
@@ -451,7 +465,7 @@ namespace MoveGeneration {
       bit_board = GameUtils::shift_bit_board<V, H>(bit_board);
       capturable_bit_board |= bit_board;
 
-      if(position.is_occupied(bit_board)) {
+      if (position.is_occupied(bit_board)) {
         break;
       }
     }
@@ -494,57 +508,57 @@ namespace MoveGeneration {
       knights_bit_board, [&capturable_bit_board](BitBoard knight_bit_board) {
         // TODO(EMU): These if statements can be condensed. Also, better
         // checks might be possible
-        if(!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<2, -1>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<2, 1>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<1, -2>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<1, 2>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-1, -2>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_2_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-1, 2>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_left_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_left_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-2, -1>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
         }
 
-        if(!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
-           GameUtils::is_piece_in_right_col(knight_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_2_row(knight_bit_board) ||
+          GameUtils::is_piece_in_right_col(knight_bit_board))) {
           BitBoard next_knight_bit_board =
             GameUtils::shift_bit_board<-2, 1>(knight_bit_board);
           capturable_bit_board |= next_knight_bit_board;
@@ -567,13 +581,13 @@ namespace MoveGeneration {
           position, bishop_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<-1, 1>(position,
-                                                           bishop_bit_board);
+            bishop_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<1, -1>(position,
-                                                           bishop_bit_board);
+            bishop_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<-1, -1>(position,
-                                                            bishop_bit_board);
+            bishop_bit_board);
       });
     return capturable_bit_board;
   }
@@ -591,10 +605,10 @@ namespace MoveGeneration {
           position, rook_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<-1, 0>(position,
-                                                           rook_bit_board);
+            rook_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<0, -1>(position,
-                                                           rook_bit_board);
+            rook_bit_board);
         capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, 1>(
           position, rook_bit_board);
       });
@@ -615,23 +629,23 @@ namespace MoveGeneration {
           position, queen_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<-1, 1>(position,
-                                                           queen_bit_board);
+            queen_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<1, -1>(position,
-                                                           queen_bit_board);
+            queen_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<-1, -1>(position,
-                                                            queen_bit_board);
+            queen_bit_board);
 
         // Vertical/Horizontal
         capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 0>(
           position, queen_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<-1, 0>(position,
-                                                           queen_bit_board);
+            queen_bit_board);
         capturable_bit_board |=
           MoveGeneration::get_captures_in_direction<0, -1>(position,
-                                                           queen_bit_board);
+            queen_bit_board);
         capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, 1>(
           position, queen_bit_board);
       });
@@ -648,53 +662,53 @@ namespace MoveGeneration {
     GameUtils::for_each_bit_board(
       kings_bit_board, [&capturable_bit_board](const BitBoard king_bit_board) {
         // Up
-        if(!GameUtils::is_piece_in_top_row(king_bit_board)) {
+        if (!GameUtils::is_piece_in_top_row(king_bit_board)) {
           BitBoard move = GameUtils::shift_bit_board<1, 0>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Down
-        if(!GameUtils::is_piece_in_bottom_row(king_bit_board)) {
+        if (!GameUtils::is_piece_in_bottom_row(king_bit_board)) {
           BitBoard move = GameUtils::shift_bit_board<-1, 0>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Left
-        if(!GameUtils::is_piece_in_left_col(king_bit_board)) {
+        if (!GameUtils::is_piece_in_left_col(king_bit_board)) {
           BitBoard move = GameUtils::shift_bit_board<0, -1>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Right
-        if(!GameUtils::is_piece_in_right_col(king_bit_board)) {
+        if (!GameUtils::is_piece_in_right_col(king_bit_board)) {
           BitBoard move = GameUtils::shift_bit_board<0, 1>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Up-Right
-        if(!(GameUtils::is_piece_in_top_row(king_bit_board) ||
-           GameUtils::is_piece_in_right_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(king_bit_board) ||
+          GameUtils::is_piece_in_right_col(king_bit_board))) {
           BitBoard move = GameUtils::shift_bit_board<1, 1>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Up-Left
-        if(!(GameUtils::is_piece_in_top_row(king_bit_board) ||
-           GameUtils::is_piece_in_left_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_top_row(king_bit_board) ||
+          GameUtils::is_piece_in_left_col(king_bit_board))) {
           BitBoard move = GameUtils::shift_bit_board<1, -1>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Down-Right
-        if(!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
-           GameUtils::is_piece_in_right_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
+          GameUtils::is_piece_in_right_col(king_bit_board))) {
           BitBoard move = GameUtils::shift_bit_board<-1, 1>(king_bit_board);
           capturable_bit_board |= move;
         }
 
         // Down-Left
-        if(!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
-           GameUtils::is_piece_in_left_col(king_bit_board))) {
+        if (!(GameUtils::is_piece_in_bottom_row(king_bit_board) ||
+          GameUtils::is_piece_in_left_col(king_bit_board))) {
           BitBoard move = GameUtils::shift_bit_board<-1, -1>(king_bit_board);
           capturable_bit_board |= move;
         }
@@ -704,7 +718,8 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  constexpr auto get_capture_positions(const Position& position) noexcept -> BitBoard {
+  constexpr auto get_capture_positions(const Position& position) noexcept
+    -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     capturable_bit_board |=
       MoveGeneration::get_pawn_capture_positions<color>(position);

@@ -2,7 +2,8 @@
 
 #include <assert.h>
 
-Moves::Moves() noexcept : m_moves_array(), m_index(0) {}
+Moves::Moves() noexcept : m_moves_array(), m_index(0) {
+}
 
 auto Moves::size() noexcept -> std::size_t {
   return this->m_index;

@@ -104,6 +104,9 @@ namespace BitBoards {
   constexpr BitBoard BLACK_KING_QUEEN_CASTLE = ROW_8 & COL_C;
   constexpr BitBoard BLACK_ROOK_QUEEN_CASTLE = ROW_8 & COL_D;
 
+  constexpr BitBoard CENTER_4_SQUARES = (ROW_4 | ROW_5) & (COL_D | COL_E);
+  constexpr BitBoard CENTER_16_SQUARES = (ROW_3 | ROW_4 | ROW_5 | ROW_6) & (COL_C | COL_D | COL_E | COL_F);
+
   // TODO(EMU): Fill the psuedomoves at compile time!
   static std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KNIGHT;
 }  // namespace BitBoards

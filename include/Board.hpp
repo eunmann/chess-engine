@@ -17,11 +17,11 @@ namespace BoardValues {
   constexpr BoardValue QUEEN = 5;
   constexpr BoardValue KING = 6;
   constexpr std::array<BoardValue, 6> ALL{PAWN, KNIGHT, BISHOP,
-                                          ROOK, QUEEN,  KING};
-};  // namespace BoardValues
+    ROOK, QUEEN, KING};
+}; // namespace BoardValues
 
 class Board {
-public:
+  public:
   Board() noexcept;
 
   auto init_standard() noexcept -> void;

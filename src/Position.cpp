@@ -62,11 +62,11 @@ auto Position::init() noexcept -> void {
 }
 
 auto Position::clear() noexcept -> void {
-  for(int i = 0; i < PieceCodes::NUM; ++i) {
+  for (int i = 0; i < PieceCodes::NUM; ++i) {
     this->piece_positions[i] = 0ULL;
   }
 
-  for(int i = 0; i < Colors::NUM; ++i) {
+  for (int i = 0; i < Colors::NUM; ++i) {
     this->color_positions[i] = 0ULL;
     this->threaten_positions[i] = 0ULL;
   }
@@ -81,7 +81,7 @@ auto Position::get_color_bit_board(const Color color) const noexcept -> BitBoard
 }
 
 auto Position::get_piece_color_bit_board(const PieceCode piece_code,
-                                         const Color color) const noexcept -> BitBoard {
+  const Color color) const noexcept -> BitBoard {
   return this->get_piece_bit_board(piece_code) &
     this->get_color_bit_board(color);
 }
@@ -111,9 +111,9 @@ auto Position::get_black_threaten() const noexcept -> BitBoard {
 }
 
 auto Position::get_color(const BitBoard bit_board) const noexcept -> Color {
-  if(this->is_white_occupied(bit_board)) {
+  if (this->is_white_occupied(bit_board)) {
     return Colors::WHITE;
-  } else if(this->is_black_occupied(bit_board)) {
+  } else if (this->is_black_occupied(bit_board)) {
     return Colors::BLACK;
   } else {
     return Colors::NUM;
@@ -121,8 +121,8 @@ auto Position::get_color(const BitBoard bit_board) const noexcept -> Color {
 }
 
 auto Position::get_piece_type(const BitBoard bit_board) const noexcept -> PieceCode {
-  for(PieceCode p = PieceCodes::PAWN; p < PieceCodes::NUM; p++) {
-    if((this->piece_positions[p] & bit_board) != 0) {
+  for (PieceCode p = PieceCodes::PAWN; p < PieceCodes::NUM; p++) {
+    if ((this->piece_positions[p] & bit_board) != 0) {
       return p;
     }
   }
@@ -133,7 +133,7 @@ auto Position::get_piece_type(const BitBoard bit_board) const noexcept -> PieceC
 auto Position::clear(const BitBoard bit_board) noexcept -> void {
   const BitBoard negated_bit_board = ~bit_board;
 
-  for(PieceCode pc = 0; pc < PieceCodes::NUM; pc++) {
+  for (PieceCode pc = 0; pc < PieceCodes::NUM; pc++) {
     this->piece_positions[pc] &= negated_bit_board;
   }
 
@@ -142,7 +142,7 @@ auto Position::clear(const BitBoard bit_board) noexcept -> void {
 }
 
 auto Position::add(const PieceCode piece_code, const Color color,
-                   const BitBoard bit_board) noexcept -> void {
+  const BitBoard bit_board) noexcept -> void {
   this->piece_positions[piece_code] |= bit_board;
   this->color_positions[color] |= bit_board;
 }
@@ -181,7 +181,7 @@ auto Position::is_black_threaten(const BitBoard bit_board) const noexcept -> boo
 auto Position::to_board() const noexcept -> Board {
   Board board;
 
-  for(int i = 0; i < PieceCodes::NUM; i++) {
+  for (int i = 0; i < PieceCodes::NUM; i++) {
     const PieceCode piece_code = PieceCodes::ALL[i];
     const int32_t board_value = BoardValues::ALL[i];
 
@@ -190,7 +190,7 @@ auto Position::to_board() const noexcept -> Board {
     GameUtils::for_each_set_square(
       piece_bit_board, [this, board_value, &board](auto square) {
         BitBoard bit_board = GameUtils::square_to_bit_board(square);
-        if(this->is_white_occupied(bit_board)) {
+        if (this->is_white_occupied(bit_board)) {
           board.positions[square] = board_value;
         } else {
           board.positions[square] = -1 * board_value;

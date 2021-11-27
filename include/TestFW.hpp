@@ -30,7 +30,7 @@
 namespace TestFW {
 
   class Test {
-  public:
+    public:
     Test(const std::string& description, const std::function<void()> test) noexcept;
 
     auto run() noexcept -> void;
@@ -40,7 +40,7 @@ namespace TestFW {
   };
 
   class TestCase {
-  public:
+    public:
     TestCase(const std::string& description) noexcept;
 
     auto run() noexcept -> void;
@@ -50,7 +50,7 @@ namespace TestFW {
   };
 
   class UnitTest {
-  public:
+    public:
     UnitTest(const std::string& description) noexcept;
 
     auto run() noexcept -> void;

@@ -10,7 +10,7 @@
 #include "StringUtils.hpp"
 
 auto UCIUtils::process_input_command(GameState& game_state,
-                                     const std::string& command) noexcept -> int32_t {
+  const std::string& command) noexcept -> int32_t {
   auto line_split = StringUtils::split(command);
   assert(line_split.size() > 0);
 
@@ -31,12 +31,12 @@ auto UCIUtils::process_input_command(GameState& game_state,
       {"ucinewgame", [&game_state]() { game_state.init(); }},
       {"position",
        [&line_split, &game_state]() {
-         if(line_split[1].compare("startpos") == 0) {
+         if (line_split[1].compare("startpos") == 0) {
            game_state.init();
          }
-         for(size_t i = 3; i < line_split.size(); ++i) {
+         for (size_t i = 3; i < line_split.size(); ++i) {
            std::string move_str = line_split[i];
-           if(!GameUtils::process_user_move(game_state, move_str)) {
+           if (!GameUtils::process_user_move(game_state, move_str)) {
              printf("info string cannot process move %s\n", move_str.c_str());
            }
          }
@@ -51,7 +51,7 @@ auto UCIUtils::process_input_command(GameState& game_state,
       {"quit", [&rv]() { rv = 0; }},
   };
 
-  if(command_map.contains(command_action)) {
+  if (command_map.contains(command_action)) {
     auto command_func = command_map.find(command_action)->second;
     command_func();
   }
@@ -83,6 +83,8 @@ auto UCIUtils::send_registration() noexcept -> void {
   printf("registration checking\n");
   printf("registration ok\n");
 }
-auto UCIUtils::send_info() noexcept -> void {}
+auto UCIUtils::send_info() noexcept -> void {
+}
 
-auto UCIUtils::send_option() noexcept -> void {}
+auto UCIUtils::send_option() noexcept -> void {
+}

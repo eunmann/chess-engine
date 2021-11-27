@@ -4,9 +4,10 @@
 #include <string>
 
 #include "Definitions.hpp"
+#include "BitMaskValue.hpp"
 
 class Move {
-public:
+  public:
   Move() noexcept;
   Move(const Square source, const Square dest) noexcept;
   Move(const int& move) noexcept;
@@ -36,8 +37,8 @@ public:
 
   auto operator==(const Move& move) const noexcept -> bool;
 
-private:
-  uint32_t m_move = 0;
+  private:
+  BitMaskValue m_move;
   static constexpr uint32_t SOURCE_OFFSET = 0;
   static constexpr uint32_t SOURCE_BIT_NUM = 6;
 

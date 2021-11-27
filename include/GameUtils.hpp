@@ -14,7 +14,7 @@ namespace GameUtils {
   auto print_position(const BitBoard bit_board) noexcept -> void;
 
   auto shift_bit_board(const BitBoard bit_board, const int32_t vertical,
-                       const int32_t horizontal)noexcept->BitBoard;
+    const int32_t horizontal)noexcept->BitBoard;
 
   auto get_row(const BitBoard bit_board)noexcept ->int32_t;
   auto get_col(const BitBoard bit_board)noexcept ->int32_t;
@@ -27,7 +27,7 @@ namespace GameUtils {
 
   // Checks
   auto do_bit_boards_overlap(const BitBoard bit_board_1,
-                             const BitBoard bit_board_2) noexcept -> bool;
+    const BitBoard bit_board_2) noexcept -> bool;
   auto is_piece_in_row(const BitBoard bit_board, const int32_t row) noexcept -> bool;
   auto is_piece_in_col(const BitBoard bit_board, const int32_t col) noexcept -> bool;
   auto is_piece_in_top_row(const BitBoard bit_board) noexcept -> bool;
@@ -50,17 +50,17 @@ namespace GameUtils {
 
   // Bit Utils
   auto for_each_set_square(const BitBoard bit_board,
-                           const std::function<void(int32_t bit_index)>& func)
+    const std::function<void(int32_t bit_index)>& func)
     noexcept -> void;
   auto for_each_bit_board(const BitBoard bit_board,
-                          const std::function<void(BitBoard bit_board)>& func)
+    const std::function<void(BitBoard bit_board)>& func)
     noexcept -> void;
 
   // Template functions
   template <const int V, const int H>
   constexpr auto shift_bit_board(const BitBoard bit_board) noexcept -> BitBoard {
     constexpr int shift = V * 8 + H;
-    if constexpr(shift >= 0) {
+    if constexpr (shift >= 0) {
       return bit_board << shift;
     } else {
       return bit_board >> shift * -1;

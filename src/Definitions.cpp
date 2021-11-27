@@ -1,7 +1,7 @@
 #include "Definitions.hpp"
 
 auto PieceCodes::to_char(PieceCode piece_code) noexcept -> char {
-  switch(piece_code) {
+  switch (piece_code) {
     case PieceCodes::PAWN:
     {
       return ' ';

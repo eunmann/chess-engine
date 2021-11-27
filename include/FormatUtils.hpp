@@ -4,18 +4,18 @@
 #include <stdexcept>
 
 namespace FormatUtils {
-	std::string format_number(double num);
+  std::string format_number(double num);
 
-	template<typename ... Args>
-	std::string format(const std::string& format, Args ... args) {
-		int size = snprintf(nullptr, 0, format.c_str(), args ...) + 1;
-		if (size <= 0) {
-			throw std::runtime_error("String format error. size <= 0");
-		}
-		char buff[size];
-		snprintf(buff, size, format.c_str(), args ...);
-		return std::string(buff, buff + size - 1);
-	}
+  template<typename ... Args>
+  std::string format(const std::string& format, Args ... args) {
+    int size = snprintf(nullptr, 0, format.c_str(), args ...) + 1;
+    if (size <= 0) {
+      throw std::runtime_error("String format error. size <= 0");
+    }
+    char buff[size];
+    snprintf(buff, size, format.c_str(), args ...);
+    return std::string(buff, buff + size - 1);
+  }
 
-	std::string format_time(int64_t time_ns);
+  std::string format_time(int64_t time_ns);
 }

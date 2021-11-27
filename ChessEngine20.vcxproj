@@ -130,10 +130,11 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BitMaskValue.cpp" />
     <ClCompile Include="src\Board.cpp" />
     <ClCompile Include="src\Definitions.cpp" />
     <ClCompile Include="src\FormatUtils.cpp" />
@@ -152,7 +153,7 @@
     <ClCompile Include="src\UCIUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dep\include\color\color.hpp" />
+    <ClInclude Include="include\BitMaskValue.hpp" />
     <ClInclude Include="include\Board.hpp" />
     <ClInclude Include="include\Definitions.hpp" />
     <ClInclude Include="include\FormatUtils.hpp" />
