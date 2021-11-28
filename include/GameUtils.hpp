@@ -13,16 +13,16 @@ namespace GameUtils {
 
   auto print_position(const BitBoard bit_board) noexcept -> void;
 
-  auto shift_bit_board(const BitBoard bit_board, const int32_t vertical, const int32_t horizontal)noexcept->BitBoard;
+  auto shift_bit_board(const BitBoard bit_board, const int32_t vertical, const int32_t horizontal) noexcept->BitBoard;
 
-  auto get_row(const BitBoard bit_board)noexcept ->int32_t;
-  auto get_col(const BitBoard bit_board)noexcept ->int32_t;
+  auto get_row(const BitBoard bit_board) noexcept ->int32_t;
+  auto get_col(const BitBoard bit_board) noexcept ->int32_t;
   auto get_row_col(const BitBoard bit_board, int32_t& row, int32_t& col) noexcept -> void;
-  auto get_tile_name(const BitBoard bit_board)noexcept ->std::string;
+  auto get_tile_name(const BitBoard bit_board) noexcept ->std::string;
 
   // Conversions
-  auto square_to_bit_board(const Square square)noexcept ->BitBoard;
-  auto bit_board_to_square(const BitBoard bit_board)noexcept ->Square;
+  auto square_to_bit_board(const Square square) noexcept ->BitBoard;
+  auto bit_board_to_square(const BitBoard bit_board) noexcept ->Square;
 
   // Checks
   auto do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) noexcept -> bool;
@@ -42,15 +42,14 @@ namespace GameUtils {
   auto process_user_move(GameState& game_state, const std::string& move_str) noexcept -> bool;
 
   // Input
-  auto get_user_input()noexcept ->std::string;
-  auto square_name_to_square(const std::string& square_name)noexcept ->Square;
-  auto move_str_to_move(const std::string& move_str)noexcept ->Move;
+  auto get_user_input() noexcept ->std::string;
+  auto square_name_to_square(const std::string& square_name) noexcept ->Square;
+  auto move_str_to_move(const std::string& move_str) noexcept ->Move;
 
   // Bit Utils
   auto for_each_set_square(const BitBoard bit_board, const std::function<void(int32_t bit_index)>& func) noexcept -> void;
   auto for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)>& func) noexcept -> void;
 
-  // Template functions
   template <const int V, const int H>
   auto shift_bit_board(const BitBoard bit_board) noexcept -> BitBoard {
     constexpr int shift = V * 8 + H;

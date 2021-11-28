@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 namespace FormatUtils {
-  std::string format_number(double num);
+  auto format_number(double num) noexcept ->std::string;
 
   template<typename ... Args>
-  std::string format(const std::string& format, Args ... args) {
+  auto format(const std::string& format, Args ... args) noexcept -> std::string {
     int size = snprintf(nullptr, 0, format.c_str(), args ...) + 1;
     if (size <= 0) {
       throw std::runtime_error("String format error. size <= 0");

@@ -11,47 +11,47 @@ class Timer {
   /**
    * Creates the timer and starts the timer
    */
-  Timer();
+  Timer() noexcept;
 
   /**
    * Creates the timer and starts the timer.
    *
    * @param message A message to include when printing the elapsed time
    */
-  Timer(std::string message);
+  Timer(std::string message) noexcept;
 
   /**
    * Start the timer. If the timer has already started, the timer
    * will overwrite the starting time.
    */
-  void start();
+  auto start() noexcept -> void;
 
   /**
    * Stop the timer.
    */
-  void end();
+  auto end() noexcept -> void;
 
   /**
    * @return The number of nanoseconds that have elapsed
    */
-  int64_t get_time_elapsed() const;
+  auto get_time_elapsed() const noexcept -> int64_t;
 
   /**
    * Prints the elapsed time with a message if given in the constructor
    */
-  void print() const;
+  auto print() const noexcept -> void;
 
   /**
    * Prints the elapsed time with the inputted message
    *
    * @param message The message to print along with the elapsed time
    */
-  void print(const std::string& message) const;
+  auto print(const std::string& message) const noexcept -> void;
 
   /**
    * Returns the time as a formated string(value with unit prefix)
    */
-  std::string time_string() const;
+  auto time_string() const noexcept ->std::string;
 
   private:
   std::string message;

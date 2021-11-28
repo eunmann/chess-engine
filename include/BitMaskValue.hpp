@@ -5,8 +5,8 @@
 
 class BitMaskValue {
   public:
-  BitMaskValue();
-  BitMaskValue(int32_t value);
+  BitMaskValue() noexcept;
+  BitMaskValue(int32_t value) noexcept;
 
   template<const int32_t mask, const int32_t shift>
   auto set_bits(const int32_t value) noexcept -> void {

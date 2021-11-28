@@ -11,8 +11,8 @@ static int64_t times_pruned = 0;
 
 namespace MoveSearch {
 
-  auto get_best_move(const GameState& game_state)noexcept ->Move;
-  auto get_position_heuristic(const GameState& game_state)noexcept ->int32_t;
+  auto get_best_move(const GameState& game_state) noexcept ->Move;
+  auto get_position_heuristic(const GameState& game_state) noexcept ->int32_t;
 
   template <const Color max_color>
   auto alpha_beta_pruning_search(const GameState& game_state, const int32_t ply_depth, int32_t alpha, int32_t beta) noexcept {

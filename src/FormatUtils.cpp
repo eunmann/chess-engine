@@ -1,7 +1,7 @@
 #include "FormatUtils.hpp"
 
 namespace FormatUtils {
-  std::string format_number(double num) {
+  auto format_number(double num) noexcept -> std::string {
     std::string formated_string = "";
 
     char unit[][2] = {"p","n", "u", "m", "", "K", "M", "G", "T"};

@@ -10,7 +10,7 @@ namespace MoveGeneration {
 
   // Pseduo-Legal Moves Templates
   template <const int V, const int H, const Color color>
-  auto get_moves_in_direction(const GameState& game_state, BitBoard bit_board, Moves& moves) -> void {
+  auto get_moves_in_direction(const GameState& game_state, BitBoard bit_board, Moves& moves) noexcept -> void {
     Square source_square = GameUtils::bit_board_to_square(bit_board);
     for (int i = 0; i < 7; ++i) {
       if constexpr (V > 0) {
@@ -47,7 +47,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_pawn_moves(const GameState& game_state, Moves& moves)-> void {
+  auto get_pawn_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     constexpr int32_t promotion_row = color == Colors::WHITE ? 7 : 0;
     constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
@@ -57,15 +57,13 @@ namespace MoveGeneration {
     GameUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves, pawn_dir](const BitBoard pawn_bit_board) {
       Square source_square = GameUtils::bit_board_to_square(pawn_bit_board);
 
-      auto add_promotion_moves = [source_square, &moves](
-        const BitBoard destination_bit_board) {
-          Square destination_square =
-            GameUtils::bit_board_to_square(destination_bit_board);
-          for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
-            Move move(source_square, destination_square);
-            move.set_promotion(i);
-            moves.push_back(move);
-          }
+      auto add_promotion_moves = [source_square, &moves](const BitBoard destination_bit_board) {
+        Square destination_square = GameUtils::bit_board_to_square(destination_bit_board);
+        for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
+          Move move(source_square, destination_square);
+          move.set_promotion(i);
+          moves.push_back(move);
+        }
       };
 
       // Up
@@ -128,7 +126,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_knight_moves(const GameState& game_state, Moves& moves) -> void {
+  auto get_knight_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>();
 
     GameUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
@@ -139,7 +137,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_bishop_moves(const GameState& game_state, Moves& moves) -> void {
+  auto get_bishop_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard bishops_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::BISHOP, color>();
 
     GameUtils::for_each_bit_board(bishops_bit_board, [&game_state, &moves](const BitBoard bishop_bit_board) {
@@ -151,7 +149,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_rook_moves(const GameState& game_state, Moves& moves) -> void {
+  auto get_rook_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard rooks_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::ROOK, color>();
 
     GameUtils::for_each_bit_board(
@@ -164,7 +162,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_queen_moves(const GameState& game_state, Moves& moves) -> void {
+  auto get_queen_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard queens_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::QUEEN, color>();
     GameUtils::for_each_bit_board(queens_bit_board, [&game_state, &moves](BitBoard queen_bit_board) {
       // Diagonal
@@ -182,7 +180,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_king_moves(const GameState& game_state, Moves& moves) -> void {
+  auto get_king_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard kings_bit_board =
       game_state.position.get_piece_color_bit_board<PieceCodes::KING, color>();
 
@@ -273,7 +271,7 @@ namespace MoveGeneration {
   }
 
   template <const Color color>
-  auto get_pawn_capture_positions(const BitBoard bit_board) -> BitBoard {
+  auto get_pawn_capture_positions(const BitBoard bit_board) noexcept -> BitBoard {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     GameUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {

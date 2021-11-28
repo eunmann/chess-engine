@@ -3,36 +3,36 @@
 #include <cstdio>
 #include "FormatUtils.hpp"
 
-Timer::Timer(std::string message) : message(message),
+Timer::Timer(std::string message) noexcept : message(message),
 s(std::chrono::steady_clock::now()),
 e(s) {
 }
 
-Timer::Timer() : message(""),
+Timer::Timer() noexcept : message(""),
 s(std::chrono::steady_clock::now()),
 e(s) {
 }
 
-void Timer::start() {
+auto Timer::start() noexcept -> void {
   this->s = std::chrono::steady_clock::now();
 }
 
-void Timer::end() {
+auto Timer::end() noexcept -> void {
   this->e = std::chrono::steady_clock::now();
 }
 
-int64_t Timer::get_time_elapsed() const {
+auto Timer::get_time_elapsed() const noexcept -> int64_t {
   return std::chrono::duration_cast<std::chrono::nanoseconds>(this->e - this->s).count();
 }
 
-void Timer::print() const {
+auto Timer::print() const noexcept -> void {
   printf("[ %s | %s ]\n", this->message.c_str(), this->time_string().c_str());
 }
 
-void Timer::print(const std::string& message) const {
+auto Timer::print(const std::string& message) const noexcept -> void {
   printf("[ %s | %s ]\n", message.c_str(), this->time_string().c_str());
 }
 
-std::string Timer::time_string() const {
+auto Timer::time_string() const noexcept -> std::string {
   return FormatUtils::format_time(this->get_time_elapsed());
 }
