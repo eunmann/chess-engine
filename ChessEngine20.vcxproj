@@ -153,6 +153,7 @@
     <ClCompile Include="src\UCIUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dep\include\color\color.hpp" />
     <ClInclude Include="include\BitMaskValue.hpp" />
     <ClInclude Include="include\Board.hpp" />
     <ClInclude Include="include\Definitions.hpp" />
