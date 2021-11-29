@@ -8,7 +8,6 @@
 #include "GameState.hpp"
 #include "Move.hpp"
 #include "Position.hpp"
-#include "ThreadState.hpp"
 
 namespace GameUtils {
 
