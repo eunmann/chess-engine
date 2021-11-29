@@ -1,117 +1,183 @@
 #include "GameUtils.hpp"
 
-#include <assert.h>
 #include <stdio.h>
-#include <intrin.h>
 
-#include <algorithm>
-#include <bit>
 #include <iostream>
 #include <string>
 
 #include "Definitions.hpp"
-#include "Move.hpp"
-#include "MoveGeneration.hpp"
-#include "Moves.hpp"
 
+void GameUtils::print_position(BitBoard position) {
+    const BitBoard left_bit = 1ULL << 63;
+    for (int32_t j = 0; j < 8; ++j) {
+        for (int32_t i = 0; i < 8; ++i) {
+            if (left_bit & position) {
+                printf("1");
+            } else {
+                printf("0");
+            }
 
-auto GameUtils::square_to_bit_board(const Square square) noexcept -> BitBoard {
-  return 0b1ULL << square;
-}
-
-auto GameUtils::print_position(const BitBoard bit_board) noexcept -> void {
-  const BitBoard left_bit = 1ULL << 63;
-  BitBoard temp_bit_board = bit_board;
-  std::string output;
-  output.reserve(64);
-
-  for (int32_t j = 0; j < 8; ++j) {
-    for (int32_t i = 0; i < 8; ++i) {
-      if (left_bit & temp_bit_board) {
-        output += '1';
-      } else {
-        output += '0';
-      }
-      temp_bit_board <<= 1;
+            position <<= 1;
+        }
+        printf("\n");
     }
-    output += '\n';
-  }
-
-  printf("%s", output.c_str());
 }
 
-auto GameUtils::shift_bit_board(const BitBoard bit_board,
-  const int32_t vertical,
-  const int32_t horizontal) noexcept -> BitBoard {
-  assert(vertical > -8 && vertical < 8);
-  assert(horizontal > -8 && horizontal < 8);
-
-  int32_t shift = vertical * 8 + horizontal;
-  if (shift >= 0) {
-    return bit_board << shift;
-  } else {
-    return bit_board >> (shift * -1);
-  }
-}
-
-auto GameUtils::get_row(const BitBoard bit_board) noexcept -> int32_t {
-  BitBoard row_mask = BitBoards::ROW_1;
-
-  for (int i = 0; i < 8; ++i) {
-    if ((bit_board & row_mask) != 0) {
-      return i;
+BitBoard GameUtils::move(BitBoard position, int32_t vertical, int32_t horizontal) {
+    int32_t shift = vertical * 8 + horizontal;
+    if (shift >= 0) {
+        return position << shift;
+    } else {
+        return position >> (shift * -1);
     }
-    row_mask = row_mask << 8;
-  }
-
-  return -1;
 }
 
-auto GameUtils::get_col(const BitBoard bit_board) noexcept -> int32_t {
-  BitBoard col_mask = BitBoards::COL_A;
+bool GameUtils::is_empty(const Position &position, BitBoard bit_board) {
+    return (position.get_empty_bit_board() & bit_board) == 0;
+}
 
-  for (int i = 0; i < 8; ++i) {
-    if ((bit_board & col_mask) != 0) {
-      return i;
+bool GameUtils::is_valid(const GameState &game_state, BitBoard position, int32_t piece_index) {
+    bool is_white_piece = piece_index < PIECES_PER_PLAYER;
+
+    if ((is_white_piece && ((game_state.position.get_color_bit_board(Colors::WHITE) & position) != 0)) ||
+        (!is_white_piece && ((game_state.position.get_color_bit_board(Colors::BLACK) & position) != 0))) {
+        return false;
     }
-    col_mask = col_mask << 1;
-  }
 
-  return -1;
-}
+    /* TODO(EMU): I don't like this copy here */
+    GameState temp = game_state;
+    GameUtils::apply_move(temp, position, piece_index);
 
-auto GameUtils::get_row_col(const BitBoard bit_board, int32_t& row,
-  int32_t& col) noexcept -> void {
-  BitBoard row_mask = BitBoards::ROW_1;
-  BitBoard col_mask = BitBoards::COL_A;
-
-  row = -1;
-  col = -1;
-
-  for (int i = 0; i < 8; ++i) {
-    if ((bit_board & row_mask) != 0) {
-      row = i;
+    if (is_white_piece) {
+        return (temp.position.get_piece_bit_board(PieceCodes::KING) & temp.position.get_white_bit_board() & temp.position.get_black_threaten()) == 0;
+    } else {
+        return (temp.position.get_piece_bit_board(PieceCodes::KING) & temp.position.get_black_bit_board() & temp.position.get_white_threaten()) == 0;
     }
-    if ((bit_board & col_mask) != 0) {
-      col = i;
+}
+
+void GameUtils::get_row_col(BitBoard position, int32_t &row, int32_t &col) {
+    BitBoard row_mask = 0xFFULL;
+    BitBoard col_mask = 0x0101010101010101ULL;
+
+    row = -1;
+    col = -1;
+
+    for (int i = 0; i < 8; ++i) {
+        if ((position & row_mask) != 0) {
+            row = i;
+        }
+        if ((position & col_mask) != 0) {
+            col = i;
+        }
+        row_mask = row_mask << 8;
+        col_mask = col_mask << 1;
     }
-    row_mask = row_mask << 8;
-    col_mask = col_mask << 1;
-  }
 }
 
-auto GameUtils::get_tile_name(const BitBoard bit_board) noexcept -> std::string {
-  int32_t row, col;
-  GameUtils::get_row_col(bit_board, row, col);
+std::string GameUtils::get_tile_name(BitBoard position) {
+    int32_t row, col;
+    GameUtils::get_row_col(position, row, col);
 
-  std::string name = "";
-  name += (char)(col + 'a');
-  name += (char)(row + '1');
+    std::string name = "";
+    name += (char)(col + 'a');
+    name += (char)(row + '1');
 
-  return name;
+    return name;
 }
 
-<<<<<<< HEAD
+void GameUtils::init_standard(GameState &game_state) {
+    game_state.position.init();
+
+    game_state.white_to_move = true;
+
+    game_state.white_to_move = true;
+    game_state.white_king_moved = false;
+    game_state.white_rook_1_moved = false;
+    game_state.white_rook_2_moved = false;
+    game_state.black_king_moved = false;
+    game_state.black_rook_1_moved = false;
+    game_state.black_rook_2_moved = false;
+    game_state.black_king_in_check = false;
+
+    game_state.pawn_ep = -128;
+}
+
+void GameUtils::get_moves_in_direction(const GameState &game_state, int32_t piece_index, int32_t vertical, int32_t horizontal, Moves &moves) {
+    BitBoard position = game_state.position.get_piece_bit_board(piece_index);
+    bool is_white_piece = piece_index < PIECES_PER_PLAYER;
+
+    for (int i = 0; i < 7; ++i) {
+        if ((GameUtils::is_piece_in_top_row(position) && vertical > 0) ||
+            (GameUtils::is_piece_in_bottom_row(position) && vertical < 0) ||
+            (GameUtils::is_piece_in_right_col(position) && horizontal > 0) ||
+            (GameUtils::is_piece_in_left_col(position) && horizontal < 0)) {
+            break;
+        }
+
+        position = GameUtils::move(position, vertical, horizontal);
+
+        if (!GameUtils::is_valid(game_state, position, piece_index)) {
+            break;
+        }
+
+        if (GameUtils::is_empty(game_state.position, position)) {
+            GameState &move = moves.back_ref();
+            move = game_state;
+            GameUtils::apply_move(move, position, piece_index);
+        } else if ((is_white_piece && ((game_state.position.get_white_bit_board() & position) == 0)) ||
+                   (!is_white_piece && ((game_state.position.get_black_bit_board() & position) == 0))) {
+            GameState &move = moves.back_ref();
+            move = game_state;
+            GameUtils::apply_move(move, position, piece_index);
+            break;
+        } else {
+            break;
+        }
+    }
+}
+
+void GameUtils::get_moves(const GameState &game_state, Moves &moves) {
+    int start = game_state.white_to_move ? 0 : PIECES_PER_PLAYER;
+    int end = game_state.white_to_move ? PIECES_PER_PLAYER : PIECES_PER_PLAYER * 2;
+
+    for (int i = start; i < end; ++i) {
+        GameUtils::get_piece_moves(game_state, i, moves);
+    }
+}
+
+void GameUtils::get_piece_moves(const GameState &game_state, int32_t piece_index, Moves &moves) {
+    int32_t code = game_state.position.get_piece_bit_board(piece_index);
+    switch (code) {
+        case PieceCodes::PAWN: {
+            GameUtils::get_pawn_moves(game_state, piece_index, moves);
+            break;
+        }
+        case PieceCodes::KNIGHT: {
+            GameUtils::get_knight_moves(game_state, piece_index, moves);
+            break;
+        }
+        case PieceCodes::BISHOP: {
+            GameUtils::get_bishop_moves(game_state, piece_index, moves);
+            break;
+        }
+        case PieceCodes::ROOK: {
+            GameUtils::get_rook_moves(game_state, piece_index, moves);
+            break;
+        }
+        case PieceCodes::QUEEN: {
+            GameUtils::get_queen_moves(game_state, piece_index, moves);
+            break;
+        }
+        case PieceCodes::KING: {
+            GameUtils::get_king_moves(game_state, piece_index, moves);
+            break;
+        }
+        case 0:
+        default: {
+        }
+    }
+}
+
 void GameUtils::get_pawn_moves(const GameState &game_state, Moves &moves) {
     const bool is_white_piece = piece_index < PIECES_PER_PLAYER;
     const int64_t pawn_dir = is_white_piece ? 1 : -1;
@@ -465,154 +531,404 @@ void GameUtils::get_king_moves(const GameState &game_state, Moves &moves) {
             }
         }
     }
-=======
-auto GameUtils::do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) noexcept -> bool {
-  return (bit_board_1 & bit_board_2) != 0;
 }
 
-auto GameUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row) noexcept -> bool {
-  const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
-  return GameUtils::do_bit_boards_overlap(row_mask, bit_board);
-}
-
-auto GameUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col) noexcept -> bool {
-  const BitBoard col_mask = BitBoards::COL_A << col;
-  return GameUtils::do_bit_boards_overlap(col_mask, bit_board);
-}
-
-auto GameUtils::is_piece_in_top_row(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::ROW_8, bit_board);
-}
-
-auto GameUtils::is_piece_in_top_2_row(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::ROW_8 | BitBoards::ROW_7,
-    bit_board);
-}
-
-auto GameUtils::is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::ROW_1, bit_board);
->>>>>>> good
-}
-
-auto GameUtils::is_piece_in_bottom_2_row(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::ROW_1 | BitBoards::ROW_2,
-    bit_board);
-}
-
-auto GameUtils::is_piece_in_left_col(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::COL_A, bit_board);
-}
-
-auto GameUtils::is_piece_in_left_2_col(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::COL_A | BitBoards::COL_B,
-    bit_board);
-}
-
-auto GameUtils::is_piece_in_right_col(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::COL_H, bit_board);
-}
-
-auto GameUtils::is_piece_in_right_2_col(const BitBoard bit_board) noexcept -> bool {
-  return GameUtils::do_bit_boards_overlap(BitBoards::COL_H | BitBoards::COL_G,
-    bit_board);
-}
-
-auto GameUtils::perform_user_move(GameState& game_state) noexcept -> bool {
-  bool need_input = true;
-
-  while (need_input) {
-    printf("Input move: ");
-    auto input = GameUtils::get_user_input();
-
-    if (input.size() < 4) {
-      printf("Invalid input.\n");
-      continue;
-    }
-
-    if (input == "exit") {
-      return false;
-    }
-
-    Moves moves;
-    Color color_to_move = Colors::bool_to_color(game_state.is_white_to_move());
-    if (color_to_move == Colors::WHITE) {
-      MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
+void GameUtils::apply_move(GameState &game_state, BitBoard position, int32_t piece_index) {
+    bool is_white_piece = piece_index < PIECES_PER_PLAYER;
+    if (is_white_piece) {
+        game_state.position.get_white_bit_board() ^= (game_state.position.get_piece_bit_board(piece_index) | position);
     } else {
-      MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
+        game_state.position.get_black_bit_board() ^= (game_state.position.get_piece_bit_board(piece_index) | position);
     }
-    printf("Found %llu psuedo-legal moves for %s\n", moves.size(),
-      color_to_move == Colors::WHITE ? "white" : "black");
+    game_state.position.get_piece_bit_board(piece_index) = position;
+    game_state.white_to_move = !game_state.white_to_move;
+    game_state.white_king_in_check = false;
+    game_state.black_king_in_check = false;
 
-    auto is_move_legal = [&game_state](const Move move) {
-      GameState check = game_state;
-      check.apply_move(move);
-      return check.is_legal();
-    };
-
-    Moves legal_moves;
-    for (auto move : moves) {
-      if (is_move_legal(move)) {
-        legal_moves.push_back(move);
-      } else {
-        printf("Illegal Move: %s\n", move.to_string().c_str());
-      }
-    }
-
-    printf("Found %llu legal moves for %s\n", legal_moves.size(),
-      color_to_move == Colors::WHITE ? "white" : "black");
-
-    for (auto legal_move : legal_moves) {
-      printf("Legal Move: %s\n", legal_move.to_string().c_str());
-      if (legal_move.to_string() == input) {
-        game_state.apply_move(legal_move);
-        need_input = false;
-        break;
-      }
-    }
-
-    if (need_input) {
-      printf("Invalid input.\n");
+    /* Removed a captured piece from the board */
+    BitBoard *opp_positions;
+    int32_t *opp_codes;
+    if (is_white_piece) {
+        opp_positions = game_state.position.piece_positions + PIECES_PER_PLAYER;
+        opp_codes = game_state.position.piece_codes + PIECES_PER_PLAYER;
     } else {
-      break;
+        opp_positions = game_state.position.piece_positions;
+        opp_codes = game_state.position.piece_codes;
     }
-  }
 
-  return true;
-}
-
-auto GameUtils::get_user_input() noexcept -> std::string {
-  std::string input;
-  std::getline(std::cin, input);
-  return input;
-}
-
-auto GameUtils::process_user_move(GameState& game_state, const std::string& move_str) noexcept -> bool {
-
-  Moves moves;
-  Color color_to_move = Colors::bool_to_color(game_state.is_white_to_move());
-  if (color_to_move == Colors::WHITE) {
-    MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
-  } else {
-    MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
-  }
-
-  auto is_move_legal = [&game_state](const Move move) {
-    GameState check = game_state;
-    check.apply_move(move);
-    return check.is_legal();
-  };
-
-  for (auto move : moves) {
-    if (is_move_legal(move) && move.to_string() == move_str) {
-      game_state.apply_move(move);
-      return true;
+    for (int i = 0; i < PIECES_PER_PLAYER; ++i) {
+        if (opp_positions[i] == position) {
+            opp_positions[i] = 0;
+            opp_codes[i] = PieceCodes::EMPTY;
+            if (is_white_piece) {
+                game_state.position.get_black_bit_board() ^= position;
+            } else {
+                game_state.position.get_white_bit_board() ^= position;
+            }
+            break;
+        }
     }
-  }
 
-  return false;
+    /* Clear En Passant flag */
+    game_state.pawn_ep = -128;
+
+    /* Check for Rook or King moves */
+    if (piece_index == 15) {
+        game_state.white_king_moved = true;
+    } else if (piece_index == 15 + PIECES_PER_PLAYER) {
+        game_state.black_king_moved = true;
+    } else if (piece_index == 12) {
+        game_state.white_rook_1_moved = true;
+    } else if (piece_index == 12 + PIECES_PER_PLAYER) {
+        game_state.black_rook_1_moved = true;
+    } else if (piece_index == 13) {
+        game_state.white_rook_2_moved = true;
+    } else if (piece_index == 13 + PIECES_PER_PLAYER) {
+        game_state.black_rook_2_moved = true;
+    }
+
+    /* Check if King is in check */
+    game_state.position.get_white_threaten() = GameUtils::get_capture_positions(game_state, true);
+    game_state.position.get_black_threaten() = GameUtils::get_capture_positions(game_state, false);
+
+    game_state.white_king_in_check = (game_state.position.get_black_threaten() & game_state.position.piece_positions[15]) != 0;
+    game_state.black_king_in_check = (game_state.position.get_white_threaten() & game_state.position.piece_positions[15 + PIECES_PER_PLAYER]) != 0;
 }
 
-<<<<<<< HEAD
+BitBoard GameUtils::get_captures_in_direction(const GameState &game_state, int32_t piece_index, int32_t vertical, int32_t horizontal) {
+    BitBoard position = game_state.position.get_piece_bit_board(piece_index);
+    BitBoard capturable_positions = 0;
+
+    for (int i = 0; i < 8; ++i) {
+        if ((GameUtils::is_piece_in_top_row(position) && vertical > 0) ||
+            (GameUtils::is_piece_in_bottom_row(position) && vertical < 0) ||
+            (GameUtils::is_piece_in_right_col(position) && horizontal > 0) ||
+            (GameUtils::is_piece_in_left_col(position) && horizontal < 0)) {
+            break;
+        }
+
+        position = GameUtils::move(position, vertical, horizontal);
+        capturable_positions |= position;
+
+        if (!GameUtils::is_empty(game_state.position, position)) {
+            break;
+        }
+    }
+
+    return capturable_positions;
+}
+
+BitBoard GameUtils::get_capture_positions(const GameState &game_state, bool white_pieces) {
+    int s = white_pieces ? 0 : PIECES_PER_PLAYER;
+    int e = white_pieces ? PIECES_PER_PLAYER : PIECES_PER_PLAYER * 2;
+    BitBoard capturable_positions = 0;
+    for (int i = s; i < e; ++i) {
+        capturable_positions |= GameUtils::get_piece_capture_positions(game_state, i);
+    }
+    return capturable_positions;
+}
+
+BitBoard GameUtils::get_piece_capture_positions(const GameState &game_state, int32_t piece_index) {
+    int32_t code = game_state.position.get_piece_bit_board(piece_index);
+    switch (code) {
+        case PieceCodes::PAWN: {
+            return GameUtils::get_pawn_capture_positions(game_state, piece_index);
+        }
+        case PieceCodes::KNIGHT: {
+            return GameUtils::get_knight_capture_positions(game_state, piece_index);
+        }
+        case PieceCodes::BISHOP: {
+            return GameUtils::get_bishop_capture_positions(game_state, piece_index);
+        }
+        case PieceCodes::ROOK: {
+            return GameUtils::get_rook_capture_positions(game_state, piece_index);
+        }
+        case PieceCodes::QUEEN: {
+            return GameUtils::get_queen_capture_positions(game_state, piece_index);
+        }
+        case PieceCodes::KING: {
+            return GameUtils::get_king_capture_positions(game_state, piece_index);
+        }
+        case 0:
+        default: {
+            return 0;
+        }
+    }
+}
+
+BitBoard GameUtils::get_pawn_capture_positions(const GameState &game_state, int32_t piece_index) {
+    const bool is_white_piece = static_cast<uint64_t>(piece_index) < PIECES_PER_PLAYER;
+    const int64_t pawn_dir = is_white_piece ? 1 : -1;
+    const BitBoard pawn_position = game_state.position.get_piece_bit_board(piece_index);
+    BitBoard capturable_positions = 0;
+
+    if (pawn_position) {
+        /* Capture Left and Right */
+        BitBoard pawn_position_left_capture = GameUtils::is_piece_in_left_col(pawn_position) ? 0 : GameUtils::move(pawn_position, 1 * pawn_dir, -1);
+        BitBoard pawn_position_right_capture = GameUtils::is_piece_in_right_col(pawn_position) ? 0 : GameUtils::move(pawn_position, 1 * pawn_dir, 1);
+        capturable_positions |= pawn_position_left_capture | pawn_position_right_capture;
+    }
+
+    return capturable_positions;
+}
+
+BitBoard GameUtils::get_knight_capture_positions(const GameState &game_state, int32_t piece_index) {
+    BitBoard knight_position = game_state.position.get_piece_bit_board(piece_index);
+    BitBoard capturable_positions = 0;
+
+    if (knight_position) {
+        if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_left_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, 2, -1);
+            capturable_positions |= next_knight_position;
+        }
+        if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_left_2_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, 1, -2);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_left_2_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, -1, -2);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_bottom_2_row(knight_position) || GameUtils::is_piece_in_left_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, -2, -1);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_bottom_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, -2, 1);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_bottom_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, -1, 2);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_top_row(knight_position) || GameUtils::is_piece_in_right_2_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, 1, 2);
+            capturable_positions |= next_knight_position;
+        }
+
+        if (!(GameUtils::is_piece_in_top_2_row(knight_position) || GameUtils::is_piece_in_right_col(knight_position))) {
+            BitBoard next_knight_position = GameUtils::move(knight_position, 2, 1);
+            capturable_positions |= next_knight_position;
+        }
+    }
+
+    return capturable_positions;
+}
+
+BitBoard GameUtils::get_bishop_capture_positions(const GameState &game_state, int32_t piece_index) {
+    int64_t capturable_positions = 0;
+    if (game_state.position.get_piece_bit_board(piece_index)) {
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 1, 1);
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, -1, 1);
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 1, -1);
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, -1, -1);
+    }
+
+    return capturable_positions;
+}
+
+BitBoard GameUtils::get_rook_capture_positions(const GameState &game_state, int32_t piece_index) {
+    int64_t capturable_positions = 0;
+    if (game_state.position.get_piece_bit_board(piece_index)) {
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 1, 0);
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, -1, 0);
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 0, -1);
+        capturable_positions |= GameUtils::get_captures_in_direction(game_state, piece_index, 0, 1);
+    }
+    return capturable_positions;
+}
+BitBoard GameUtils::get_queen_capture_positions(const GameState &game_state, int32_t piece_index) {
+    int64_t capturable_positions = 0;
+
+    capturable_positions |= GameUtils::get_bishop_capture_positions(game_state, piece_index);
+    capturable_positions |= GameUtils::get_rook_capture_positions(game_state, piece_index);
+
+    return capturable_positions;
+}
+BitBoard GameUtils::get_king_capture_positions(const GameState &game_state, int32_t piece_index) {
+    BitBoard capturable_positions = 0;
+    BitBoard position = game_state.position.get_piece_bit_board(piece_index);
+    if (position) {
+        /* Up */
+        if (!GameUtils::is_piece_in_top_row(position)) {
+            BitBoard move = GameUtils::move(position, 1, 0);
+            capturable_positions |= move;
+        }
+
+        /* Down */
+        if (!GameUtils::is_piece_in_bottom_row(position)) {
+            BitBoard move = GameUtils::move(position, -1, 0);
+            capturable_positions |= move;
+        }
+
+        /* Left */
+        if (!GameUtils::is_piece_in_left_col(position)) {
+            BitBoard move = GameUtils::move(position, 0, -1);
+            capturable_positions |= move;
+        }
+
+        /* Right */
+        if (!GameUtils::is_piece_in_right_col(position)) {
+            BitBoard move = GameUtils::move(position, 0, 1);
+            capturable_positions |= move;
+        }
+
+        /* Up-Right */
+        if (!(GameUtils::is_piece_in_top_row(position) || GameUtils::is_piece_in_right_col(position))) {
+            BitBoard move = GameUtils::move(position, 1, 1);
+            capturable_positions |= move;
+        }
+
+        /* Up-Left */
+        if (!(GameUtils::is_piece_in_top_row(position) || GameUtils::is_piece_in_left_col(position))) {
+            BitBoard move = GameUtils::move(position, 1, -1);
+            capturable_positions |= move;
+        }
+
+        /* Down-Right */
+        if (!(GameUtils::is_piece_in_bottom_row(position) || GameUtils::is_piece_in_right_col(position))) {
+            BitBoard move = GameUtils::move(position, -1, 1);
+            capturable_positions |= move;
+        }
+
+        /* Down-Left */
+        if (!(GameUtils::is_piece_in_bottom_row(position) || GameUtils::is_piece_in_left_col(position))) {
+            BitBoard move = GameUtils::move(position, -1, -1);
+            capturable_positions |= move;
+        }
+    }
+
+    return capturable_positions;
+}
+
+bool GameUtils::is_piece_in_row(BitBoard position, int32_t row) {
+    const BitBoard row_mask = 0xFFULL << (row * 8);
+    return (position & row_mask) != 0;
+}
+
+bool GameUtils::is_piece_in_col(BitBoard position, int32_t col) {
+    const BitBoard col_mask = 0x0101010101010101ULL << col;
+    return (position & col_mask) != 0;
+}
+
+bool GameUtils::is_piece_in_top_row(BitBoard position) {
+    return GameUtils::is_piece_in_row(position, 7);
+}
+
+bool GameUtils::is_piece_in_top_2_row(BitBoard position) {
+    return GameUtils::is_piece_in_row(position, 7) || GameUtils::is_piece_in_row(position, 6);
+}
+
+bool GameUtils::is_piece_in_bottom_row(BitBoard position) {
+    return GameUtils::is_piece_in_row(position, 0);
+}
+
+bool GameUtils::is_piece_in_bottom_2_row(BitBoard position) {
+    return GameUtils::is_piece_in_row(position, 0) || GameUtils::is_piece_in_row(position, 1);
+}
+
+bool GameUtils::is_piece_in_left_col(BitBoard position) {
+    return GameUtils::is_piece_in_col(position, 0);
+}
+
+bool GameUtils::is_piece_in_left_2_col(BitBoard position) {
+    return GameUtils::is_piece_in_col(position, 0) || GameUtils::is_piece_in_col(position, 1);
+}
+
+bool GameUtils::is_piece_in_right_col(BitBoard position) {
+    return GameUtils::is_piece_in_col(position, 7);
+}
+
+bool GameUtils::is_piece_in_right_2_col(BitBoard position) {
+    return GameUtils::is_piece_in_col(position, 7) || GameUtils::is_piece_in_col(position, 6);
+}
+
+int32_t GameUtils::perform_user_move(GameState &game_state) {
+    bool need_input = true;
+
+    while (need_input) {
+        printf("Select piece: ");
+        std::string input = "";
+        std::getline(std::cin, input);
+
+        BitBoard selected_col;
+        BitBoard selected_row;
+        int32_t piece_index = -1;
+
+        if (input.size() == 2) {
+            char column_name = input[0];
+            char row_name = input[1];
+
+            selected_col = column_name - 'a';
+            selected_row = row_name - '1';
+
+            BitBoard curr_position = GameUtils::move(0x1ULL, selected_row, selected_col);
+
+            for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
+                BitBoard position = game_state.position.get_piece_bit_board(i);
+                if (curr_position == position) {
+                    piece_index = i;
+                    break;
+                }
+            }
+
+            if (piece_index == -1) {
+                printf("Invalid selection. No piece found.\n");
+                continue;
+            }
+        } else if (input.compare("exit") == 0) {
+            return -1;
+        } else {
+            printf("Invalid input.\n");
+            continue;
+        }
+
+        printf("Select destination: ");
+        std::getline(std::cin, input);
+
+        BitBoard dest_col;
+        BitBoard dest_row;
+
+        if (input.size() == 2) {
+            char column_name = input[0];
+            char row_name = input[1];
+
+            dest_col = column_name - 'a';
+            dest_row = row_name - '1';
+        } else {
+            printf("Invalid input.\n");
+            continue;
+        }
+
+        BitBoard next_position = GameUtils::move(0x1ULL, dest_row, dest_col);
+
+        Moves moves;
+        GameUtils::get_piece_moves(game_state, piece_index, moves);
+
+        for (size_t i = 0; i < moves.size(); ++i) {
+            GameState &move = moves[i];
+            if (move.position.get_piece_bit_board(piece_index) == next_position) {
+                GameUtils::apply_move(game_state, next_position, piece_index);
+                need_input = false;
+                break;
+            }
+        }
+
+        if (need_input) {
+            printf("Invalid input, that piece cannot move there.\n");
+        } else {
+            break;
+        }
+    }
+
+    return 1;
+}
+
 void GameUtils::get_best_move(ThreadState &thread_state) {
     Moves moves;
     GameUtils::get_moves(thread_state.game_state, moves);
@@ -687,106 +1003,93 @@ int32_t GameUtils::alpha_beta_pruning_search(const ThreadState &thread_state, co
         }
         return best_heuristic;
     }
-=======
-auto GameUtils::square_name_to_square(const std::string& square_name) noexcept -> Square {
-  // Check string length, min 2 characters required for a move
-  if (square_name.size() < 2) {
-    return 0;
-  }
-
-  int32_t col_index = square_name[0] - 'a';
-  int32_t row_index = square_name[1] - '1';
-
-  auto invalid_input_range = [](int32_t num) { return (num < 0 || num > 7); };
-
-  if (invalid_input_range(col_index) || invalid_input_range(row_index)) {
-    return 0;
-  }
-
-  return row_index * 8 + col_index;
->>>>>>> good
 }
 
-auto GameUtils::move_str_to_move(const std::string& move_str) noexcept -> Move {
-  // Check string length, min 4 characters required for a move
-  if (move_str.size() < 4) {
-    // TODO(EMU): This might cause problems. It might think this is a valid move
-    return Move();
-  }
+int32_t GameUtils::get_position_heuristic(const GameState &game_state) {
+    int32_t heuristic = 0;
 
-  auto source_square = GameUtils::square_name_to_square(move_str);
-  auto destintion_square =
-    GameUtils::square_name_to_square(move_str.substr(2, 2));
-
-  Move move(source_square, destintion_square);
-
-  // Check if moves promotes a pawn
-  if (move_str.size() == 5) {
-    PieceCode promotion_piece_code = PieceCodes::NUM;
-    switch (move_str[4]) {
-      case 'n':
-      {
-        promotion_piece_code = PieceCodes::KNIGHT;
-        break;
-      }
-      case 'b':
-      {
-        promotion_piece_code = PieceCodes::BISHOP;
-        break;
-      }
-      case 'r':
-      {
-        promotion_piece_code = PieceCodes::ROOK;
-        break;
-      }
-      case 'q':
-      {
-        promotion_piece_code = PieceCodes::QUEEN;
-        break;
-      }
-      default:
-      {
-        break;
-      }
+    /* Sum piece values */
+    for (uint64_t i = 0; i < PIECES_PER_PLAYER; ++i) {
+        switch (game_state.position.get_piece_bit_board(i)) {
+            case PieceCodes::PAWN: {
+                heuristic += PieceValues::PAWN;
+                break;
+            }
+            case PieceCodes::KNIGHT: {
+                heuristic += PieceValues::KNIGHT;
+                break;
+            }
+            case PieceCodes::BISHOP: {
+                heuristic += PieceValues::BISHOP;
+                break;
+            }
+            case PieceCodes::ROOK: {
+                heuristic += PieceValues::ROOK;
+                break;
+            }
+            case PieceCodes::QUEEN: {
+                heuristic += PieceValues::QUEEN;
+                break;
+            }
+            case PieceCodes::KING: {
+                heuristic += PieceValues::KING;
+                break;
+            }
+            case PieceCodes::NONE:
+            default: {
+            }
+        }
     }
-    move.set_promotion(promotion_piece_code);
-  }
 
-  return move;
-}
-
-auto GameUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Square {
-
-  if (bit_board == BitBoards::EMPTY) {
-    return -1;
-  }
-
-  unsigned long index = 0;
-  _BitScanForward64(&index, bit_board);
-  return index;
-}
-
-auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::function<void(Square square)>& func) noexcept -> void {
-  BitBoard temp_bit_board = bit_board;
-  while (true) {
-    const Square square = GameUtils::bit_board_to_square(temp_bit_board);
-    if (square == -1) {
-      break;
+    for (uint64_t i = PIECES_PER_PLAYER; i < (PIECES_PER_PLAYER * 2); ++i) {
+        switch (game_state.position.get_piece_bit_board(i)) {
+            case PieceCodes::PAWN: {
+                heuristic -= PieceValues::PAWN;
+                break;
+            }
+            case PieceCodes::KNIGHT: {
+                heuristic -= PieceValues::KNIGHT;
+                break;
+            }
+            case PieceCodes::BISHOP: {
+                heuristic -= PieceValues::BISHOP;
+                break;
+            }
+            case PieceCodes::ROOK: {
+                heuristic -= PieceValues::ROOK;
+                break;
+            }
+            case PieceCodes::QUEEN: {
+                heuristic -= PieceValues::QUEEN;
+                break;
+            }
+            case PieceCodes::KING: {
+                heuristic -= PieceValues::KING;
+                break;
+            }
+            case PieceCodes::NONE:
+            default: {
+            }
+        }
     }
-    func(square);
-    temp_bit_board &= ~GameUtils::square_to_bit_board(square);
-  };
-}
 
-auto GameUtils::for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)>& func) noexcept -> void {
-  BitBoard temp_bit_board = bit_board;
-  while (true) {
-    const Square square = GameUtils::bit_board_to_square(temp_bit_board);
-    if (square == -1) {
-      break;
+    /* Put the King in check */
+    if (game_state.black_king_in_check) {
+        heuristic += PieceValues::PAWN / 2;
     }
-    const BitBoard single_bit_board = GameUtils::square_to_bit_board(square);
-    func(single_bit_board);
-    temp_bit_board &= ~single_bit_board;
-  };
+
+    if (game_state.white_king_in_check) {
+        heuristic -= PieceValues::PAWN / 2;
+    }
+
+    /* Bad check for Castling */
+    if (game_state.black_king_moved && !(game_state.black_rook_1_moved || game_state.black_rook_2_moved)) {
+        heuristic += PieceValues::PAWN / 2;
+    }
+
+    if (game_state.white_king_moved && !(game_state.white_rook_1_moved || game_state.white_rook_2_moved)) {
+        heuristic -= PieceValues::PAWN / 2;
+    }
+
+    return heuristic;
 }
