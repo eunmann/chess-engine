@@ -119,5 +119,8 @@
     <ClInclude Include="include\BitMaskValue.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dep\include\color\color.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
