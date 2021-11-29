@@ -8,51 +8,36 @@ Position::Position() noexcept {
 }
 
 auto Position::init() noexcept -> void {
+
   // Pawns
-  this->piece_positions[PieceCodes::PAWN] |= BitBoards::ROW_2;
-  this->piece_positions[PieceCodes::PAWN] |= BitBoards::ROW_7;
+  this->piece_positions[PieceCodes::PAWN] = BitBoards::ROW_2;
+  this->piece_positions[PieceCodes::PAWN] = BitBoards::ROW_7;
 
   // Knights
-  this->piece_positions[PieceCodes::KNIGHT] |=
-    GameUtils::shift_bit_board<0, 1>(0b1ULL);
-  this->piece_positions[PieceCodes::KNIGHT] |=
-    GameUtils::shift_bit_board<0, 6>(0b1ULL);
-  this->piece_positions[PieceCodes::KNIGHT] |=
-    GameUtils::shift_bit_board<7, 1>(0b1ULL);
-  this->piece_positions[PieceCodes::KNIGHT] |=
-    GameUtils::shift_bit_board<7, 6>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] = GameUtils::shift_bit_board<0, 1>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] = GameUtils::shift_bit_board<0, 6>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] = GameUtils::shift_bit_board<7, 1>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] = GameUtils::shift_bit_board<7, 6>(0b1ULL);
 
   // Bishops
-  this->piece_positions[PieceCodes::BISHOP] |=
-    GameUtils::shift_bit_board<0, 2>(0b1ULL);
-  this->piece_positions[PieceCodes::BISHOP] |=
-    GameUtils::shift_bit_board<0, 5>(0b1ULL);
-  this->piece_positions[PieceCodes::BISHOP] |=
-    GameUtils::shift_bit_board<7, 2>(0b1ULL);
-  this->piece_positions[PieceCodes::BISHOP] |=
-    GameUtils::shift_bit_board<7, 5>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] = GameUtils::shift_bit_board<0, 2>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] = GameUtils::shift_bit_board<0, 5>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] = GameUtils::shift_bit_board<7, 2>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] = GameUtils::shift_bit_board<7, 5>(0b1ULL);
 
   // Rooks
-  this->piece_positions[PieceCodes::ROOK] |=
-    GameUtils::shift_bit_board<0, 0>(0b1ULL);
-  this->piece_positions[PieceCodes::ROOK] |=
-    GameUtils::shift_bit_board<0, 7>(0b1ULL);
-  this->piece_positions[PieceCodes::ROOK] |=
-    GameUtils::shift_bit_board<7, 0>(0b1ULL);
-  this->piece_positions[PieceCodes::ROOK] |=
-    GameUtils::shift_bit_board<7, 7>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] = GameUtils::shift_bit_board<0, 0>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] = GameUtils::shift_bit_board<0, 7>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] = GameUtils::shift_bit_board<7, 0>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] = GameUtils::shift_bit_board<7, 7>(0b1ULL);
 
   // Queens
-  this->piece_positions[PieceCodes::QUEEN] |=
-    GameUtils::shift_bit_board<0, 3>(0b1ULL);
-  this->piece_positions[PieceCodes::QUEEN] |=
-    GameUtils::shift_bit_board<7, 3>(0b1ULL);
+  this->piece_positions[PieceCodes::QUEEN] = GameUtils::shift_bit_board<0, 3>(0b1ULL);
+  this->piece_positions[PieceCodes::QUEEN] = GameUtils::shift_bit_board<7, 3>(0b1ULL);
 
   // Kings
-  this->piece_positions[PieceCodes::KING] |=
-    GameUtils::shift_bit_board<0, 4>(0b1ULL);
-  this->piece_positions[PieceCodes::KING] |=
-    GameUtils::shift_bit_board<7, 4>(0b1ULL);
+  this->piece_positions[PieceCodes::KING] = GameUtils::shift_bit_board<0, 4>(0b1ULL);
+  this->piece_positions[PieceCodes::KING] = GameUtils::shift_bit_board<7, 4>(0b1ULL);
 
   // Color Position
   this->color_positions[Colors::WHITE] = BitBoards::ROW_1 | BitBoards::ROW_2;
@@ -148,10 +133,8 @@ auto Position::add(const PieceCode piece_code, const Color color,
 }
 
 auto Position::recompute_threaten() noexcept -> void {
-  this->threaten_positions[Colors::WHITE] =
-    MoveGeneration::get_capture_positions<Colors::WHITE>(*this);
-  this->threaten_positions[Colors::BLACK] =
-    MoveGeneration::get_capture_positions<Colors::BLACK>(*this);
+  this->threaten_positions[Colors::WHITE] = MoveGeneration::get_capture_positions<Colors::WHITE>(*this);
+  this->threaten_positions[Colors::BLACK] = MoveGeneration::get_capture_positions<Colors::BLACK>(*this);
 }
 
 auto Position::is_empty(const BitBoard bit_board) const noexcept -> bool {

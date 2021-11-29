@@ -249,6 +249,18 @@ namespace Tests {
         TFW_ASSERT_EQ(true, game_state.is_legal());
       }
       }));
+    process_move_test_case.tests.push_back(TestFW::Test("GameUtils::process_user_move - Test Game 1", []() {
+
+      GameState game_state;
+      game_state.init();
+      std::vector<std::string> moves{"e2e4", " b8a6", " d1h5 ", "a6b4 ", "f1c4 ", "b4c2", " e1d1", " c2e3", " d2e3", " d7d5 ", "c4d5 ", "c8e6 ", "c1d2 ", "d8d7", " d5e6", " e8d8", " e6d7"};
+
+      for (auto& move : moves) {
+        GameUtils::process_user_move(game_state, move);
+        TFW_ASSERT_EQ(true, game_state.is_legal());
+      }
+      }));
+
     game_utils_unit_test.test_cases.push_back(process_move_test_case);
 
     game_utils_unit_test.run();

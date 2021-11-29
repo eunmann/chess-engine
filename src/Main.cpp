@@ -46,7 +46,6 @@ int main() {
   }
 
   GameState game_state;
-  game_state.init();
 
   // Prints out the board after each move, for debugging
   auto console = false;
