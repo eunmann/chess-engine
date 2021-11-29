@@ -1,22 +1,34 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+#include <algorithm>
+#include <functional>
 #include <iostream>
+#include <numeric>
+#include <string>
+#include <vector>
+#include <ranges>
 
 #include "Board.hpp"
 #include "Definitions.hpp"
 #include "GameUtils.hpp"
+#include "Log.hpp"
 #include "Position.hpp"
+<<<<<<< HEAD
 #include "ThreadState.hpp"
+=======
+#include "Tests.hpp"
+>>>>>>> good
 #include "UCIUtils.hpp"
+#include "MoveGeneration.hpp"
 
-void print_bit_board(const Position &bit_board) {
-    Board board;
-    GameUtils::copy(bit_board, board);
-    board.print();
+auto print_bit_board(const Position& position) noexcept -> void {
+  position.to_board().print();
 }
 
+<<<<<<< HEAD
 int main() {
     srand((unsigned)time(NULL));
     setbuf(stdout, NULL);
@@ -55,25 +67,44 @@ int main() {
                 SIMD for computing heuristics?
 
             Might be able to swap if-statements with bit operations
+=======
+auto init_psuedo_moves() {
+  for (auto square : std::views::iota(0, Squares::NUM)) {
+    const BitBoard bit_board = GameUtils::square_to_bit_board(square);
+    PSEDUO_MOVES_KNIGHT[square] = MoveGeneration::get_knight_capture_positions(bit_board);
+    PSEDUO_MOVES_KING[square] = MoveGeneration::get_king_capture_positions(bit_board);
+  }
+}
+>>>>>>> good
 
-            GPU?
-                What would be useful here?
-                    Generating moves?
-                    Computing the heuristic?
-            
-            Need to profile what is taking so long
+int main() {
+  srand((unsigned)time(NULL));
+  setbuf(stdout, NULL);
+  setbuf(stdin, NULL);
 
-            Searching needs load balancing as well
+  init_psuedo_moves();
 
-            Threads need to stop on stop command from GUI
-
-            GameUtils::is_valid is computationally expensive
-
-        Engine Things:
-            Accept clock time and obey it
-
-            Print info strings for in-game info and also debugging strings
-    */
-
+  auto run_tests = false;
+  if (run_tests) {
+    Tests::run_tests();
     return 0;
+  }
+
+  GameState game_state;
+
+  // Prints out the board after each move, for debugging
+  auto console = false;
+
+  if (console) {
+    do {
+      print_bit_board(game_state.position);
+    } while (GameUtils::perform_user_move(game_state));
+  } else {
+    std::string input_command;
+    do {
+      input_command = GameUtils::get_user_input();
+    } while (UCIUtils::process_input_command(game_state, input_command));
+  }
+
+  return 0;
 }

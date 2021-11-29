@@ -1,0 +1,1 @@
+.\pgn-extract.exe .\game.pgn -Wuci | python .\pgn-extract-output-parser.py
