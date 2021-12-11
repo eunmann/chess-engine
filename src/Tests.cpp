@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "GameUtils.hpp"
+#include "MoveSearch.hpp"
 #include "TestFW.hpp"
 
 namespace Tests {
@@ -10,12 +11,12 @@ namespace Tests {
     TestFW::UnitTest game_utils_unit_test("GameUtils");
     TestFW::TestCase conversion_test_case("Conversions");
     conversion_test_case.tests.push_back(
-      TestFW::Test("GameUtils::bit_board_to_square", []() {
+      TestFW::Test("BitBoardUtils::bit_board_to_square", []() {
         BitBoard bit_board = 0b101ULL;
         int32_t counter = 0;
         do {
           Square expected_square = counter;
-          Square actual_square = GameUtils::bit_board_to_square(bit_board);
+          Square actual_square = BitBoardUtils::bit_board_to_square(bit_board);
 
           TFW_ASSERT_EQ(expected_square, actual_square);
 
@@ -24,11 +25,11 @@ namespace Tests {
         } while (bit_board != 0);
         }));
     conversion_test_case.tests.push_back(
-      TestFW::Test("GameUtils::square_to_bit_board", []() {
+      TestFW::Test("BitBoardUtils::square_to_bit_board", []() {
         Square square = 0;
         do {
           BitBoard expected_bit_board = 0b1ULL << square;
-          BitBoard actual_bit_board = GameUtils::square_to_bit_board(square);
+          BitBoard actual_bit_board = BitBoardUtils::square_to_bit_board(square);
 
           TFW_ASSERT_EQ(expected_bit_board, actual_bit_board);
 
@@ -39,7 +40,7 @@ namespace Tests {
 
     TestFW::TestCase shifts_test_case("Shifts");
     shifts_test_case.tests.push_back(
-      TestFW::Test("GameUtils::shift_bit_board", []() {
+      TestFW::Test("BitBoardUtils::shift_bit_board", []() {
         const BitBoard start = 0b10'0000'0000;
 
         const BitBoard expected_left = 0b100'0000'0000;
@@ -51,33 +52,33 @@ namespace Tests {
         const BitBoard expected_down_left = 0b100;
         const BitBoard expected_down_right = 0b001;
 
-        assert((GameUtils::shift_bit_board<1, 0>(start) == expected_up));
-        assert((GameUtils::shift_bit_board(start, 1, 0) == expected_up));
+        assert((BitBoardUtils::shift_bit_board<1, 0>(start) == expected_up));
+        assert((BitBoardUtils::shift_bit_board(start, 1, 0) == expected_up));
 
-        assert((GameUtils::shift_bit_board<-1, 0>(start) == expected_down));
-        assert((GameUtils::shift_bit_board(start, -1, 0) == expected_down));
+        assert((BitBoardUtils::shift_bit_board<-1, 0>(start) == expected_down));
+        assert((BitBoardUtils::shift_bit_board(start, -1, 0) == expected_down));
 
-        assert((GameUtils::shift_bit_board<0, 1>(start) == expected_left));
-        assert((GameUtils::shift_bit_board(start, 0, 1) == expected_left));
+        assert((BitBoardUtils::shift_bit_board<0, 1>(start) == expected_left));
+        assert((BitBoardUtils::shift_bit_board(start, 0, 1) == expected_left));
 
-        assert((GameUtils::shift_bit_board<0, -1>(start) == expected_right));
-        assert((GameUtils::shift_bit_board(start, 0, -1) == expected_right));
+        assert((BitBoardUtils::shift_bit_board<0, -1>(start) == expected_right));
+        assert((BitBoardUtils::shift_bit_board(start, 0, -1) == expected_right));
 
-        assert((GameUtils::shift_bit_board<1, 1>(start) == expected_up_left));
-        assert((GameUtils::shift_bit_board(start, 1, 1) == expected_up_left));
+        assert((BitBoardUtils::shift_bit_board<1, 1>(start) == expected_up_left));
+        assert((BitBoardUtils::shift_bit_board(start, 1, 1) == expected_up_left));
 
-        assert((GameUtils::shift_bit_board<1, -1>(start) == expected_up_right));
-        assert((GameUtils::shift_bit_board(start, 1, -1) == expected_up_right));
-
-        assert(
-          (GameUtils::shift_bit_board<-1, 1>(start) == expected_down_left));
-        assert(
-          (GameUtils::shift_bit_board(start, -1, 1) == expected_down_left));
+        assert((BitBoardUtils::shift_bit_board<1, -1>(start) == expected_up_right));
+        assert((BitBoardUtils::shift_bit_board(start, 1, -1) == expected_up_right));
 
         assert(
-          (GameUtils::shift_bit_board<-1, -1>(start) == expected_down_right));
+          (BitBoardUtils::shift_bit_board<-1, 1>(start) == expected_down_left));
         assert(
-          (GameUtils::shift_bit_board(start, -1, -1) == expected_down_right));
+          (BitBoardUtils::shift_bit_board(start, -1, 1) == expected_down_left));
+
+        assert(
+          (BitBoardUtils::shift_bit_board<-1, -1>(start) == expected_down_right));
+        assert(
+          (BitBoardUtils::shift_bit_board(start, -1, -1) == expected_down_right));
         }));
     game_utils_unit_test.test_cases.push_back(shifts_test_case);
 
@@ -137,6 +138,40 @@ namespace Tests {
       TFW_ASSERT_EQ(PieceCodes::BISHOP, move.get_promotion());
       }));
     game_utils_unit_test.test_cases.push_back(move_test_case);
+
+    TestFW::TestCase generate_moves_test_case("Generate Moves");
+    generate_moves_test_case.tests.push_back(TestFW::Test("MoveGeneration::get_moves - White first move", []() {
+      GameState game_state;
+      game_state.init();
+
+      Moves moves;
+      MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
+
+      Moves legal_moves;
+      GameUtils::for_each_legal_move<Colors::WHITE>(game_state, moves, [&legal_moves](const Move& move) {
+        legal_moves.push_back(move);
+        });
+
+      TFW_ASSERT_EQ(20, legal_moves.size());
+      }));
+
+    generate_moves_test_case.tests.push_back(TestFW::Test("MoveGeneration::get_moves - Black first move", []() {
+      GameState game_state;
+      game_state.init();
+      GameUtils::process_user_move(game_state, "e2e4");
+
+      Moves moves;
+      MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
+
+      Moves legal_moves;
+      GameUtils::for_each_legal_move<Colors::BLACK>(game_state, moves, [&legal_moves](const Move& move) {
+        legal_moves.push_back(move);
+        });
+
+      TFW_ASSERT_EQ(20, legal_moves.size());
+      }));
+
+    game_utils_unit_test.test_cases.push_back(generate_moves_test_case);
 
     TestFW::TestCase process_move_test_case("Process Move");
     process_move_test_case.tests.push_back(TestFW::Test("GameUtils::process_user_move - Kasparov vs. Topalov, Wijk aan Zee 1999", []() {
@@ -262,6 +297,24 @@ namespace Tests {
       }));
 
     game_utils_unit_test.test_cases.push_back(process_move_test_case);
+
+    TestFW::TestCase move_search_test_case("Move Search");
+    move_search_test_case.tests.push_back(TestFW::Test("MoveSearch::get_best_move", []() {
+      GameState game_state;
+      game_state.init();
+
+      GameUtils::process_user_move(game_state, "e2e4");
+      TFW_ASSERT_EQ(true, game_state.is_legal());
+      TFW_ASSERT_EQ(false, game_state.is_white_to_move());
+
+      Move move = MoveSearch::get_best_move(game_state);
+      printf("\n\nMove: %s\n\n", move.to_string().c_str());
+      GameUtils::process_user_move(game_state, move.to_string());
+      TFW_ASSERT_EQ(true, game_state.is_legal());
+      TFW_ASSERT_EQ(true, move.to_string() != "b1c1");
+
+      }));
+    game_utils_unit_test.test_cases.push_back(move_search_test_case);
 
     game_utils_unit_test.run();
   }

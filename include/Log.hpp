@@ -1,11 +1,11 @@
 #pragma once
 
+#ifdef _DEBUG
+
 #include <assert.h>
 #include <stdio.h>
 
 #include <string>
-
-#ifdef _DEBUG
 
 #define LOG(message)                                                       \
   {                                                                        \

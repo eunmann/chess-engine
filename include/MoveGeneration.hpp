@@ -4,43 +4,43 @@
 #include "GameUtils.hpp"
 #include "Move.hpp"
 #include "Moves.hpp"
-#include "assert.h"
+#include "BitBoardUtils.hpp"
 
 namespace MoveGeneration {
 
   // PSUEDO-Legal Moves Templates
   template <const int V, const int H, const Color color>
   auto get_moves_in_direction(const GameState& game_state, BitBoard bit_board, Moves& moves) noexcept -> void {
-    Square source_square = GameUtils::bit_board_to_square(bit_board);
+    Square source_square = BitBoardUtils::bit_board_to_square(bit_board);
     for (int i = 0; i < 7; ++i) {
       if constexpr (V > 0) {
-        if (GameUtils::is_piece_in_top_row(bit_board)) {
+        if (BitBoardUtils::is_piece_in_top_row(bit_board)) {
           break;
         }
       } else if constexpr (V < 0) {
-        if (GameUtils::is_piece_in_bottom_row(bit_board)) {
+        if (BitBoardUtils::is_piece_in_bottom_row(bit_board)) {
           break;
         }
       }
 
       if constexpr (H > 0) {
-        if (GameUtils::is_piece_in_right_col(bit_board)) {
+        if (BitBoardUtils::is_piece_in_right_col(bit_board)) {
           break;
         }
       } else if constexpr (H < 0) {
-        if (GameUtils::is_piece_in_left_col(bit_board)) {
+        if (BitBoardUtils::is_piece_in_left_col(bit_board)) {
           break;
         }
       }
 
-      bit_board = GameUtils::shift_bit_board<V, H>(bit_board);
+      bit_board = BitBoardUtils::shift_bit_board<V, H>(bit_board);
 
       if (game_state.position.is_empty(bit_board)) {
-        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(bit_board)));
+        moves.push_back(Move(source_square, BitBoardUtils::bit_board_to_square(bit_board)));
       } else if (game_state.position.is_color_occupied<color>(bit_board)) {
         break;
       } else {
-        moves.push_back(Move(source_square, GameUtils::bit_board_to_square(bit_board)));
+        moves.push_back(Move(source_square, BitBoardUtils::bit_board_to_square(bit_board)));
         break;
       }
     }
@@ -54,73 +54,35 @@ namespace MoveGeneration {
     constexpr Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
     const BitBoard pawns_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::PAWN, color>();
 
-    GameUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves, pawn_dir](const BitBoard pawn_bit_board) {
-      Square source_square = GameUtils::bit_board_to_square(pawn_bit_board);
+    BitBoardUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves](const BitBoard pawn_bit_board) {
+      const Square source_square = BitBoardUtils::bit_board_to_square(pawn_bit_board);
 
-      auto add_promotion_moves = [source_square, &moves](const BitBoard destination_bit_board) {
-        Square destination_square = GameUtils::bit_board_to_square(destination_bit_board);
-        for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
-          Move move(source_square, destination_square);
-          move.set_promotion(i);
-          moves.push_back(move);
-        }
-      };
+      BitBoard pawn_forward = BitBoardUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
+      const bool is_forward_empty = game_state.position.is_empty(pawn_forward);
+      pawn_forward *= is_forward_empty;
 
-      // Up
-      BitBoard next_pawn_bit_board = GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
-      if (game_state.position.is_empty(next_pawn_bit_board)) {
-        // Promotion
-        if (GameUtils::is_piece_in_row(next_pawn_bit_board, promotion_row)) {
-          add_promotion_moves(next_pawn_bit_board);
-        } else {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
-        }
+      BitBoard pawn_forward_2 = BitBoardUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
+      pawn_forward_2 *= is_forward_empty && game_state.position.is_empty(pawn_forward_2) && BitBoardUtils::is_piece_in_row(pawn_bit_board, starting_row);
 
-        // First Move Up 2
-        if (GameUtils::is_piece_in_row(pawn_bit_board, starting_row)) {
-          next_pawn_bit_board = GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-          if (game_state.position.is_empty(next_pawn_bit_board)) {
-            Move move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board));
-            move.set_en_passant(GameUtils::get_col(next_pawn_bit_board));
+      BitBoard pawn_bit_board_left_capture = BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
+      pawn_bit_board_left_capture *= !BitBoardUtils::is_piece_in_left_col(pawn_bit_board) && game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture);
+
+      BitBoard pawn_bit_board_right_capture = BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
+      pawn_bit_board_right_capture *= !BitBoardUtils::is_piece_in_right_col(pawn_bit_board) && game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture);
+
+      const BitBoard move_bit_board = pawn_bit_board_left_capture | pawn_bit_board_right_capture | pawn_forward | pawn_forward_2;
+
+      if (BitBoardUtils::is_piece_in_row(move_bit_board, promotion_row)) {
+        BitBoardUtils::for_each_set_square(move_bit_board, [&game_state, &moves, source_square](const Square destination_square) {
+          for (int32_t i = PieceCodes::KNIGHT; i <= PieceCodes::QUEEN; i++) {
+            Move move(source_square, destination_square);
+            move.set_promotion(i);
             moves.push_back(move);
-          }
-        }
-      }
-
-      // Capture Left and Right
-      BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) ? 0 : GameUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-      BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) ? 0 : GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
-
-      if (game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture)) {
-        // Promotions
-        if (GameUtils::is_piece_in_row(pawn_bit_board_left_capture, promotion_row)) {
-          add_promotion_moves(pawn_bit_board_left_capture);
-        } else {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
-        }
-      }
-
-      if (game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_right_capture)) {
-        // Promotions
-        if (GameUtils::is_piece_in_row(pawn_bit_board_right_capture, promotion_row)) {
-          add_promotion_moves(pawn_bit_board_right_capture);
-        } else {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
-        }
-      }
-
-      // En Passant
-      int32_t en_pawn_col = game_state.get_en_passant();
-      int32_t pawn_col = GameUtils::get_col(pawn_bit_board);
-      BitBoard source_bit_board = GameUtils::square_to_bit_board(source_square);
-      constexpr int32_t source_row = color == Colors::WHITE ? 5 : 4;
-
-      if (GameUtils::is_piece_in_row(source_bit_board, source_row)) {
-        if ((en_pawn_col - 1) == pawn_col) {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_left_capture)));
-        } else if ((en_pawn_col + 1) == pawn_col) {
-          moves.push_back(Move(source_square, GameUtils::bit_board_to_square(pawn_bit_board_right_capture)));
-        }
+          }});
+      } else {
+        BitBoardUtils::for_each_set_square(move_bit_board, [&game_state, &moves, source_square](const Square destination_square) {
+          moves.push_back(Move(source_square, destination_square));
+          });
       }
       });
   }
@@ -129,8 +91,8 @@ namespace MoveGeneration {
   auto get_knight_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>();
 
-    GameUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
-      GameUtils::for_each_set_square(PSUEDO_MOVES_KNIGHT[source_square], [source_square, &moves](auto dest_square) {
+    BitBoardUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
+      BitBoardUtils::for_each_set_square(PSUEDO_MOVES_KNIGHT[source_square], [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
       });
@@ -140,7 +102,7 @@ namespace MoveGeneration {
   auto get_bishop_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard bishops_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::BISHOP, color>();
 
-    GameUtils::for_each_bit_board(bishops_bit_board, [&game_state, &moves](const BitBoard bishop_bit_board) {
+    BitBoardUtils::for_each_bit_board(bishops_bit_board, [&game_state, &moves](const BitBoard bishop_bit_board) {
       MoveGeneration::get_moves_in_direction<1, 1, color>(game_state, bishop_bit_board, moves);
       MoveGeneration::get_moves_in_direction<-1, 1, color>(game_state, bishop_bit_board, moves);
       MoveGeneration::get_moves_in_direction<1, -1, color>(game_state, bishop_bit_board, moves);
@@ -152,7 +114,7 @@ namespace MoveGeneration {
   auto get_rook_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard rooks_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::ROOK, color>();
 
-    GameUtils::for_each_bit_board(
+    BitBoardUtils::for_each_bit_board(
       rooks_bit_board, [&game_state, &moves](const BitBoard rook_bit_board) {
         MoveGeneration::get_moves_in_direction<1, 0, color>(game_state, rook_bit_board, moves);
         MoveGeneration::get_moves_in_direction<-1, 0, color>(game_state, rook_bit_board, moves);
@@ -164,7 +126,7 @@ namespace MoveGeneration {
   template <const Color color>
   auto get_queen_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard queens_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::QUEEN, color>();
-    GameUtils::for_each_bit_board(queens_bit_board, [&game_state, &moves](BitBoard queen_bit_board) {
+    BitBoardUtils::for_each_bit_board(queens_bit_board, [&game_state, &moves](BitBoard queen_bit_board) {
       // Diagonal
       MoveGeneration::get_moves_in_direction<1, 1, color>(game_state, queen_bit_board, moves);
       MoveGeneration::get_moves_in_direction<-1, 1, color>(game_state, queen_bit_board, moves);
@@ -184,18 +146,21 @@ namespace MoveGeneration {
     BitBoard kings_bit_board =
       game_state.position.get_piece_color_bit_board<PieceCodes::KING, color>();
 
-    GameUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves](BitBoard king_bit_board) {
-      Square source_square = GameUtils::bit_board_to_square(king_bit_board);
+    BitBoardUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves](BitBoard king_bit_board) {
+      Square source_square = BitBoardUtils::bit_board_to_square(king_bit_board);
 
-      GameUtils::for_each_set_square(PSUEDO_MOVES_KING[source_square], [source_square, &moves](auto dest_square) {
+      BitBoardUtils::for_each_set_square(PSUEDO_MOVES_KING[source_square], [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
 
-      for (auto& castle : Castles::ALL) {
-        Move move;
-        move.set_castle(castle);
-        moves.push_back(move);
-      }
+      constexpr Castle king = color == Colors::WHITE ? Castles::WHITE_KING : Castles::BLACK_KING;
+      constexpr Castle queen = color == Colors::BLACK ? Castles::WHITE_QUEEN : Castles::BLACK_QUEEN;
+
+      Move move;
+      move.set_castle(king);
+      moves.push_back(move);
+      move.set_castle(queen);
+      moves.push_back(move);
       });
   }
 
@@ -217,26 +182,26 @@ namespace MoveGeneration {
 
     for (int i = 0; i < 8; ++i) {
       if constexpr (V > 0) {
-        if (GameUtils::is_piece_in_top_row(bit_board)) {
+        if (BitBoardUtils::is_piece_in_top_row(bit_board)) {
           break;
         }
       } else if constexpr (V < 0) {
-        if (GameUtils::is_piece_in_bottom_row(bit_board)) {
+        if (BitBoardUtils::is_piece_in_bottom_row(bit_board)) {
           break;
         }
       }
 
       if constexpr (H > 0) {
-        if (GameUtils::is_piece_in_right_col(bit_board)) {
+        if (BitBoardUtils::is_piece_in_right_col(bit_board)) {
           break;
         }
       } else if constexpr (H < 0) {
-        if (GameUtils::is_piece_in_left_col(bit_board)) {
+        if (BitBoardUtils::is_piece_in_left_col(bit_board)) {
           break;
         }
       }
 
-      bit_board = GameUtils::shift_bit_board<V, H>(bit_board);
+      bit_board = BitBoardUtils::shift_bit_board<V, H>(bit_board);
       capturable_bit_board |= bit_board;
 
       if (position.is_occupied(bit_board)) {
@@ -251,24 +216,10 @@ namespace MoveGeneration {
   auto get_pawn_capture_positions(const BitBoard bit_board) noexcept -> BitBoard {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    GameUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {
-      const BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-      const BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
+    BitBoardUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {
+      const BitBoard pawn_bit_board_left_capture = BitBoardUtils::is_piece_in_left_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
+      const BitBoard pawn_bit_board_right_capture = BitBoardUtils::is_piece_in_right_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
       capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture;
-      });
-    return capturable_bit_board;
-  }
-
-  template<const Color color>
-  auto get_pawn_move_positions(const BitBoard bit_board) noexcept -> BitBoard {
-    constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    GameUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {
-      const BitBoard pawn_forward = GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
-      const BitBoard pawn_forward_2 = GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-      const BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-      const BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
-      capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture | pawn_forward | pawn_forward_2;
       });
     return capturable_bit_board;
   }
@@ -280,7 +231,7 @@ namespace MoveGeneration {
   auto get_bishop_capture_positions(const Position& position) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
-    GameUtils::for_each_bit_board(bishops_bit_board, [&capturable_bit_board, &position](BitBoard bishop_bit_board) {
+    BitBoardUtils::for_each_bit_board(bishops_bit_board, [&capturable_bit_board, &position](BitBoard bishop_bit_board) {
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 1>(position, bishop_bit_board);
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 1>(position, bishop_bit_board);
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, -1>(position, bishop_bit_board);
@@ -293,7 +244,7 @@ namespace MoveGeneration {
   auto get_rook_capture_positions(const Position& position) noexcept  -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard rooks_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-    GameUtils::for_each_bit_board(rooks_bit_board, [&capturable_bit_board, &position](BitBoard rook_bit_board) {
+    BitBoardUtils::for_each_bit_board(rooks_bit_board, [&capturable_bit_board, &position](BitBoard rook_bit_board) {
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 0>(position, rook_bit_board);
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 0>(position, rook_bit_board);
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, -1>(position, rook_bit_board);
@@ -306,7 +257,7 @@ namespace MoveGeneration {
   auto get_queen_capture_positions(const Position& position) noexcept  -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     BitBoard queens_bit_board = position.get_piece_color_bit_board(PieceCodes::QUEEN, color);
-    GameUtils::for_each_bit_board(queens_bit_board, [&capturable_bit_board, &position](BitBoard queen_bit_board) {
+    BitBoardUtils::for_each_bit_board(queens_bit_board, [&capturable_bit_board, &position](BitBoard queen_bit_board) {
       // Diagonal
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 1>(position, queen_bit_board);
       capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 1>(position, queen_bit_board);

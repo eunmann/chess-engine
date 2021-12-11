@@ -1,14 +1,13 @@
 #include "Move.hpp"
 
-#include <assert.h>
+#include "Assert.hpp"
 
 #include "GameUtils.hpp"
 
-Move::Move() noexcept : Move(1, 2) {
-}
+Move::Move() noexcept : Move(1, 2) {}
 
 Move::Move(const Square source, const Square dest) noexcept : m_move() {
-  assert(source != dest);
+  ASSERT(source != dest);
   this->set_source_square(source);
   this->set_destination_square(dest);
   this->set_promotion(Move::MASK_3_BITS);
@@ -16,8 +15,7 @@ Move::Move(const Square source, const Square dest) noexcept : m_move() {
   this->set_castle(Castles::NONE);
 }
 
-Move::Move(const int& move) noexcept : m_move(move) {
-}
+Move::Move(const int& move) noexcept : m_move(move) {}
 
 auto Move::set_source_square(const Square square) noexcept -> void {
   this->m_move.set_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>(square);
@@ -36,11 +34,11 @@ auto Move::get_destination_square() const noexcept -> Square {
 }
 
 auto Move::get_source_bit_board() const noexcept -> BitBoard {
-  return GameUtils::square_to_bit_board(this->get_source_square());
+  return BitBoardUtils::square_to_bit_board(this->get_source_square());
 }
 
 auto Move::get_destination_bit_board() const noexcept -> BitBoard {
-  return GameUtils::square_to_bit_board(this->get_destination_square());
+  return BitBoardUtils::square_to_bit_board(this->get_destination_square());
 }
 
 auto Move::get_promotion() const noexcept -> PieceCode {
@@ -108,12 +106,12 @@ auto Move::to_string() const noexcept -> std::string {
       }
       default:
       {
-        assert(false);
+        ASSERT(false);
       }
     }
   } else {
-    move_str += GameUtils::get_tile_name(this->get_source_bit_board());
-    move_str += GameUtils::get_tile_name(this->get_destination_bit_board());
+    move_str += BitBoardUtils::get_tile_name(this->get_source_bit_board());
+    move_str += BitBoardUtils::get_tile_name(this->get_destination_bit_board());
     if (this->is_promotion()) {
       switch (this->get_promotion()) {
         case PieceCodes::BISHOP:
@@ -138,7 +136,7 @@ auto Move::to_string() const noexcept -> std::string {
         }
         default:
         {
-          assert(false);
+          ASSERT(false);
         }
       }
     }

@@ -1,20 +1,19 @@
 #include "UCIUtils.hpp"
 
-#include <assert.h>
-
 #include <functional>
 #include <unordered_map>
 
 #include "GameUtils.hpp"
 #include "MoveSearch.hpp"
 #include "StringUtils.hpp"
+#include "Assert.hpp"
 
 auto UCIUtils::process_input_command(GameState& game_state,
   const std::string& command) noexcept -> int32_t {
   auto line_split = StringUtils::split(command);
-  assert(line_split.size() > 0);
+  ASSERT(line_split.size() > 0);
 
-  auto command_action = line_split[0];
+  auto& command_action = line_split[0];
   int32_t rv = 1;
 
   const std::unordered_map<std::string, std::function<void()>> command_map = {
@@ -52,7 +51,7 @@ auto UCIUtils::process_input_command(GameState& game_state,
   };
 
   if (command_map.contains(command_action)) {
-    auto command_func = command_map.find(command_action)->second;
+    auto& command_func = command_map.find(command_action)->second;
     command_func();
   }
 

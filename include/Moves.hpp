@@ -7,9 +7,9 @@ class Moves {
   Moves() noexcept;
 
   auto push_back(const Move move) noexcept -> void;
-  auto size() noexcept -> std::size_t;
-  auto begin() noexcept -> std::array<Move, MAX_NUM_MOVES>::iterator;
-  auto end() noexcept -> std::array<Move, MAX_NUM_MOVES>::iterator;
+  auto size() const noexcept -> std::size_t;
+  auto begin() const noexcept -> std::array<Move, MAX_NUM_MOVES>::const_iterator;
+  auto end() const noexcept -> std::array<Move, MAX_NUM_MOVES>::const_iterator;
 
   private:
   std::array<Move, MAX_NUM_MOVES> m_moves_array;

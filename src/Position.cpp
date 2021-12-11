@@ -14,30 +14,30 @@ auto Position::init() noexcept -> void {
   this->piece_positions[PieceCodes::PAWN] |= BitBoards::ROW_7;
 
   // Knights
-  this->piece_positions[PieceCodes::KNIGHT] = GameUtils::shift_bit_board<0, 1>(0b1ULL);
-  this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<0, 6>(0b1ULL);
-  this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 1>(0b1ULL);
-  this->piece_positions[PieceCodes::KNIGHT] |= GameUtils::shift_bit_board<7, 6>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] = BitBoardUtils::shift_bit_board<0, 1>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] |= BitBoardUtils::shift_bit_board<0, 6>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] |= BitBoardUtils::shift_bit_board<7, 1>(0b1ULL);
+  this->piece_positions[PieceCodes::KNIGHT] |= BitBoardUtils::shift_bit_board<7, 6>(0b1ULL);
 
   // Bishops
-  this->piece_positions[PieceCodes::BISHOP] = GameUtils::shift_bit_board<0, 2>(0b1ULL);
-  this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<0, 5>(0b1ULL);
-  this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 2>(0b1ULL);
-  this->piece_positions[PieceCodes::BISHOP] |= GameUtils::shift_bit_board<7, 5>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] = BitBoardUtils::shift_bit_board<0, 2>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] |= BitBoardUtils::shift_bit_board<0, 5>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] |= BitBoardUtils::shift_bit_board<7, 2>(0b1ULL);
+  this->piece_positions[PieceCodes::BISHOP] |= BitBoardUtils::shift_bit_board<7, 5>(0b1ULL);
 
   // Rooks
-  this->piece_positions[PieceCodes::ROOK] = GameUtils::shift_bit_board<0, 0>(0b1ULL);
-  this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<0, 7>(0b1ULL);
-  this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 0>(0b1ULL);
-  this->piece_positions[PieceCodes::ROOK] |= GameUtils::shift_bit_board<7, 7>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] = BitBoardUtils::shift_bit_board<0, 0>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] |= BitBoardUtils::shift_bit_board<0, 7>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] |= BitBoardUtils::shift_bit_board<7, 0>(0b1ULL);
+  this->piece_positions[PieceCodes::ROOK] |= BitBoardUtils::shift_bit_board<7, 7>(0b1ULL);
 
   // Queens
-  this->piece_positions[PieceCodes::QUEEN] = GameUtils::shift_bit_board<0, 3>(0b1ULL);
-  this->piece_positions[PieceCodes::QUEEN] |= GameUtils::shift_bit_board<7, 3>(0b1ULL);
+  this->piece_positions[PieceCodes::QUEEN] = BitBoardUtils::shift_bit_board<0, 3>(0b1ULL);
+  this->piece_positions[PieceCodes::QUEEN] |= BitBoardUtils::shift_bit_board<7, 3>(0b1ULL);
 
   // Kings
-  this->piece_positions[PieceCodes::KING] = GameUtils::shift_bit_board<0, 4>(0b1ULL);
-  this->piece_positions[PieceCodes::KING] |= GameUtils::shift_bit_board<7, 4>(0b1ULL);
+  this->piece_positions[PieceCodes::KING] = BitBoardUtils::shift_bit_board<0, 4>(0b1ULL);
+  this->piece_positions[PieceCodes::KING] |= BitBoardUtils::shift_bit_board<7, 4>(0b1ULL);
 
   // Color Position
   this->color_positions[Colors::WHITE] = BitBoards::ROW_1 | BitBoards::ROW_2;
@@ -170,9 +170,9 @@ auto Position::to_board() const noexcept -> Board {
 
     const BitBoard piece_bit_board = this->get_piece_bit_board(piece_code);
 
-    GameUtils::for_each_set_square(
+    BitBoardUtils::for_each_set_square(
       piece_bit_board, [this, board_value, &board](auto square) {
-        BitBoard bit_board = GameUtils::square_to_bit_board(square);
+        BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
         if (this->is_white_occupied(bit_board)) {
           board.positions[square] = board_value;
         } else {

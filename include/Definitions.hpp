@@ -107,8 +107,6 @@ namespace BitBoards {
 
 extern std::array<Square, Squares::NUM> PSUEDO_MOVES_KNIGHT;
 extern std::array<Square, Squares::NUM> PSUEDO_MOVES_KING;
-extern std::array<Square, Squares::NUM> PSUEDO_MOVES_WHITE_PAWNS;
-extern std::array<Square, Squares::NUM> PSUEDO_MOVES_BLACK_PAWNS;
 
 typedef int32_t Castle;
 namespace Castles {

@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "Assert.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -26,11 +26,9 @@ auto print_bit_board(const Position& position) noexcept -> void {
 
 auto init_psuedo_moves() {
   for (auto square : std::views::iota(0, Squares::NUM)) {
-    const BitBoard bit_board = GameUtils::square_to_bit_board(square);
+    const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
     PSUEDO_MOVES_KNIGHT[square] = MoveGeneration::get_knight_capture_positions(bit_board);
     PSUEDO_MOVES_KING[square] = MoveGeneration::get_king_capture_positions(bit_board);
-    PSUEDO_MOVES_WHITE_PAWNS[square] = MoveGeneration::get_pawn_move_positions<Colors::WHITE>(bit_board);
-    PSUEDO_MOVES_BLACK_PAWNS[square] = MoveGeneration::get_pawn_move_positions<Colors::BLACK>(bit_board);
   }
 }
 
@@ -41,7 +39,7 @@ int main() {
 
   init_psuedo_moves();
 
-  auto run_tests = false;
+  auto run_tests = true;
   if (run_tests) {
     Tests::run_tests();
     return 0;

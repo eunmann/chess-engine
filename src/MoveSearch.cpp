@@ -22,14 +22,18 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
 
   int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
   Move best_move;
-  constexpr int32_t max_search_depth = 8;
+  constexpr int32_t max_search_depth = 4;
 
   counter = moves.size();
   leaf_nodes_counter = 0;
   times_pruned = 0;
   for (auto& move : moves) {
     GameState check = game_state;
-    check.apply_move(move);
+    if (color_to_move == Colors::WHITE) {
+      check.apply_move<Colors::WHITE>(move);
+    } else {
+      check.apply_move<Colors::BLACK>(move);
+    }
     if (check.is_legal()) {
 
       if (color_to_move == Colors::WHITE) {
@@ -70,12 +74,12 @@ auto MoveSearch::get_position_heuristic(const GameState& game_state) noexcept ->
 
   for (auto& piece_code : piece_codes) {
     const BitBoard white_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code, Colors::WHITE);
-    GameUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
+    BitBoardUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
       heuristic += piece_values[piece_code];
       });
 
     const BitBoard black_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code, Colors::BLACK);
-    GameUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
+    BitBoardUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
       heuristic -= piece_values[piece_code];
       });
   }

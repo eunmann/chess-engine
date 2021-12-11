@@ -28,12 +28,13 @@ namespace MoveSearch {
     constexpr Color opponent_color = max_color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
     int32_t best_heuristic = max_color == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
 
-    for (auto move : moves) {
+    for (auto& move : moves) {
       GameState check = game_state;
-      check.apply_move(move);
+      check.apply_move<max_color>(move);
       if (!check.is_legal()) {
         continue;
       }
+
       if constexpr (max_color == Colors::WHITE) {
         best_heuristic = std::max(best_heuristic, MoveSearch::alpha_beta_pruning_search<opponent_color>(check, ply_depth - 1, alpha, beta));
         if (best_heuristic >= beta) {

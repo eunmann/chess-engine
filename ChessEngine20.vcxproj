@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BitBoardUtils.cpp" />
     <ClCompile Include="src\BitMaskValue.cpp" />
     <ClCompile Include="src\Board.cpp" />
     <ClCompile Include="src\Definitions.cpp" />
@@ -154,6 +155,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dep\include\color\color.hpp" />
+    <ClInclude Include="include\Assert.hpp" />
+    <ClInclude Include="include\BitBoardUtils.hpp" />
     <ClInclude Include="include\BitMaskValue.hpp" />
     <ClInclude Include="include\Board.hpp" />
     <ClInclude Include="include\Definitions.hpp" />
