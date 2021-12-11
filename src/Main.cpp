@@ -3,13 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <algorithm>
-#include <functional>
 #include <iostream>
-#include <numeric>
 #include <string>
 #include <vector>
-#include <ranges>
 
 #include "Board.hpp"
 #include "Definitions.hpp"
@@ -19,17 +15,11 @@
 #include "Tests.hpp"
 #include "UCIUtils.hpp"
 #include "MoveGeneration.hpp"
+#include "CachedMoves.hpp"
+#include "MagicBitBoards.hpp"
 
 auto print_bit_board(const Position& position) noexcept -> void {
   position.to_board().print();
-}
-
-auto init_psuedo_moves() {
-  for (auto square : std::views::iota(0, Squares::NUM)) {
-    const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
-    PSUEDO_MOVES_KNIGHT[square] = MoveGeneration::get_knight_capture_positions(bit_board);
-    PSUEDO_MOVES_KING[square] = MoveGeneration::get_king_capture_positions(bit_board);
-  }
 }
 
 int main() {
@@ -37,7 +27,8 @@ int main() {
   setbuf(stdout, NULL);
   setbuf(stdin, NULL);
 
-  init_psuedo_moves();
+  CachedMoves::init();
+  MagicBitBoards::init();
 
   auto run_tests = false;
   if (run_tests) {

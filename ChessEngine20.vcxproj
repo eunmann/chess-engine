@@ -147,6 +147,8 @@
     <ClCompile Include="src\Moves.cpp" />
     <ClCompile Include="src\MoveSearch.cpp" />
     <ClCompile Include="src\Position.cpp" />
+    <ClCompile Include="src\CachedMoves.cpp" />
+    <ClCompile Include="src\MagicBitBoards.cpp" />
     <ClCompile Include="src\StringUtils.cpp" />
     <ClCompile Include="src\TestFW.cpp" />
     <ClCompile Include="src\Tests.cpp" />
@@ -163,6 +165,8 @@
     <ClInclude Include="include\FormatUtils.hpp" />
     <ClInclude Include="include\GameState.hpp" />
     <ClInclude Include="include\GameUtils.hpp" />
+    <ClInclude Include="include\CachedMoves.hpp" />
+    <ClInclude Include="include\MagicBitBoards.hpp" />
     <ClInclude Include="include\Log.hpp" />
     <ClInclude Include="include\Move.hpp" />
     <ClInclude Include="include\MoveGeneration.hpp" />

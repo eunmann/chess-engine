@@ -5,6 +5,7 @@
 #include "Move.hpp"
 #include "Moves.hpp"
 #include "BitBoardUtils.hpp"
+#include "CachedMoves.hpp"
 
 namespace MoveGeneration {
 
@@ -92,7 +93,7 @@ namespace MoveGeneration {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>();
 
     BitBoardUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
-      BitBoardUtils::for_each_set_square(PSUEDO_MOVES_KNIGHT[source_square], [source_square, &moves](auto dest_square) {
+      BitBoardUtils::for_each_set_square(CachedMoves::KNIGHT[source_square], [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
       });
@@ -149,7 +150,7 @@ namespace MoveGeneration {
     BitBoardUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves](BitBoard king_bit_board) {
       Square source_square = BitBoardUtils::bit_board_to_square(king_bit_board);
 
-      BitBoardUtils::for_each_set_square(PSUEDO_MOVES_KING[source_square], [source_square, &moves](auto dest_square) {
+      BitBoardUtils::for_each_set_square(CachedMoves::KING[source_square], [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
 
