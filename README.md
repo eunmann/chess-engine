@@ -7,12 +7,17 @@ The purpose of this project is to create a simple chess engine using C++20 stand
 The [UCI](http://wbec-ridderkerk.nl/html/UCIProtocol.html) is implemented so the engine can work with GUI applications like [Arena](http://www.playwitharena.de/).
 
 ## Move Generation
-All pseduo-legal moves are generated. The illegal moves are filtered during move searching. Pushing back the computation to move search allows us to take advantage of the pruning at that step. We can avoid computing the legality of moves that we wouldn't even consider. The only except is castling, the legality checks are done during move generation.
+All PSUEDO-legal moves are generated. The illegal moves are filtered during move searching. Pushing back the computation to move search allows us to take advantage of the pruning at that step. We can avoid computing the legality of moves that we wouldn't even consider. The only except is castling, the legality checks are done during move generation.
 
 ## Move Search
 The current implementation is a single thread alpha-beta pruning search.
 
 # TODO
+
+## Refactoring
+* TFW Unit Tests need to use TFW_ASSERT
+* Cleanup unused functions
+* Use the LOG and LOG_ASSERT macros to make debugging easier
 
 ## Code
 * Fix Bugs
@@ -22,10 +27,11 @@ The current implementation is a single thread alpha-beta pruning search.
 
 ## AI
 * Book openings
+* Better Heuristics
 
 ## Performance
-* Might be able to swap if-statements with bit operations
-* Need to profile what is taking so long
+* Profiling Results
+	* Generating capture positions is a critical path. It can also be optimized with magic bitboards.
 * Multithreaded search
 
 ## Engine

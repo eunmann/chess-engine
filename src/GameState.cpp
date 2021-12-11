@@ -40,8 +40,33 @@ auto GameState::apply_move(const Move move) noexcept -> void {
   if (is_castle) {
     piece_code = PieceCodes::KING;
 
+    if (this->has_king_moved(color) ||
+      this->is_color_in_check(color)) {
+      this->set_is_legal(false);
+      return;
+    }
+    const Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+
+    constexpr auto can_queen_castle = [](const GameState& game_state, const Color color, const Color opponent_color) {
+      const BitBoard queen_castle = color == Colors::WHITE ? BitBoards::WHITE_QUEEN_CASTLE : BitBoards::BLACK_QUEEN_CASTLE;
+      return game_state.has_rook_A_moved(color) ||
+        !game_state.position.is_empty(queen_castle) ||
+        game_state.position.is_threaten(queen_castle, opponent_color);
+    };
+
+    constexpr auto can_king_castle = [](const GameState& game_state, const Color color, const Color opponent_color) {
+      const BitBoard king_castle = color == Colors::WHITE ? BitBoards::WHITE_KING_CASTLE : BitBoards::BLACK_KING_CASTLE;
+      return game_state.has_rook_H_moved(color) ||
+        !game_state.position.is_empty(king_castle) ||
+        game_state.position.is_threaten(king_castle, opponent_color);
+    };
+
     if (color == Colors::WHITE) {
       if (castle == Castles::WHITE_KING) {
+        if (!can_king_castle(*this, color, opponent_color)) {
+          this->set_is_legal(false);
+          return;
+        }
         this->position.clear(BitBoards::WHITE_KING_START |
           BitBoards::WHITE_ROOK_H_START);
         this->position.add(PieceCodes::KING, color,
@@ -49,6 +74,10 @@ auto GameState::apply_move(const Move move) noexcept -> void {
         this->position.add(PieceCodes::ROOK, color,
           BitBoards::WHITE_ROOK_KING_CASTLE);
       } else {
+        if (!can_queen_castle(*this, color, opponent_color)) {
+          this->set_is_legal(false);
+          return;
+        }
         this->position.clear(BitBoards::WHITE_KING_START |
           BitBoards::WHITE_ROOK_A_START);
         this->position.add(PieceCodes::KING, color,
@@ -58,6 +87,10 @@ auto GameState::apply_move(const Move move) noexcept -> void {
       }
     } else {
       if (castle == Castles::BLACK_KING) {
+        if (!can_king_castle(*this, color, opponent_color)) {
+          this->set_is_legal(false);
+          return;
+        }
         this->position.clear(BitBoards::BLACK_KING_START |
           BitBoards::BLACK_ROOK_H_START);
         this->position.add(PieceCodes::KING, color,
@@ -65,6 +98,10 @@ auto GameState::apply_move(const Move move) noexcept -> void {
         this->position.add(PieceCodes::ROOK, color,
           BitBoards::BLACK_ROOK_KING_CASTLE);
       } else {
+        if (!can_queen_castle(*this, color, opponent_color)) {
+          this->set_is_legal(false);
+          return;
+        }
         this->position.clear(BitBoards::BLACK_KING_START |
           BitBoards::BLACK_ROOK_A_START);
         this->position.add(PieceCodes::KING, color,
@@ -111,6 +148,37 @@ auto GameState::apply_move(const Move move) noexcept -> void {
   this->set_king_moved<Colors::BLACK>(color == Colors::BLACK && (piece_code == PieceCodes::KING || is_castle));
   this->set_rook_A_moved<Colors::BLACK>(color == Colors::BLACK && ((piece_code == PieceCodes::ROOK && source_bit_board == BitBoards::WHITE_ROOK_A_START) || castle == Castles::BLACK_QUEEN));
   this->set_rook_H_moved<Colors::BLACK>(color == Colors::BLACK && ((piece_code == PieceCodes::ROOK && source_bit_board == BitBoards::WHITE_ROOK_H_START) || castle == Castles::BLACK_KING));
+}
+
+auto GameState::has_king_moved(const Color color) const noexcept -> bool {
+  if (color == Colors::WHITE) {
+    return this->m_flags.get_bits< GameState::MASK_1_BIT, GameState::WHITE_KING_MOVED_OFFSET>();
+  } else {
+    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::BLACK_KING_MOVED_OFFSET>();
+  }
+}
+
+auto GameState::is_color_in_check(const Color color) const noexcept -> bool {
+  if (color == Colors::WHITE) {
+    return this->is_color_in_check<Colors::WHITE>();
+  } else {
+    return this->is_color_in_check<Colors::BLACK>();
+  }
+}
+
+auto GameState::has_rook_A_moved(const Color color) const noexcept -> bool {
+  if (color == Colors::WHITE) {
+    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_A_OFFSET>();;
+  } else {
+    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::BLACK_ROOK_A_OFFSET>();
+  }
+}
+auto GameState::has_rook_H_moved(const Color color) const noexcept -> bool {
+  if (color == Colors::WHITE) {
+    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_H_OFFSET>();;
+  } else {
+    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::BLACK_ROOK_H_OFFSET>();
+  }
 }
 
 auto GameState::is_white_in_check() const noexcept -> bool {

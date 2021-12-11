@@ -332,28 +332,3 @@ auto GameUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Square
   _BitScanForward64(&index, bit_board);
   return index;
 }
-
-auto GameUtils::for_each_set_square(const BitBoard bit_board, const std::function<void(Square square)>& func) noexcept -> void {
-  BitBoard temp_bit_board = bit_board;
-  while (true) {
-    const Square square = GameUtils::bit_board_to_square(temp_bit_board);
-    if (square == -1) {
-      break;
-    }
-    func(square);
-    temp_bit_board &= ~GameUtils::square_to_bit_board(square);
-  };
-}
-
-auto GameUtils::for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)>& func) noexcept -> void {
-  BitBoard temp_bit_board = bit_board;
-  while (true) {
-    const Square square = GameUtils::bit_board_to_square(temp_bit_board);
-    if (square == -1) {
-      break;
-    }
-    const BitBoard single_bit_board = GameUtils::square_to_bit_board(square);
-    func(single_bit_board);
-    temp_bit_board &= ~single_bit_board;
-  };
-}

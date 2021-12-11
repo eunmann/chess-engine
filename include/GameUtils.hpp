@@ -47,8 +47,30 @@ namespace GameUtils {
   auto move_str_to_move(const std::string& move_str) noexcept ->Move;
 
   // Bit Utils
-  auto for_each_set_square(const BitBoard bit_board, const std::function<void(int32_t bit_index)>& func) noexcept -> void;
-  auto for_each_bit_board(const BitBoard bit_board, const std::function<void(BitBoard bit_board)>& func) noexcept -> void;
+  auto for_each_set_square(const BitBoard bit_board, const auto& func) noexcept -> void {
+    BitBoard temp_bit_board = bit_board;
+    while (true) {
+      const Square square = GameUtils::bit_board_to_square(temp_bit_board);
+      if (square == -1) {
+        break;
+      }
+      func(square);
+      temp_bit_board &= ~GameUtils::square_to_bit_board(square);
+    };
+  }
+
+  auto for_each_bit_board(const BitBoard bit_board, const auto& func) noexcept -> void {
+    BitBoard temp_bit_board = bit_board;
+    while (true) {
+      const Square square = GameUtils::bit_board_to_square(temp_bit_board);
+      if (square == -1) {
+        break;
+      }
+      const BitBoard single_bit_board = GameUtils::square_to_bit_board(square);
+      func(single_bit_board);
+      temp_bit_board &= ~single_bit_board;
+    };
+  }
 
   template <const int V, const int H>
   auto shift_bit_board(const BitBoard bit_board) noexcept -> BitBoard {

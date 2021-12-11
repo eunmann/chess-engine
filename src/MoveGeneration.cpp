@@ -59,7 +59,7 @@ auto MoveGeneration::get_knight_capture_positions(const BitBoard knights_bit_boa
 auto MoveGeneration::get_cached_knight_capture_positions(const BitBoard knights_bit_board) noexcept ->BitBoard {
   BitBoard capturable_bit_board = BitBoards::EMPTY;
   GameUtils::for_each_set_square(knights_bit_board, [&capturable_bit_board](auto knight_square) {
-    capturable_bit_board |= PSEDUO_MOVES_KNIGHT[knight_square];
+    capturable_bit_board |= PSUEDO_MOVES_KNIGHT[knight_square];
     });
   return capturable_bit_board;
 }
@@ -127,7 +127,7 @@ auto MoveGeneration::get_king_capture_positions(const BitBoard bit_board) noexce
 auto MoveGeneration::get_cached_king_capture_positions(const BitBoard kings_bit_board) noexcept -> BitBoard {
   BitBoard capturable_bit_board = BitBoards::EMPTY;
   GameUtils::for_each_set_square(kings_bit_board, [&capturable_bit_board](auto king_square) {
-    capturable_bit_board |= PSEDUO_MOVES_KNIGHT[king_square];
+    capturable_bit_board |= PSUEDO_MOVES_KNIGHT[king_square];
     });
   return capturable_bit_board;
 

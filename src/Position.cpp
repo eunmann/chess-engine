@@ -183,3 +183,7 @@ auto Position::to_board() const noexcept -> Board {
 
   return board;
 }
+
+auto Position::is_threaten(const BitBoard bit_board, const Color color) const noexcept -> bool {
+  return (this->threaten_positions[color] & bit_board) != 0;
+}

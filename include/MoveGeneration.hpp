@@ -8,7 +8,7 @@
 
 namespace MoveGeneration {
 
-  // Pseduo-Legal Moves Templates
+  // PSUEDO-Legal Moves Templates
   template <const int V, const int H, const Color color>
   auto get_moves_in_direction(const GameState& game_state, BitBoard bit_board, Moves& moves) noexcept -> void {
     Square source_square = GameUtils::bit_board_to_square(bit_board);
@@ -70,7 +70,7 @@ namespace MoveGeneration {
       BitBoard next_pawn_bit_board = GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
       if (game_state.position.is_empty(next_pawn_bit_board)) {
         // Promotion
-        if (GameUtils::is_piece_in_top_row(next_pawn_bit_board)) {
+        if (GameUtils::is_piece_in_row(next_pawn_bit_board, promotion_row)) {
           add_promotion_moves(next_pawn_bit_board);
         } else {
           moves.push_back(Move(source_square, GameUtils::bit_board_to_square(next_pawn_bit_board)));
@@ -130,7 +130,7 @@ namespace MoveGeneration {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>();
 
     GameUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
-      GameUtils::for_each_set_square(PSEDUO_MOVES_KNIGHT[source_square], [source_square, &moves](auto dest_square) {
+      GameUtils::for_each_set_square(PSUEDO_MOVES_KNIGHT[source_square], [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
       });
@@ -187,37 +187,14 @@ namespace MoveGeneration {
     GameUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves](BitBoard king_bit_board) {
       Square source_square = GameUtils::bit_board_to_square(king_bit_board);
 
-      GameUtils::for_each_set_square(PSEDUO_MOVES_KING[source_square], [source_square, &moves](auto dest_square) {
+      GameUtils::for_each_set_square(PSUEDO_MOVES_KING[source_square], [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
 
-      // Castling
-      if (!game_state.has_king_moved<color>() &&
-        !game_state.is_color_in_check<color>()) {
-        constexpr Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
-        constexpr BitBoard queen_castle = color == Colors::WHITE ? BitBoards::WHITE_QUEEN_CASTLE : BitBoards::BLACK_QUEEN_CASTLE;
-        // Queen Side
-        if (!game_state.has_rook_A_moved<color>() &&
-          game_state.position.is_empty(queen_castle) &&
-          !game_state.position.is_threaten<opponent_color>(queen_castle)) {
-          Move move;
-          constexpr Castle queen_side = color == Colors::WHITE ? Castles::WHITE_QUEEN : Castles::BLACK_QUEEN;
-
-          move.set_castle(queen_side);
-          moves.push_back(move);
-        }
-
-        constexpr BitBoard king_castle = color == Colors::WHITE ? BitBoards::WHITE_KING_CASTLE : BitBoards::BLACK_KING_CASTLE;
-        // King Side
-        if (!game_state.has_rook_H_moved<color>() &&
-          game_state.position.is_empty(king_castle) &&
-          !game_state.position.is_threaten<opponent_color>(king_castle)) {
-          Move move;
-          constexpr Castle king_side =
-            color == Colors::WHITE ? Castles::WHITE_KING : Castles::BLACK_KING;
-          move.set_castle(king_side);
-          moves.push_back(move);
-        }
+      for (auto& castle : Castles::ALL) {
+        Move move;
+        move.set_castle(castle);
+        moves.push_back(move);
       }
       });
   }
@@ -275,10 +252,23 @@ namespace MoveGeneration {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     BitBoard capturable_bit_board = BitBoards::EMPTY;
     GameUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {
-      // Capture Left and Right
       const BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
       const BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
       capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture;
+      });
+    return capturable_bit_board;
+  }
+
+  template<const Color color>
+  auto get_pawn_move_positions(const BitBoard bit_board) noexcept -> BitBoard {
+    constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
+    BitBoard capturable_bit_board = BitBoards::EMPTY;
+    GameUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {
+      const BitBoard pawn_forward = GameUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
+      const BitBoard pawn_forward_2 = GameUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
+      const BitBoard pawn_bit_board_left_capture = GameUtils::is_piece_in_left_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
+      const BitBoard pawn_bit_board_right_capture = GameUtils::is_piece_in_right_col(pawn_bit_board) * GameUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
+      capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture | pawn_forward | pawn_forward_2;
       });
     return capturable_bit_board;
   }

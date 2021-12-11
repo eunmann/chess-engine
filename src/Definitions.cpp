@@ -1,7 +1,9 @@
 #include "Definitions.hpp"
 
-std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KNIGHT;
-std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KING;
+std::array<Square, Squares::NUM> PSUEDO_MOVES_KNIGHT;
+std::array<Square, Squares::NUM> PSUEDO_MOVES_KING;
+std::array<Square, Squares::NUM> PSUEDO_MOVES_WHITE_PAWNS;
+std::array<Square, Squares::NUM> PSUEDO_MOVES_BLACK_PAWNS;
 
 auto PieceCodes::to_char(PieceCode piece_code) noexcept -> char {
   switch (piece_code) {

@@ -80,6 +80,7 @@ class Position {
   auto is_threaten(const BitBoard bit_board) const noexcept -> bool {
     return (this->threaten_positions[color] & bit_board) != 0;
   }
+  auto is_threaten(const BitBoard bit_board, const Color color) const noexcept -> bool;
 
   auto to_board() const noexcept -> Board;
 

@@ -13,6 +13,11 @@ class GameState {
   auto init() noexcept -> void;
   auto apply_move(const Move move) noexcept -> void;
 
+  auto has_king_moved(const Color color) const noexcept -> bool;
+  auto is_color_in_check(const Color color) const noexcept -> bool;
+  auto has_rook_A_moved(const Color color) const noexcept -> bool;
+  auto has_rook_H_moved(const Color color) const noexcept -> bool;
+
   auto is_white_in_check() const noexcept -> bool;
   auto is_black_in_check() const noexcept -> bool;
 

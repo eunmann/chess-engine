@@ -22,12 +22,12 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
 
   int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
   Move best_move;
-  constexpr int32_t max_search_depth = 6;
+  constexpr int32_t max_search_depth = 8;
 
   counter = moves.size();
   leaf_nodes_counter = 0;
   times_pruned = 0;
-  for (auto move : moves) {
+  for (auto& move : moves) {
     GameState check = game_state;
     check.apply_move(move);
     if (check.is_legal()) {

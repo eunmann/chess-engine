@@ -105,8 +105,10 @@ namespace BitBoards {
   constexpr BitBoard CENTER_16_SQUARES = (ROW_3 | ROW_4 | ROW_5 | ROW_6) & (COL_C | COL_D | COL_E | COL_F);
 }  // namespace BitBoards
 
-extern std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KNIGHT;
-extern std::array<BitBoard, Squares::NUM> PSEDUO_MOVES_KING;
+extern std::array<Square, Squares::NUM> PSUEDO_MOVES_KNIGHT;
+extern std::array<Square, Squares::NUM> PSUEDO_MOVES_KING;
+extern std::array<Square, Squares::NUM> PSUEDO_MOVES_WHITE_PAWNS;
+extern std::array<Square, Squares::NUM> PSUEDO_MOVES_BLACK_PAWNS;
 
 typedef int32_t Castle;
 namespace Castles {
@@ -115,4 +117,5 @@ namespace Castles {
   constexpr Castle WHITE_QUEEN = 0b101;
   constexpr Castle BLACK_KING = 0b110;
   constexpr Castle BLACK_QUEEN = 0b111;
+  constexpr std::array<Castle, 4> ALL{WHITE_KING,WHITE_QUEEN, BLACK_KING, BLACK_QUEEN};
 }  // namespace Castles
