@@ -13,6 +13,8 @@ namespace BitBoardUtils {
   auto get_row_col(const BitBoard bit_board, int32_t& row, int32_t& col) noexcept -> void;
   auto get_tile_name(const BitBoard bit_board) noexcept -> std::string;
 
+  auto get_count(const BitBoard bit_board) noexcept -> int32_t;
+
   // Conversions
   auto bit_board_to_square(const BitBoard bit_board) noexcept ->Square;
   auto square_to_bit_board(const Square square) noexcept ->BitBoard;

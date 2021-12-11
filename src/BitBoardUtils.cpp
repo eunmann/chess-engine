@@ -1,5 +1,6 @@
 #include "BitBoardUtils.hpp"
 #include "Assert.hpp"
+#include <bit>
 
 auto BitBoardUtils::square_to_bit_board(const Square square) noexcept -> BitBoard {
   return 0b1ULL << square;
@@ -156,4 +157,8 @@ auto BitBoardUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Sq
   unsigned long index = 0;
   _BitScanForward64(&index, bit_board);
   return index;
+}
+
+auto BitBoardUtils::get_count(const BitBoard bit_board) noexcept -> int32_t {
+  return std::popcount(bit_board);
 }

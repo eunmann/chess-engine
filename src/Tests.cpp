@@ -1,6 +1,9 @@
 #include "Tests.hpp"
 
 #include <assert.h>
+#include <vector>
+#include <unordered_set>
+#include <string>
 
 #include "GameUtils.hpp"
 #include "MoveSearch.hpp"
@@ -147,12 +150,33 @@ namespace Tests {
       Moves moves;
       MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
 
-      Moves legal_moves;
-      GameUtils::for_each_legal_move<Colors::WHITE>(game_state, moves, [&legal_moves](const Move& move) {
-        legal_moves.push_back(move);
+      std::vector<std::string> legal_moves_strs;
+      GameUtils::for_each_legal_move<Colors::WHITE>(game_state, moves, [&legal_moves_strs](const Move& move) {
+        legal_moves_strs.push_back(move.to_string());
         });
 
-      TFW_ASSERT_EQ(20, legal_moves.size());
+      TFW_ASSERT_EQ(20, legal_moves_strs.size());
+
+      std::unordered_set<std::string> expected_moves{"a2a3", "a2a4",
+        "b2b3", "b2b4",
+        "c2c3", "c2c4",
+        "d2d3", "d2d4",
+        "e2e3", "e2e4",
+        "f2f3", "f2f4",
+        "g2g3", "g2g4",
+        "h2h3", "h2h4",
+        "b1a3", "b1c3",
+        "g1f3", "g1h3"};
+
+      std::vector<std::string> not_contained_moves;
+
+      for (auto& move : legal_moves_strs) {
+        if (!expected_moves.contains(move)) {
+          not_contained_moves.push_back(move);
+        }
+      }
+
+      TFW_ASSERT_EQ(0, not_contained_moves.size());
       }));
 
     generate_moves_test_case.tests.push_back(TestFW::Test("MoveGeneration::get_moves - Black first move", []() {
@@ -163,12 +187,33 @@ namespace Tests {
       Moves moves;
       MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
 
-      Moves legal_moves;
-      GameUtils::for_each_legal_move<Colors::BLACK>(game_state, moves, [&legal_moves](const Move& move) {
-        legal_moves.push_back(move);
+      std::vector<std::string> legal_moves_strs;
+      GameUtils::for_each_legal_move<Colors::BLACK>(game_state, moves, [&legal_moves_strs](const Move& move) {
+        legal_moves_strs.push_back(move.to_string());
         });
 
-      TFW_ASSERT_EQ(20, legal_moves.size());
+      TFW_ASSERT_EQ(20, legal_moves_strs.size());
+
+      std::unordered_set<std::string> expected_moves{"a7a6", "a7a5",
+        "b7b6", "b7b5",
+        "c7c6", "c7c5",
+        "d7d6", "d7d5",
+        "e7e6", "e7e5",
+        "f7f6", "f7f5",
+        "g7g6", "g7g5",
+        "h7h6", "h7h5",
+        "b8a6", "b8c6",
+        "g8f6", "g8h6"};
+
+      std::vector<std::string> not_contained_moves;
+
+      for (auto& move : legal_moves_strs) {
+        if (!expected_moves.contains(move)) {
+          not_contained_moves.push_back(move);
+        }
+      }
+
+      TFW_ASSERT_EQ(0, not_contained_moves.size());
       }));
 
     game_utils_unit_test.test_cases.push_back(generate_moves_test_case);
@@ -288,7 +333,7 @@ namespace Tests {
 
       GameState game_state;
       game_state.init();
-      std::vector<std::string> moves{"e2e4", " b8a6", " d1h5 ", "a6b4 ", "f1c4 ", "b4c2", " e1d1", " c2e3", " d2e3", " d7d5 ", "c4d5 ", "c8e6 ", "c1d2 ", "d8d7", " d5e6", " e8d8", " e6d7"};
+      std::vector<std::string> moves{"e2e4", " b8a6", "d1h5", "a6b4", "f1c4", "b4c2", "e1d1", "c2e3", "d2e3", "d7d5", "c4d5", "c8e6", "c1d2", "d8d7", "d5e6", "e8d8", "e6d7"};
 
       for (auto& move : moves) {
         GameUtils::process_user_move(game_state, move);
@@ -308,10 +353,22 @@ namespace Tests {
       TFW_ASSERT_EQ(false, game_state.is_white_to_move());
 
       Move move = MoveSearch::get_best_move(game_state);
-      printf("\n\nMove: %s\n\n", move.to_string().c_str());
+
+      std::unordered_set<std::string> expected_moves{"a7a6", "a7a5",
+        "b7b6", "b7b5",
+        "c7c6", "c7c5",
+        "d7d6", "d7d5",
+        "e7e6", "e7e5",
+        "f7f6", "f7f5",
+        "g7g6", "g7g5",
+        "h7h6", "h7h5",
+        "b8a6", "b8c6",
+        "g8f6", "g8h6"};
+
+      TFW_ASSERT_EQ(true, expected_moves.contains(move.to_string()));
+
       GameUtils::process_user_move(game_state, move.to_string());
       TFW_ASSERT_EQ(true, game_state.is_legal());
-      TFW_ASSERT_EQ(true, move.to_string() != "b1c1");
 
       }));
     game_utils_unit_test.test_cases.push_back(move_search_test_case);

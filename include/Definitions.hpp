@@ -105,8 +105,8 @@ namespace BitBoards {
   constexpr BitBoard CENTER_16_SQUARES = (ROW_3 | ROW_4 | ROW_5 | ROW_6) & (COL_C | COL_D | COL_E | COL_F);
 }  // namespace BitBoards
 
-extern std::array<Square, Squares::NUM> PSUEDO_MOVES_KNIGHT;
-extern std::array<Square, Squares::NUM> PSUEDO_MOVES_KING;
+extern std::array<BitBoard, Squares::NUM> PSUEDO_MOVES_KNIGHT;
+extern std::array<BitBoard, Squares::NUM> PSUEDO_MOVES_KING;
 
 typedef int32_t Castle;
 namespace Castles {

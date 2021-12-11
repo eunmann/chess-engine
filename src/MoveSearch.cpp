@@ -22,7 +22,7 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
 
   int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
   Move best_move;
-  constexpr int32_t max_search_depth = 4;
+  constexpr int32_t max_search_depth = 7;
 
   counter = moves.size();
   leaf_nodes_counter = 0;
@@ -51,13 +51,12 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
       }
     }
   }
-  #ifdef DEBUG
+
   timer.end();
   timer.print();
   printf("info Moves considered: %llu\n", counter);
   printf("info Leaf nodes: %llu\n", leaf_nodes_counter);
   printf("info Time Pruned: %llu \n", times_pruned);
-  #endif
 
   return best_move;
 }
@@ -65,34 +64,39 @@ auto MoveSearch::get_best_move(const GameState& game_state) noexcept -> Move {
 auto MoveSearch::get_position_heuristic(const GameState& game_state) noexcept -> int32_t {
   int32_t heuristic = 0;
 
-  std::array<PieceCode, 6> piece_codes = {
+  constexpr std::array<PieceCode, 6> piece_codes = {
       PieceCodes::PAWN, PieceCodes::KNIGHT, PieceCodes::BISHOP,
-      PieceCodes::ROOK, PieceCodes::QUEEN,  PieceCodes::KING};
-  std::array<PieceCode, 6> piece_values = {
+      PieceCodes::ROOK, PieceCodes::QUEEN, PieceCodes::KING};
+  constexpr std::array<PieceValue, 6> piece_values = {
       PieceValues::PAWN, PieceValues::KNIGHT, PieceValues::BISHOP,
-      PieceValues::ROOK, PieceValues::QUEEN,  PieceValues::KING};
+      PieceValues::ROOK, PieceValues::QUEEN, PieceValues::KING};
 
   for (auto& piece_code : piece_codes) {
     const BitBoard white_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code, Colors::WHITE);
-    BitBoardUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
-      heuristic += piece_values[piece_code];
-      });
-
     const BitBoard black_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code, Colors::BLACK);
-    BitBoardUtils::for_each_bit_board(white_piece_bit_board, [&heuristic, &piece_code, &game_state, &piece_values](auto bit_board) {
-      heuristic -= piece_values[piece_code];
-      });
+
+    heuristic += piece_values[piece_code] * (BitBoardUtils::get_count(white_piece_bit_board) - BitBoardUtils::get_count(black_piece_bit_board));
   }
 
   // Put the King in check
-  heuristic += game_state.is_black_in_check() * PieceValues::PAWN / 2;
-  heuristic -= game_state.is_white_in_check() * PieceValues::PAWN / 2;
+  heuristic += PieceValues::PAWN * (game_state.is_white_in_check() - game_state.is_black_in_check());
 
   // Center Control
-  heuristic += game_state.position.is_white_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 2;
-  heuristic -= game_state.position.is_black_occupied(BitBoards::CENTER_4_SQUARES) * PieceValues::PAWN / 2;
-  heuristic += game_state.position.is_white_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 4;
-  heuristic -= game_state.position.is_black_threaten(BitBoards::CENTER_16_SQUARES) * PieceValues::PAWN / 4;
+  const BitBoard white_bit_board = game_state.position.get_white_bit_board();
+  const BitBoard black_bit_board = game_state.position.get_black_bit_board();
+  const BitBoard white_threaten_board = game_state.position.get_white_threaten();
+  const BitBoard black_threaten_board = game_state.position.get_black_bit_board();
+
+  // Occupy Center
+  heuristic += (PieceValues::PAWN / 4) * (BitBoardUtils::get_count(white_bit_board & BitBoards::CENTER_4_SQUARES) - BitBoardUtils::get_count(black_bit_board & BitBoards::CENTER_4_SQUARES));
+  heuristic += (PieceValues::PAWN / 16) * (BitBoardUtils::get_count(white_bit_board & BitBoards::CENTER_16_SQUARES) - BitBoardUtils::get_count(black_bit_board & BitBoards::CENTER_16_SQUARES));
+
+  // Threaten Center
+  heuristic += (PieceValues::PAWN / 4) * (BitBoardUtils::get_count(white_threaten_board & BitBoards::CENTER_4_SQUARES) - BitBoardUtils::get_count(black_threaten_board & BitBoards::CENTER_4_SQUARES));
+  heuristic += (PieceValues::PAWN / 16) * (BitBoardUtils::get_count(white_threaten_board & BitBoards::CENTER_16_SQUARES) - BitBoardUtils::get_count(black_threaten_board & BitBoards::CENTER_16_SQUARES));
+
+  // Attack Opponent Pieces
+  heuristic += (PieceValues::PAWN / 16) * (BitBoardUtils::get_count(white_threaten_board & black_bit_board) - BitBoardUtils::get_count(black_threaten_board & white_bit_board));
 
   return heuristic;
 }

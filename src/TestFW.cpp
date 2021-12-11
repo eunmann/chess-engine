@@ -17,14 +17,12 @@ namespace TestFW {
     try {
       this->test();
       timer.end();
+      std::cout << " - " << dye::green("PASSED ") << timer.time_string() << "\n";
     } catch (std::string failure_message) {
       timer.end();
       std::cout << " - " << dye::red("FAILED ") << timer.time_string() << "\n";
       printf("\t\t\t%s\n", failure_message.c_str());
-      return;
     }
-
-    std::cout << " - " << dye::green("PASSED ") << timer.time_string() << "\n";
   }
 
   TestCase::TestCase(const std::string& description) noexcept

@@ -39,7 +39,7 @@ int main() {
 
   init_psuedo_moves();
 
-  auto run_tests = true;
+  auto run_tests = false;
   if (run_tests) {
     Tests::run_tests();
     return 0;
