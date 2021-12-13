@@ -150,12 +150,18 @@ namespace Tests {
       Moves moves;
       MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
 
+      for (auto& move : moves) {
+          printf("Moves: %s\n", move.to_string().c_str());
+      }
+
       std::vector<std::string> legal_moves_strs;
       GameUtils::for_each_legal_move<Colors::WHITE>(game_state, moves, [&legal_moves_strs](const Move& move) {
         legal_moves_strs.push_back(move.to_string());
         });
 
-      TFW_ASSERT_EQ(20, legal_moves_strs.size());
+      for (auto& move : legal_moves_strs) {
+          printf("Legal Moves: %s\n", move.c_str());
+      }
 
       std::unordered_set<std::string> expected_moves{"a2a3", "a2a4",
         "b2b3", "b2b4",
@@ -177,6 +183,7 @@ namespace Tests {
       }
 
       TFW_ASSERT_EQ(0, not_contained_moves.size());
+      TFW_ASSERT_EQ(20, legal_moves_strs.size());
       }));
 
     generate_moves_test_case.tests.push_back(TestFW::Test("MoveGeneration::get_moves - Black first move", []() {
@@ -191,8 +198,6 @@ namespace Tests {
       GameUtils::for_each_legal_move<Colors::BLACK>(game_state, moves, [&legal_moves_strs](const Move& move) {
         legal_moves_strs.push_back(move.to_string());
         });
-
-      TFW_ASSERT_EQ(20, legal_moves_strs.size());
 
       std::unordered_set<std::string> expected_moves{"a7a6", "a7a5",
         "b7b6", "b7b5",
@@ -214,6 +219,7 @@ namespace Tests {
       }
 
       TFW_ASSERT_EQ(0, not_contained_moves.size());
+      TFW_ASSERT_EQ(20, legal_moves_strs.size());
       }));
 
     game_utils_unit_test.test_cases.push_back(generate_moves_test_case);

@@ -30,7 +30,7 @@ int main() {
   CachedMoves::init();
   MagicBitBoards::init();
 
-  auto run_tests = false;
+  auto run_tests = true;
   if (run_tests) {
     Tests::run_tests();
     return 0;

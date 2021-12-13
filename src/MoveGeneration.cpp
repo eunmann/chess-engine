@@ -1,6 +1,5 @@
 #include "MoveGeneration.hpp"
 
-
 auto MoveGeneration::get_knight_capture_positions(const BitBoard knights_bit_board) noexcept -> BitBoard {
   BitBoard capturable_bit_board = BitBoards::EMPTY;
   BitBoardUtils::for_each_bit_board(knights_bit_board, [&capturable_bit_board](const auto knight_bit_board) {
