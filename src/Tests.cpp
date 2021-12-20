@@ -85,6 +85,22 @@ namespace Tests {
         }));
     game_utils_unit_test.test_cases.push_back(shifts_test_case);
 
+    TestFW::TestCase board_test_case("Board");
+    board_test_case.tests.push_back(TestFW::Test("Position::to_board()", []() {
+      Position position;
+      position.add(PieceCodes::BISHOP, Colors::WHITE, BitBoardUtils::square_to_bit_board(Squares::A1));
+      Board board = position.to_board();
+
+      TFW_ASSERT_EQ(BoardValues::BISHOP, board.positions[Squares::A1]);
+
+      position.add(PieceCodes::BISHOP, Colors::WHITE, BitBoardUtils::square_to_bit_board(Squares::E4));
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D3));
+      board = position.to_board();
+      TFW_ASSERT_EQ(BoardValues::BISHOP, board.positions[Squares::E4]);
+      TFW_ASSERT_EQ(-1 * BoardValues::PAWN, board.positions[Squares::D3]);
+      }));
+    game_utils_unit_test.test_cases.push_back(board_test_case);
+
     TestFW::TestCase move_test_case("Move");
     move_test_case.tests.push_back(TestFW::Test("Move::get_source_square", []() {
       for (int i = 1; i < 64; i++) {
@@ -151,7 +167,7 @@ namespace Tests {
       MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
 
       for (auto& move : moves) {
-          printf("Moves: %s\n", move.to_string().c_str());
+        printf("Moves: %s\n", move.to_string().c_str());
       }
 
       std::vector<std::string> legal_moves_strs;
@@ -160,7 +176,7 @@ namespace Tests {
         });
 
       for (auto& move : legal_moves_strs) {
-          printf("Legal Moves: %s\n", move.c_str());
+        printf("Legal Moves: %s\n", move.c_str());
       }
 
       std::unordered_set<std::string> expected_moves{"a2a3", "a2a4",
@@ -379,6 +395,69 @@ namespace Tests {
       }));
     game_utils_unit_test.test_cases.push_back(move_search_test_case);
 
+    TestFW::TestCase magic_bit_boards("Magic Bit Boards");
+    magic_bit_boards.tests.push_back(TestFW::Test("MagicBitBoards::get_bishop_moves()", []() {
+
+      Position position;
+      auto assert_positions = [&position]() {
+        const BitBoard expected_bishop_moves = MoveGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
+        const BitBoard magic_bishop_moves = MoveGeneration::get_cached_bishop_capture_positions<Colors::WHITE>(position);
+
+        if (expected_bishop_moves != magic_bishop_moves) {
+          position.to_board().print();
+          position.clear();
+          position.add(PieceCodes::BISHOP, Colors::WHITE, expected_bishop_moves);
+          position.to_board().print();
+          position.clear();
+          position.add(PieceCodes::BISHOP, Colors::WHITE, magic_bishop_moves);
+          position.to_board().print();
+        }
+        TFW_ASSERT_EQ(expected_bishop_moves, magic_bishop_moves);
+      };
+
+      position.add(PieceCodes::BISHOP, Colors::WHITE, BitBoardUtils::square_to_bit_board(Squares::E4));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D3));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D5));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::F3));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::F5));
+      assert_positions();
+
+      }));
+
+    magic_bit_boards.tests.push_back(TestFW::Test("MagicBitBoards::get_rook_moves()", []() {
+
+      Position position;
+      auto assert_positions = [&position]() {
+        const BitBoard expected_rook_moves = MoveGeneration::get_rook_capture_positions<Colors::WHITE>(position);
+        const BitBoard magic_rook_moves = MoveGeneration::get_cached_rook_capture_positions<Colors::WHITE>(position);
+        TFW_ASSERT_EQ(expected_rook_moves, magic_rook_moves);
+      };
+
+      position.add(PieceCodes::ROOK, Colors::WHITE, BitBoardUtils::square_to_bit_board(Squares::E4));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::E5));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D4));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::F4));
+      assert_positions();
+
+      position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::E3));
+      assert_positions();
+
+      }));
+    game_utils_unit_test.test_cases.push_back(magic_bit_boards);
     game_utils_unit_test.run();
   }
 }  // namespace Tests

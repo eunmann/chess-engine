@@ -6,8 +6,6 @@
 namespace CachedMoves {
   std::array<BitBoard, Squares::NUM> KNIGHT;
   std::array<BitBoard, Squares::NUM> KING;
-  std::array<BitBoard, Squares::NUM> BISHOP;
-  std::array<BitBoard, Squares::NUM> ROOK;
 
   auto init() noexcept -> void {
     for (auto square : std::views::iota(0, Squares::NUM)) {

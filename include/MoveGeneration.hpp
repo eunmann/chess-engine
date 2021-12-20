@@ -94,7 +94,7 @@ namespace MoveGeneration {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>();
 
     BitBoardUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
-       const BitBoard non_overlapping_moves = CachedMoves::KNIGHT[source_square] & ~game_state.position.get_color_bit_board<color>();
+      const BitBoard non_overlapping_moves = CachedMoves::KNIGHT[source_square] & ~game_state.position.get_color_bit_board<color>();
       BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
@@ -106,11 +106,10 @@ namespace MoveGeneration {
     BitBoard bishops_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::BISHOP, color>();
 
     BitBoardUtils::for_each_set_square(bishops_bit_board, [&game_state, &moves](const Square source_square) {
-        const BitBoard non_overlapping_moves = MagicBitBoards::get_bishop_moves(source_square, game_state.position.get_occupied_bit_board()) & ~game_state.position.get_color_bit_board<color>();
-        BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](const Square dest_square) {
-            moves.push_back(Move(source_square, dest_square));
-            }
-        );
+      const BitBoard non_overlapping_moves = MagicBitBoards::get_bishop_moves(source_square, game_state.position.get_occupied_bit_board()) & ~game_state.position.get_color_bit_board<color>();
+      BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](const Square dest_square) {
+        moves.push_back(Move(source_square, dest_square));
+        });
       });
   }
 
@@ -118,37 +117,31 @@ namespace MoveGeneration {
   auto get_rook_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard rooks_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::ROOK, color>();
 
-    BitBoardUtils::for_each_bit_board(
-      rooks_bit_board, [&game_state, &moves](const BitBoard rook_bit_board) {
-        MoveGeneration::get_moves_in_direction<1, 0, color>(game_state, rook_bit_board, moves);
-        MoveGeneration::get_moves_in_direction<-1, 0, color>(game_state, rook_bit_board, moves);
-        MoveGeneration::get_moves_in_direction<0, -1, color>(game_state, rook_bit_board, moves);
-        MoveGeneration::get_moves_in_direction<0, 1, color>(game_state, rook_bit_board, moves);
+    BitBoardUtils::for_each_set_square(rooks_bit_board, [&game_state, &moves](const Square source_square) {
+      const BitBoard non_overlapping_moves = MagicBitBoards::get_rook_moves(source_square, game_state.position.get_occupied_bit_board()) & ~game_state.position.get_color_bit_board<color>();
+      BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](const Square dest_square) {
+        moves.push_back(Move(source_square, dest_square));
+        });
       });
   }
 
   template <const Color color>
   auto get_queen_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     BitBoard queens_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::QUEEN, color>();
-    BitBoardUtils::for_each_bit_board(queens_bit_board, [&game_state, &moves](BitBoard queen_bit_board) {
-      // Diagonal
-      MoveGeneration::get_moves_in_direction<1, 1, color>(game_state, queen_bit_board, moves);
-      MoveGeneration::get_moves_in_direction<-1, 1, color>(game_state, queen_bit_board, moves);
-      MoveGeneration::get_moves_in_direction<1, -1, color>(game_state, queen_bit_board, moves);
-      MoveGeneration::get_moves_in_direction<-1, -1, color>(game_state, queen_bit_board, moves);
 
-      // Horizontal and vertical
-      MoveGeneration::get_moves_in_direction<1, 0, color>(game_state, queen_bit_board, moves);
-      MoveGeneration::get_moves_in_direction<-1, 0, color>(game_state, queen_bit_board, moves);
-      MoveGeneration::get_moves_in_direction<0, -1, color>(game_state, queen_bit_board, moves);
-      MoveGeneration::get_moves_in_direction<0, 1, color>(game_state, queen_bit_board, moves);
+    BitBoardUtils::for_each_set_square(queens_bit_board, [&game_state, &moves](const Square source_square) {
+      const BitBoard non_overlapping_moves = (MagicBitBoards::get_bishop_moves(source_square, game_state.position.get_occupied_bit_board()) |
+        MagicBitBoards::get_rook_moves(source_square, game_state.position.get_occupied_bit_board())) &
+        ~game_state.position.get_color_bit_board<color>();
+      BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](const Square dest_square) {
+        moves.push_back(Move(source_square, dest_square));
+        });
       });
   }
 
   template <const Color color>
   auto get_king_moves(const GameState& game_state, Moves& moves) noexcept -> void {
-    BitBoard kings_bit_board =
-      game_state.position.get_piece_color_bit_board<PieceCodes::KING, color>();
+    BitBoard kings_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KING, color>();
 
     BitBoardUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves](BitBoard king_bit_board) {
       Square source_square = BitBoardUtils::bit_board_to_square(king_bit_board);
@@ -234,12 +227,12 @@ namespace MoveGeneration {
 
   template<const Color color>
   auto get_cached_bishop_capture_positions(const Position& position) noexcept -> BitBoard {
-      BitBoard capturable_bit_board = BitBoards::EMPTY;
-      BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
-      BitBoardUtils::for_each_set_square(bishops_bit_board, [&capturable_bit_board, &position](const Square square) {
-          capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
-          });
-      return capturable_bit_board;
+    BitBoard capturable_bit_board = BitBoards::EMPTY;
+    BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
+    BitBoardUtils::for_each_set_square(bishops_bit_board, [&capturable_bit_board, &position](const Square square) {
+      capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
+      });
+    return capturable_bit_board;
   }
 
   template <const Color color>
@@ -257,12 +250,12 @@ namespace MoveGeneration {
 
   template<const Color color>
   auto get_cached_rook_capture_positions(const Position& position) noexcept -> BitBoard {
-      BitBoard capturable_bit_board = BitBoards::EMPTY;
-      BitBoard rook_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-      BitBoardUtils::for_each_set_square(rook_bit_board, [&capturable_bit_board, &position](const Square square) {
-          capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
-          });
-      return capturable_bit_board;
+    BitBoard capturable_bit_board = BitBoards::EMPTY;
+    BitBoard rook_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
+    BitBoardUtils::for_each_set_square(rook_bit_board, [&capturable_bit_board, &position](const Square square) {
+      capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
+      });
+    return capturable_bit_board;
   }
 
   template <const Color color>
@@ -280,13 +273,13 @@ namespace MoveGeneration {
 
   template<const Color color>
   auto get_cached_queen_capture_positions(const Position& position) noexcept -> BitBoard {
-      BitBoard capturable_bit_board = BitBoards::EMPTY;
-      BitBoard queen_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-      BitBoardUtils::for_each_set_square(queen_bit_board, [&capturable_bit_board, &position](const Square square) {
-          capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
-          capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
-          });
-      return capturable_bit_board;
+    BitBoard capturable_bit_board = BitBoards::EMPTY;
+    BitBoard queen_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
+    BitBoardUtils::for_each_set_square(queen_bit_board, [&capturable_bit_board, &position](const Square square) {
+      capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
+      capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
+      });
+    return capturable_bit_board;
   }
 
   template <const Color color>
@@ -320,7 +313,7 @@ namespace MoveGeneration {
     capturable_bit_board |= MoveGeneration::get_cached_bishop_capture_positions<color>(position);
     capturable_bit_board |= MoveGeneration::get_cached_rook_capture_positions<color>(position);
     capturable_bit_board |= MoveGeneration::get_cached_queen_capture_positions<color>(position);
-    capturable_bit_board |= MoveGeneration::get_cached_king_capture_positions(position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>());
+    capturable_bit_board |= MoveGeneration::get_cached_king_capture_positions(position.get_piece_color_bit_board<PieceCodes::KING, color>());
     return capturable_bit_board;
   }
 } // namespace MoveGeneration

@@ -149,6 +149,7 @@
     <ClCompile Include="src\Position.cpp" />
     <ClCompile Include="src\CachedMoves.cpp" />
     <ClCompile Include="src\MagicBitBoards.cpp" />
+    <ClCompile Include="src\RandomNumberGenerator.cpp" />
     <ClCompile Include="src\StringUtils.cpp" />
     <ClCompile Include="src\TestFW.cpp" />
     <ClCompile Include="src\Tests.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="include\Moves.hpp" />
     <ClInclude Include="include\MoveSearch.hpp" />
     <ClInclude Include="include\Position.hpp" />
+    <ClInclude Include="include\RandomNumberGenerator.hpp" />
     <ClInclude Include="include\StringUtils.hpp" />
     <ClInclude Include="include\TestFW.hpp" />
     <ClInclude Include="include\Tests.hpp" />

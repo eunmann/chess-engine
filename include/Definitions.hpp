@@ -11,15 +11,14 @@ constexpr uint64_t MAX_NUM_MOVES = 256;
 typedef int32_t Square;
 
 namespace Squares {
-  constexpr Square A1 = 0, A2 = 1, A3 = 2, A4 = 3, A5 = 4, A6 = 5, A7 = 6, A8 = 7,
-    B1 = 8, B2 = 9, B3 = 10, B4 = 11, B5 = 12, B6 = 13, B7 = 14,
-    B8 = 15, C1 = 16, C2 = 17, C3 = 18, C4 = 19, C5 = 20, C6 = 21,
-    C7 = 22, C8 = 23, D1 = 24, D2 = 25, D3 = 26, D4 = 27, D5 = 28,
-    D6 = 29, D7 = 30, D8 = 31, E1 = 32, E2 = 33, E3 = 34, E4 = 35,
-    E5 = 36, E6 = 37, E7 = 38, E8 = 39, F1 = 40, F2 = 41, F3 = 42,
-    F4 = 43, F5 = 44, F6 = 45, F7 = 46, F8 = 47, G1 = 48, G2 = 49,
-    G3 = 50, G4 = 51, G5 = 52, G6 = 53, G7 = 54, G8 = 55, H1 = 56,
-    H2 = 57, H3 = 58, H4 = 59, H5 = 60, H6 = 61, H7 = 62, H8 = 63,
+  constexpr Square  A1 = 0, A2 = 8, A3 = 16, A4 = 24, A5 = 32, A6 = 40, A7 = 48, A8 = 56,
+    B1 = 1, B2 = 9, B3 = 17, B4 = 25, B5 = 33, B6 = 41, B7 = 49, B8 = 57,
+    C1 = 2, C2 = 10, C3 = 18, C4 = 26, C5 = 34, C6 = 42, C7 = 50, C8 = 58,
+    D1 = 3, D2 = 11, D3 = 19, D4 = 27, D5 = 35, D6 = 43, D7 = 51, D8 = 59,
+    E1 = 4, E2 = 13, E3 = 20, E4 = 28, E5 = 36, E6 = 44, E7 = 52, E8 = 60,
+    F1 = 5, F2 = 14, F3 = 21, F4 = 29, F5 = 37, F6 = 45, F7 = 53, F8 = 61,
+    G1 = 6, G2 = 15, G3 = 22, G4 = 30, G5 = 38, G6 = 46, G7 = 54, G8 = 62,
+    H1 = 7, H2 = 16, H3 = 23, H4 = 31, H5 = 39, H6 = 47, H7 = 55, H8 = 63,
     NUM = 64;
 }
 
@@ -42,7 +41,7 @@ namespace PieceValues {
 typedef int32_t Color;
 namespace Colors {
   constexpr Color WHITE = 0, BLACK = 1, NUM = 2;
-  auto bool_to_color(bool white_to_move)noexcept ->Color;
+  auto bool_to_color(bool white_to_move) noexcept -> Color;
 };  // namespace Colors
 
 typedef uint64_t BitBoard;

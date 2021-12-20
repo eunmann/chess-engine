@@ -47,13 +47,16 @@ auto Position::init() noexcept -> void {
 }
 
 auto Position::clear() noexcept -> void {
-  for (int i = 0; i < PieceCodes::NUM; ++i) {
-    this->piece_positions[i] = 0ULL;
+  for (auto& piece_bit_board : this->piece_positions) {
+    piece_bit_board = BitBoards::EMPTY;
   }
 
-  for (int i = 0; i < Colors::NUM; ++i) {
-    this->color_positions[i] = 0ULL;
-    this->threaten_positions[i] = 0ULL;
+  for (auto& color_bit_board : this->color_positions) {
+    color_bit_board = BitBoards::EMPTY;
+  }
+
+  for (auto& threaten_bit_boards : this->threaten_positions) {
+    threaten_bit_boards = BitBoards::EMPTY;
   }
 }
 
@@ -126,8 +129,7 @@ auto Position::clear(const BitBoard bit_board) noexcept -> void {
   this->color_positions[Colors::BLACK] &= negated_bit_board;
 }
 
-auto Position::add(const PieceCode piece_code, const Color color,
-  const BitBoard bit_board) noexcept -> void {
+auto Position::add(const PieceCode piece_code, const Color color, const BitBoard bit_board) noexcept -> void {
   this->piece_positions[piece_code] |= bit_board;
   this->color_positions[color] |= bit_board;
 }
@@ -170,14 +172,13 @@ auto Position::to_board() const noexcept -> Board {
 
     const BitBoard piece_bit_board = this->get_piece_bit_board(piece_code);
 
-    BitBoardUtils::for_each_set_square(
-      piece_bit_board, [this, board_value, &board](auto square) {
-        BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
-        if (this->is_white_occupied(bit_board)) {
-          board.positions[square] = board_value;
-        } else {
-          board.positions[square] = -1 * board_value;
-        }
+    BitBoardUtils::for_each_set_square(piece_bit_board, [this, board_value, &board](auto square) {
+      BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      if (this->is_white_occupied(bit_board)) {
+        board.positions[square] = board_value;
+      } else {
+        board.positions[square] = -1 * board_value;
+      }
       });
   }
 

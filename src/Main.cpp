@@ -1,11 +1,3 @@
-#include "Assert.hpp"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include <iostream>
-#include <string>
-#include <vector>
 
 #include "Board.hpp"
 #include "Definitions.hpp"
@@ -23,9 +15,6 @@ auto print_bit_board(const Position& position) noexcept -> void {
 }
 
 int main() {
-  srand((unsigned)time(NULL));
-  setbuf(stdout, NULL);
-  setbuf(stdin, NULL);
 
   CachedMoves::init();
   MagicBitBoards::init();
