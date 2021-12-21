@@ -399,6 +399,7 @@ namespace Tests {
     magic_bit_boards.tests.push_back(TestFW::Test("MagicBitBoards::get_bishop_moves()", []() {
 
       Position position;
+
       auto assert_positions = [&position]() {
         const BitBoard expected_bishop_moves = MoveGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
         const BitBoard magic_bishop_moves = MoveGeneration::get_cached_bishop_capture_positions<Colors::WHITE>(position);
