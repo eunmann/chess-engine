@@ -166,18 +166,10 @@ namespace Tests {
       Moves moves;
       MoveGeneration::get_moves<Colors::WHITE>(game_state, moves);
 
-      for (auto& move : moves) {
-        printf("Moves: %s\n", move.to_string().c_str());
-      }
-
       std::vector<std::string> legal_moves_strs;
       GameUtils::for_each_legal_move<Colors::WHITE>(game_state, moves, [&legal_moves_strs](const Move& move) {
         legal_moves_strs.push_back(move.to_string());
         });
-
-      for (auto& move : legal_moves_strs) {
-        printf("Legal Moves: %s\n", move.c_str());
-      }
 
       std::unordered_set<std::string> expected_moves{"a2a3", "a2a4",
         "b2b3", "b2b4",

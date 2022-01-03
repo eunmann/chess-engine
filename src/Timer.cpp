@@ -4,25 +4,25 @@
 #include "FormatUtils.hpp"
 
 Timer::Timer(std::string message) noexcept : message(message),
-s(std::chrono::steady_clock::now()),
-e(s) {
+start_timestamp(std::chrono::steady_clock::now()),
+end_timestamp(start_timestamp) {
 }
 
 Timer::Timer() noexcept : message(""),
-s(std::chrono::steady_clock::now()),
-e(s) {
+start_timestamp(std::chrono::steady_clock::now()),
+end_timestamp(start_timestamp) {
 }
 
 auto Timer::start() noexcept -> void {
-  this->s = std::chrono::steady_clock::now();
+  this->start_timestamp = std::chrono::steady_clock::now();
 }
 
 auto Timer::end() noexcept -> void {
-  this->e = std::chrono::steady_clock::now();
+  this->end_timestamp = std::chrono::steady_clock::now();
 }
 
 auto Timer::get_time_elapsed() const noexcept -> int64_t {
-  return std::chrono::duration_cast<std::chrono::nanoseconds>(this->e - this->s).count();
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(this->end_timestamp - this->start_timestamp).count();
 }
 
 auto Timer::print() const noexcept -> void {

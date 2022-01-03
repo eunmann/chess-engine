@@ -10,44 +10,6 @@
 
 namespace MoveGeneration {
 
-  // PSUEDO-Legal Moves Templates
-  template <const int V, const int H, const Color color>
-  auto get_moves_in_direction(const GameState& game_state, BitBoard bit_board, Moves& moves) noexcept -> void {
-    Square source_square = BitBoardUtils::bit_board_to_square(bit_board);
-    for (int i = 0; i < 7; ++i) {
-      if constexpr (V > 0) {
-        if (BitBoardUtils::is_piece_in_top_row(bit_board)) {
-          break;
-        }
-      } else if constexpr (V < 0) {
-        if (BitBoardUtils::is_piece_in_bottom_row(bit_board)) {
-          break;
-        }
-      }
-
-      if constexpr (H > 0) {
-        if (BitBoardUtils::is_piece_in_right_col(bit_board)) {
-          break;
-        }
-      } else if constexpr (H < 0) {
-        if (BitBoardUtils::is_piece_in_left_col(bit_board)) {
-          break;
-        }
-      }
-
-      bit_board = BitBoardUtils::shift_bit_board<V, H>(bit_board);
-
-      if (game_state.position.is_empty(bit_board)) {
-        moves.push_back(Move(source_square, BitBoardUtils::bit_board_to_square(bit_board)));
-      } else if (game_state.position.is_color_occupied<color>(bit_board)) {
-        break;
-      } else {
-        moves.push_back(Move(source_square, BitBoardUtils::bit_board_to_square(bit_board)));
-        break;
-      }
-    }
-  }
-
   template <const Color color>
   auto get_pawn_moves(const GameState& game_state, Moves& moves) noexcept -> void {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
@@ -59,20 +21,8 @@ namespace MoveGeneration {
     BitBoardUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves](const BitBoard pawn_bit_board) {
       const Square source_square = BitBoardUtils::bit_board_to_square(pawn_bit_board);
 
-      BitBoard pawn_forward = BitBoardUtils::shift_bit_board<1 * pawn_dir, 0>(pawn_bit_board);
-      const bool is_forward_empty = game_state.position.is_empty(pawn_forward);
-      pawn_forward *= is_forward_empty;
-
-      BitBoard pawn_forward_2 = BitBoardUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-      pawn_forward_2 *= is_forward_empty && game_state.position.is_empty(pawn_forward_2) && BitBoardUtils::is_piece_in_row(pawn_bit_board, starting_row);
-
-      BitBoard pawn_bit_board_left_capture = BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-      pawn_bit_board_left_capture *= !BitBoardUtils::is_piece_in_left_col(pawn_bit_board) && game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture);
-
-      BitBoard pawn_bit_board_right_capture = BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
-      pawn_bit_board_right_capture *= !BitBoardUtils::is_piece_in_right_col(pawn_bit_board) && game_state.position.is_color_occupied<opponent_color>(pawn_bit_board_left_capture);
-
-      const BitBoard move_bit_board = pawn_bit_board_left_capture | pawn_bit_board_right_capture | pawn_forward | pawn_forward_2;
+      BitBoard move_bit_board = CachedMoves::get_pawn_moves<color>(source_square) & ~game_state.position.get_occupied_bit_board();
+      move_bit_board |= CachedMoves::get_pawn_capture_moves<color>(source_square) & game_state.position.get_color_bit_board<opponent_color>();
 
       if (BitBoardUtils::is_piece_in_row(move_bit_board, promotion_row)) {
         BitBoardUtils::for_each_set_square(move_bit_board, [&game_state, &moves, source_square](const Square destination_square) {
@@ -214,12 +164,37 @@ namespace MoveGeneration {
   auto get_pawn_capture_positions(const BitBoard bit_board) noexcept -> BitBoard {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoardUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](BitBoard pawn_bit_board) {
+    BitBoardUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](const  BitBoard pawn_bit_board) {
       const BitBoard pawn_bit_board_left_capture = BitBoardUtils::is_piece_in_left_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
       const BitBoard pawn_bit_board_right_capture = BitBoardUtils::is_piece_in_right_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
       capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture;
       });
     return capturable_bit_board;
+  }
+
+  template<const Color color>
+  auto get_cached_pawn_capture_positions(const BitBoard bit_board) noexcept -> BitBoard {
+    BitBoard capturable_bit_board = BitBoards::EMPTY;
+    BitBoardUtils::for_each_set_square(bit_board, [&capturable_bit_board](const Square square) {
+      capturable_bit_board |= CachedMoves::get_pawn_capture_moves<color>(square);
+      });
+    return capturable_bit_board;
+  }
+
+  template <const Color color>
+  auto get_pawn_move_positions(const BitBoard bit_board) noexcept -> BitBoard {
+    constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
+    constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
+    constexpr Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+    BitBoard moves_bit_board = BitBoards::EMPTY;
+
+    BitBoardUtils::for_each_bit_board(bit_board, [&moves_bit_board](const BitBoard pawn_bit_board) {
+
+      moves_bit_board |= BitBoardUtils::shift_bit_board<pawn_dir, 0>(pawn_bit_board);
+      moves_bit_board |= BitBoardUtils::is_piece_in_row(pawn_bit_board, starting_row) * BitBoardUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
+      });
+
+    return moves_bit_board;
   }
 
   auto get_knight_capture_positions(const BitBoard knights_bit_board) noexcept -> BitBoard;
@@ -308,7 +283,7 @@ namespace MoveGeneration {
   template <const Color color>
   auto get_capture_positions(const Position& position) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    capturable_bit_board |= MoveGeneration::get_pawn_capture_positions<color>(position.get_piece_color_bit_board<PieceCodes::PAWN, color>());
+    capturable_bit_board |= MoveGeneration::get_cached_pawn_capture_positions<color>(position.get_piece_color_bit_board<PieceCodes::PAWN, color>());
     capturable_bit_board |= MoveGeneration::get_cached_knight_capture_positions(position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>());
     capturable_bit_board |= MoveGeneration::get_cached_bishop_capture_positions<color>(position);
     capturable_bit_board |= MoveGeneration::get_cached_rook_capture_positions<color>(position);

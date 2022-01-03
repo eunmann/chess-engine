@@ -2,30 +2,24 @@
 
 #include <functional>
 #include <string>
+#include <format>
 
-#define TFW_ASSERT_EQ(expected, actual)                               \
-  {                                                                   \
-    if ((expected) != (actual)) {                                     \
-      std::string failure_message = "[ERROR:";                        \
-      std::string file_name = std::string(__FILE__);                  \
-      file_name = file_name.substr(file_name.find_last_of('\\') + 1); \
-      failure_message += file_name;                                   \
-      failure_message += ":";                                         \
-      failure_message += __func__;                                    \
-      failure_message += ":";                                         \
-      failure_message += __LINE__;                                    \
-      failure_message += "] - (";                                     \
-      failure_message += #expected;                                   \
-      failure_message += " != ";                                      \
-      failure_message += #actual;                                     \
-      failure_message += ") - (";                                     \
-      failure_message += std::to_string(expected);                    \
-      failure_message += " != ";                                      \
-      failure_message += std::to_string(actual);                      \
-      failure_message += ")\n";                                       \
-      throw failure_message;                                          \
-    }                                                                 \
-  }
+#define TFW_ASSERT_EQ(expected, actual)                                                           \
+  {                                                                                               \
+    if ((expected) != (actual)) {                                                                 \
+      std::string file_name = std::string(__FILE__);                                              \
+      file_name = file_name.substr(file_name.find_last_of('\\') + 1);                             \
+      std::string failure_message = std::format("[ERROR: {}:{}:{}] - ({} != {}) - ({} != {}))\n", \
+      file_name,                                                                                  \
+      __func__,                                                                                   \
+      __LINE__,                                                                                   \
+      #expected,                                                                                  \
+      #actual,                                                                                    \
+      std::to_string(expected),                                                                   \
+      std::to_string(actual));                                                                    \
+      throw failure_message;                                                                      \
+    }                                                                                             \
+}
 
 namespace TestFW {
 

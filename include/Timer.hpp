@@ -55,6 +55,6 @@ class Timer {
 
   private:
   std::string message;
-  std::chrono::steady_clock::time_point s;
-  std::chrono::steady_clock::time_point e;
+  std::chrono::steady_clock::time_point start_timestamp;
+  std::chrono::steady_clock::time_point end_timestamp;
 };

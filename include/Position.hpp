@@ -44,7 +44,9 @@ class Position {
 
   auto get_white_bit_board() const noexcept -> BitBoard;
   auto get_black_bit_board() const noexcept -> BitBoard;
-  template <const Color color> auto get_bit_board() const noexcept -> BitBoard {
+
+  template <const Color color>
+  auto get_bit_board() const noexcept -> BitBoard {
     if constexpr (color == Colors::WHITE) {
       return this->get_white_bit_board();
     } else {
@@ -54,7 +56,9 @@ class Position {
 
   auto get_white_threaten() const noexcept -> BitBoard;
   auto get_black_threaten() const noexcept -> BitBoard;
-  template <const Color color> auto get_threaten() const noexcept -> BitBoard {
+
+  template <const Color color>
+  auto get_threaten() const noexcept -> BitBoard {
     return this->threaten_positions[color];
   }
 

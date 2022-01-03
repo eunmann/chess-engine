@@ -8,54 +8,56 @@
 #include "StringUtils.hpp"
 #include "Assert.hpp"
 
-auto UCIUtils::process_input_command(GameState& game_state,
-  const std::string& command) noexcept -> int32_t {
-  auto line_split = StringUtils::split(command);
-  ASSERT(line_split.size() > 0);
+auto UCIUtils::loop() noexcept -> void {
 
-  auto& command_action = line_split[0];
-  int32_t rv = 1;
+  bool should_run = true;
+  GameState game_state;
 
-  const std::unordered_map<std::string, std::function<void()>> command_map = {
-      {"uci",
-       []() {
-         UCIUtils::send_id();
-         UCIUtils::send_option();
-         UCIUtils::send_uci_ok();
-       }},
-      {"debug", []() {}},
-      {"isready", []() { UCIUtils::send_ready_ok(); }},
-      {"setoption", []() {}},
-      {"register", []() {}},
-      {"ucinewgame", [&game_state]() { game_state.init(); }},
-      {"position",
-       [&line_split, &game_state]() {
-         if (line_split[1].compare("startpos") == 0) {
-           game_state.init();
-         }
-         for (size_t i = 3; i < line_split.size(); ++i) {
-           std::string move_str = line_split[i];
-           if (!GameUtils::process_user_move(game_state, move_str)) {
-             printf("info string cannot process move %s\n", move_str.c_str());
+  do {
+    std::string input_command = GameUtils::get_user_input();
+    auto line_split = StringUtils::split(input_command);
+    ASSERT(line_split.size() > 0);
+
+    auto& command_action = line_split[0];
+    const std::unordered_map<std::string, std::function<void()>> command_map = {
+        {"uci",
+         []() {
+           UCIUtils::send_id();
+           UCIUtils::send_option();
+           UCIUtils::send_uci_ok();
+         }},
+        {"debug", []() {}},
+        {"isready", []() { UCIUtils::send_ready_ok(); }},
+        {"setoption", []() {}},
+        {"register", []() {}},
+        {"ucinewgame", [&game_state]() { game_state.init(); }},
+        {"position",
+         [&line_split, &game_state]() {
+           if (line_split[1].compare("startpos") == 0) {
+             game_state.init();
            }
-         }
-       }},
-      {"go",
-       [&game_state]() {
-         Move best_move = MoveSearch::get_best_move(game_state);
-         UCIUtils::send_best_move(best_move.to_string());
-       }},
-      {"stop", []() {}},
-      {"ponderhit", []() {}},
-      {"quit", [&rv]() { rv = 0; }},
-  };
+           for (size_t i = 3; i < line_split.size(); ++i) {
+             std::string move_str = line_split[i];
+             if (!GameUtils::process_user_move(game_state, move_str)) {
+               printf("info string cannot process move %s\n", move_str.c_str());
+             }
+           }
+         }},
+        {"go",
+         [&game_state]() {
+           Move best_move = MoveSearch::get_best_move(game_state);
+           UCIUtils::send_best_move(best_move.to_string());
+         }},
+        {"stop", []() {}},
+        {"ponderhit", []() {}},
+        {"quit", [&should_run]() { should_run = false; }},
+    };
 
-  if (command_map.contains(command_action)) {
-    auto& command_func = command_map.find(command_action)->second;
-    command_func();
-  }
-
-  return rv;
+    if (command_map.contains(command_action)) {
+      auto& command_func = command_map.find(command_action)->second;
+      command_func();
+    }
+  } while (should_run);
 }
 
 auto UCIUtils::send_id() noexcept -> void {

@@ -116,36 +116,17 @@ auto BitBoardUtils::is_piece_in_top_row(const BitBoard bit_board) noexcept -> bo
   return BitBoardUtils::do_bit_boards_overlap(BitBoards::ROW_8, bit_board);
 }
 
-auto BitBoardUtils::is_piece_in_top_2_row(const BitBoard bit_board) noexcept -> bool {
-  return BitBoardUtils::do_bit_boards_overlap(BitBoards::ROW_8 | BitBoards::ROW_7,
-    bit_board);
-}
 
 auto BitBoardUtils::is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool {
   return BitBoardUtils::do_bit_boards_overlap(BitBoards::ROW_1, bit_board);
-}
-
-auto BitBoardUtils::is_piece_in_bottom_2_row(const BitBoard bit_board) noexcept -> bool {
-  return BitBoardUtils::do_bit_boards_overlap(BitBoards::ROW_1 | BitBoards::ROW_2,
-    bit_board);
 }
 
 auto BitBoardUtils::is_piece_in_left_col(const BitBoard bit_board) noexcept -> bool {
   return BitBoardUtils::do_bit_boards_overlap(BitBoards::COL_A, bit_board);
 }
 
-auto BitBoardUtils::is_piece_in_left_2_col(const BitBoard bit_board) noexcept -> bool {
-  return BitBoardUtils::do_bit_boards_overlap(BitBoards::COL_A | BitBoards::COL_B,
-    bit_board);
-}
-
 auto BitBoardUtils::is_piece_in_right_col(const BitBoard bit_board) noexcept -> bool {
   return BitBoardUtils::do_bit_boards_overlap(BitBoards::COL_H, bit_board);
-}
-
-auto BitBoardUtils::is_piece_in_right_2_col(const BitBoard bit_board) noexcept -> bool {
-  return BitBoardUtils::do_bit_boards_overlap(BitBoards::COL_H | BitBoards::COL_G,
-    bit_board);
 }
 
 auto BitBoardUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Square {

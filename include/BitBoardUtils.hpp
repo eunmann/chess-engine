@@ -24,13 +24,9 @@ namespace BitBoardUtils {
   auto is_piece_in_row(const BitBoard bit_board, const int32_t row) noexcept -> bool;
   auto is_piece_in_col(const BitBoard bit_board, const int32_t col) noexcept -> bool;
   auto is_piece_in_top_row(const BitBoard bit_board) noexcept -> bool;
-  auto is_piece_in_top_2_row(const BitBoard bit_board) noexcept -> bool;
   auto is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool;
-  auto is_piece_in_bottom_2_row(const BitBoard bit_board) noexcept -> bool;
   auto is_piece_in_left_col(const BitBoard bit_board) noexcept -> bool;
-  auto is_piece_in_left_2_col(const BitBoard bit_board) noexcept -> bool;
   auto is_piece_in_right_col(const BitBoard bit_board) noexcept -> bool;
-  auto is_piece_in_right_2_col(const BitBoard bit_board) noexcept -> bool;
 
   auto for_each_set_square(const BitBoard bit_board, const auto& func) noexcept -> void {
     BitBoard temp_bit_board = bit_board;
