@@ -21,12 +21,16 @@ To briefly summarize Magic Bit Boards, they are methods to precompute all possib
 
 ## Move Search
 The current implementation is a single thread alpha-beta pruning search. The search is done on a separate thread to allow I/O processing while searching.
+
+## Testing
+Testing is done througha custom framework named TestFW (Testing Framework). It was created specifically for this projec to be light-weight and easy to use. It provides the most basic functionality, but only what is needed for this project.
 # TODO
 
 ## Refactoring
 * TFW Unit Tests need to use TFW_ASSERT
 * Cleanup unused functions
 * Use the LOG and LOG_ASSERT macros to make debugging easier
+* Refactor tests to be in different files/directory
 
 ## Code
 * Fix Bugs
