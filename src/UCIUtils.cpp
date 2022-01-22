@@ -7,11 +7,13 @@
 #include "MoveSearch.hpp"
 #include "StringUtils.hpp"
 #include "Assert.hpp"
+#include "SearchThread.hpp"
 
 auto UCIUtils::loop() noexcept -> void {
 
   bool should_run = true;
   GameState game_state;
+  SearchThread search_thread;
 
   do {
     std::string input_command = GameUtils::get_user_input();
@@ -21,18 +23,18 @@ auto UCIUtils::loop() noexcept -> void {
     auto& command_action = line_split[0];
     const std::unordered_map<std::string, std::function<void()>> command_map = {
         {"uci",
-         []() {
+         [] {
            UCIUtils::send_id();
            UCIUtils::send_option();
            UCIUtils::send_uci_ok();
          }},
-        {"debug", []() {}},
-        {"isready", []() { UCIUtils::send_ready_ok(); }},
-        {"setoption", []() {}},
-        {"register", []() {}},
-        {"ucinewgame", [&game_state]() { game_state.init(); }},
+        {"debug", [] {}},
+        {"isready", [] { UCIUtils::send_ready_ok(); }},
+        {"setoption", [] {}},
+        {"register", [] {}},
+        {"ucinewgame", [&game_state] { game_state.init(); }},
         {"position",
-         [&line_split, &game_state]() {
+         [&line_split, &game_state] {
            if (line_split[1].compare("startpos") == 0) {
              game_state.init();
            }
@@ -44,13 +46,15 @@ auto UCIUtils::loop() noexcept -> void {
            }
          }},
         {"go",
-         [&game_state]() {
-           Move best_move = MoveSearch::get_best_move(game_state);
-           UCIUtils::send_best_move(best_move.to_string());
+         [&game_state, &search_thread] {
+           search_thread.start_search(game_state, 10);
          }},
-        {"stop", []() {}},
-        {"ponderhit", []() {}},
-        {"quit", [&should_run]() { should_run = false; }},
+        {"stop", [&search_thread] { search_thread.stop_search(); }},
+        {"ponderhit", [] {}},
+        {"quit", [&should_run, &search_thread] {
+           search_thread.stop();
+           should_run = false;
+         }},
     };
 
     if (command_map.contains(command_action)) {

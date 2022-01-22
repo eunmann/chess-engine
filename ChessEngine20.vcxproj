@@ -150,6 +150,7 @@
     <ClCompile Include="src\CachedMoves.cpp" />
     <ClCompile Include="src\MagicBitBoards.cpp" />
     <ClCompile Include="src\RandomNumberGenerator.cpp" />
+    <ClCompile Include="src\SearchThread.cpp" />
     <ClCompile Include="src\StringUtils.cpp" />
     <ClCompile Include="src\TestFW.cpp" />
     <ClCompile Include="src\Tests.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="include\Position.hpp" />
     <ClInclude Include="include\RandomNumberGenerator.hpp" />
     <ClInclude Include="include\StringUtils.hpp" />
+    <ClInclude Include="include\SearchThread.hpp" />
     <ClInclude Include="include\TestFW.hpp" />
     <ClInclude Include="include\Tests.hpp" />
     <ClInclude Include="include\Timer.hpp" />

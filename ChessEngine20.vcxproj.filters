@@ -78,6 +78,9 @@
     <ClCompile Include="src\RandomNumberGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SearchThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.hpp">
@@ -147,6 +150,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\RandomNumberGenerator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SearchThread.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
