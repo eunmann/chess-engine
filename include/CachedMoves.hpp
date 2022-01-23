@@ -1,31 +1,96 @@
 #pragma once
 
 #include <array>
+#include <numeric>
+#include <algorithm>
+
 #include "Definitions.hpp"
+#include "BitBoardUtils.hpp"
+#include "CapturesGeneration.hpp"
 
 namespace CachedMoves {
-  extern std::array<BitBoard, Squares::NUM> KNIGHT;
-  extern std::array<BitBoard, Squares::NUM> KING;
-  extern std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN_CAPTURES;
-  extern std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN;
-
-  auto init() noexcept -> void;
-
-  auto init_knight() noexcept -> void;
-  auto init_king() noexcept -> void;
-  auto init_pawn() noexcept -> void;
 
   auto get_knight_moves(const Square square) noexcept -> BitBoard;
   auto get_king_moves(const Square square) noexcept -> BitBoard;
 
+  constexpr auto generate_knight_moves() noexcept -> std::array<BitBoard, Squares::NUM> {
+    std::array<BitBoard, Squares::NUM> moves{0};
+    std::iota(moves.begin(), moves.end(), Squares::A1);
+    std::transform(moves.begin(), moves.end(), moves.begin(), [](auto square) {
+      const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      return CapturesGeneration::get_knight_capture_positions(bit_board);
+      });
+    return moves;
+  }
+
+  constexpr auto generate_king_moves() noexcept -> std::array<BitBoard, Squares::NUM> {
+    std::array<BitBoard, Squares::NUM> moves{0};
+    std::iota(moves.begin(), moves.end(), Squares::A1);
+    std::transform(moves.begin(), moves.end(), moves.begin(), [](auto square) {
+      const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      return CapturesGeneration::get_king_capture_positions(bit_board);
+      });
+    return moves;
+  }
+
+  constexpr auto generate_pawn_moves() noexcept -> std::array<BitBoard, Squares::NUM* Colors::NUM> {
+
+    std::array<BitBoard, Squares::NUM* Colors::NUM> moves{0};
+
+    auto begin = moves.begin();
+    auto end = moves.begin() + Squares::NUM;
+    std::iota(begin, end, Squares::A1);
+    std::transform(begin, end, begin, [](auto square) {
+      const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      return CapturesGeneration::get_pawn_move_positions<Colors::WHITE>(bit_board);
+      });
+
+    begin = moves.begin() + Squares::NUM;
+    end = moves.end();
+    std::iota(begin, end, Squares::A1);
+    std::transform(begin, end, begin, [](auto square) {
+      const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      return CapturesGeneration::get_pawn_move_positions<Colors::BLACK>(bit_board);
+      });
+
+    return moves;
+  }
+
+  constexpr auto generate_pawn_captures() noexcept -> std::array<BitBoard, Squares::NUM* Colors::NUM> {
+
+    std::array<BitBoard, Squares::NUM* Colors::NUM> moves{0};
+
+    auto begin = moves.begin();
+    auto end = moves.begin() + Squares::NUM;
+    std::iota(begin, end, Squares::A1);
+    std::transform(begin, end, begin, [](auto square) {
+      const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      return CapturesGeneration::get_pawn_capture_positions<Colors::WHITE>(bit_board);
+      });
+
+    begin = moves.begin() + Squares::NUM;
+    end = moves.end();
+    std::iota(begin, end, Squares::A1);
+    std::transform(begin, end, begin, [](auto square) {
+      const BitBoard bit_board = BitBoardUtils::square_to_bit_board(square);
+      return CapturesGeneration::get_pawn_capture_positions<Colors::BLACK>(bit_board);
+      });
+
+    return moves;
+  }
+
+  constexpr std::array<BitBoard, Squares::NUM> KNIGHT = generate_knight_moves();
+  constexpr std::array<BitBoard, Squares::NUM> KING = generate_king_moves();
+  constexpr std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN_CAPTURES = generate_pawn_captures();
+  constexpr std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN = generate_pawn_moves();
 
   template<const Color color>
   auto get_pawn_capture_moves(const Square square) noexcept -> BitBoard {
-    return CachedMoves::PAWN_CAPTURES[Squares::NUM * color + square];
+    return PAWN_CAPTURES[Squares::NUM * color + square];
   }
 
   template<const Color color>
   auto get_pawn_moves(const Square square) noexcept -> BitBoard {
-    return CachedMoves::PAWN[Squares::NUM * color + square];
+    return PAWN[Squares::NUM * color + square];
   }
 }

@@ -1,7 +1,7 @@
 #include "Position.hpp"
 
 #include "GameUtils.hpp"
-#include "MoveGeneration.hpp"
+#include "CachedCapturesGeneration.hpp"
 
 Position::Position() noexcept {
   this->clear();
@@ -135,8 +135,8 @@ auto Position::add(const PieceCode piece_code, const Color color, const BitBoard
 }
 
 auto Position::recompute_threaten() noexcept -> void {
-  this->threaten_positions[Colors::WHITE] = MoveGeneration::get_capture_positions<Colors::WHITE>(*this);
-  this->threaten_positions[Colors::BLACK] = MoveGeneration::get_capture_positions<Colors::BLACK>(*this);
+  this->threaten_positions[Colors::WHITE] = CachedCapturesGeneration::get_capture_positions<Colors::WHITE>(*this);
+  this->threaten_positions[Colors::BLACK] = CachedCapturesGeneration::get_capture_positions<Colors::BLACK>(*this);
 }
 
 auto Position::is_empty(const BitBoard bit_board) const noexcept -> bool {

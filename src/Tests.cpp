@@ -8,6 +8,7 @@
 #include "GameUtils.hpp"
 #include "MoveSearch.hpp"
 #include "TestFW.hpp"
+#include "CachedCapturesGeneration.hpp"
 
 namespace Tests {
   auto run_tests() noexcept -> void {
@@ -393,8 +394,8 @@ namespace Tests {
       Position position;
 
       auto assert_positions = [&position]() {
-        const BitBoard expected_bishop_moves = MoveGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
-        const BitBoard magic_bishop_moves = MoveGeneration::get_cached_bishop_capture_positions<Colors::WHITE>(position);
+        const BitBoard expected_bishop_moves = CapturesGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
+        const BitBoard magic_bishop_moves = CachedCapturesGeneration::get_cached_bishop_capture_positions<Colors::WHITE>(position);
 
         if (expected_bishop_moves != magic_bishop_moves) {
           position.to_board().print();
@@ -429,8 +430,8 @@ namespace Tests {
 
       Position position;
       auto assert_positions = [&position]() {
-        const BitBoard expected_rook_moves = MoveGeneration::get_rook_capture_positions<Colors::WHITE>(position);
-        const BitBoard magic_rook_moves = MoveGeneration::get_cached_rook_capture_positions<Colors::WHITE>(position);
+        const BitBoard expected_rook_moves = CapturesGeneration::get_rook_capture_positions<Colors::WHITE>(position);
+        const BitBoard magic_rook_moves = CachedCapturesGeneration::get_cached_rook_capture_positions<Colors::WHITE>(position);
         TFW_ASSERT_EQ(expected_rook_moves, magic_rook_moves);
       };
 

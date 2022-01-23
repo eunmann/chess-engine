@@ -1,6 +1,6 @@
 #include "MagicBitBoards.hpp"
 #include "Position.hpp"
-#include "MoveGeneration.hpp"
+#include "CapturesGeneration.hpp"
 #include "RandomNumberGenerator.hpp"
 
 namespace MagicBitBoards {
@@ -25,7 +25,7 @@ namespace MagicBitBoards {
       const BitBoard bishop_bit_board = BitBoardUtils::square_to_bit_board(square);
       Position position;
       position.add(PieceCodes::BISHOP, Colors::WHITE, bishop_bit_board);
-      const BitBoard blocker_mask = MoveGeneration::get_bishop_capture_positions<Colors::WHITE>(position) & ~BitBoards::EDGES;
+      const BitBoard blocker_mask = CapturesGeneration::get_bishop_capture_positions<Colors::WHITE>(position) & ~BitBoards::EDGES;
 
       // Iterate over all possible permutations of the blocker mask and calculate the possible moves
       const int32_t blocker_mask_bit_count = BitBoardUtils::get_count(blocker_mask);
@@ -39,7 +39,7 @@ namespace MagicBitBoards {
         position.add(PieceCodes::BISHOP, Colors::WHITE, bishop_bit_board);
         position.add(PieceCodes::PAWN, Colors::BLACK, bishop_blockers_permutations[i]);
 
-        bishop_attacks[i] = MoveGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
+        bishop_attacks[i] = CapturesGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
       }
 
       // Search random magic numbers
@@ -93,10 +93,10 @@ namespace MagicBitBoards {
       const BitBoard rook_bit_board = BitBoardUtils::square_to_bit_board(square);
       Position position;
       BitBoard blocker_mask = BitBoards::EMPTY;
-      blocker_mask |= MoveGeneration::get_captures_in_direction<1, 0>(position, rook_bit_board) & ~BitBoards::ROW_8;
-      blocker_mask |= MoveGeneration::get_captures_in_direction<-1, 0>(position, rook_bit_board) & ~BitBoards::ROW_1;
-      blocker_mask |= MoveGeneration::get_captures_in_direction<0, -1>(position, rook_bit_board) & ~BitBoards::COL_A;
-      blocker_mask |= MoveGeneration::get_captures_in_direction<0, 1>(position, rook_bit_board) & ~BitBoards::COL_H;
+      blocker_mask |= CapturesGeneration::get_captures_in_direction<1, 0>(position, rook_bit_board) & ~BitBoards::ROW_8;
+      blocker_mask |= CapturesGeneration::get_captures_in_direction<-1, 0>(position, rook_bit_board) & ~BitBoards::ROW_1;
+      blocker_mask |= CapturesGeneration::get_captures_in_direction<0, -1>(position, rook_bit_board) & ~BitBoards::COL_A;
+      blocker_mask |= CapturesGeneration::get_captures_in_direction<0, 1>(position, rook_bit_board) & ~BitBoards::COL_H;
 
       // Iterate over all possible permutations of the blocker mask and calculate the possible moves
       const int32_t blocker_mask_bit_count = BitBoardUtils::get_count(blocker_mask);
@@ -110,7 +110,7 @@ namespace MagicBitBoards {
         position.add(PieceCodes::ROOK, Colors::WHITE, rook_bit_board);
         position.add(PieceCodes::PAWN, Colors::BLACK, rook_blockers_permutations[i]);
 
-        rook_attacks[i] = MoveGeneration::get_rook_capture_positions<Colors::WHITE>(position);
+        rook_attacks[i] = CapturesGeneration::get_rook_capture_positions<Colors::WHITE>(position);
       }
 
       // Search random magic numbers

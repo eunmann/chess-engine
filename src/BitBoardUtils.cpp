@@ -2,10 +2,6 @@
 #include "Assert.hpp"
 #include <bit>
 
-auto BitBoardUtils::square_to_bit_board(const Square square) noexcept -> BitBoard {
-  return 0b1ULL << square;
-}
-
 auto BitBoardUtils::print_position(const BitBoard bit_board) noexcept -> void {
   const BitBoard left_bit = 1ULL << 63;
   BitBoard temp_bit_board = bit_board;
@@ -98,15 +94,6 @@ auto BitBoardUtils::get_tile_name(const BitBoard bit_board) noexcept -> std::str
   return name;
 }
 
-auto BitBoardUtils::do_bit_boards_overlap(const BitBoard bit_board_1, const BitBoard bit_board_2) noexcept -> bool {
-  return (bit_board_1 & bit_board_2) != 0;
-}
-
-auto BitBoardUtils::is_piece_in_row(const BitBoard bit_board, const int32_t row) noexcept -> bool {
-  const BitBoard row_mask = BitBoards::ROW_1 << (row * 8);
-  return BitBoardUtils::do_bit_boards_overlap(row_mask, bit_board);
-}
-
 auto BitBoardUtils::is_piece_in_col(const BitBoard bit_board, const int32_t col) noexcept -> bool {
   const BitBoard col_mask = BitBoards::COL_A << col;
   return BitBoardUtils::do_bit_boards_overlap(col_mask, bit_board);
@@ -119,25 +106,6 @@ auto BitBoardUtils::is_piece_in_top_row(const BitBoard bit_board) noexcept -> bo
 
 auto BitBoardUtils::is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool {
   return BitBoardUtils::do_bit_boards_overlap(BitBoards::ROW_1, bit_board);
-}
-
-auto BitBoardUtils::is_piece_in_left_col(const BitBoard bit_board) noexcept -> bool {
-  return BitBoardUtils::do_bit_boards_overlap(BitBoards::COL_A, bit_board);
-}
-
-auto BitBoardUtils::is_piece_in_right_col(const BitBoard bit_board) noexcept -> bool {
-  return BitBoardUtils::do_bit_boards_overlap(BitBoards::COL_H, bit_board);
-}
-
-auto BitBoardUtils::bit_board_to_square(const BitBoard bit_board) noexcept -> Square {
-
-  if (bit_board == BitBoards::EMPTY) {
-    return -1;
-  }
-
-  unsigned long index = 0;
-  _BitScanForward64(&index, bit_board);
-  return index;
 }
 
 auto BitBoardUtils::get_count(const BitBoard bit_board) noexcept -> int32_t {

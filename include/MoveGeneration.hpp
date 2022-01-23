@@ -5,8 +5,8 @@
 #include "Move.hpp"
 #include "Moves.hpp"
 #include "BitBoardUtils.hpp"
-#include "CachedMoves.hpp"
 #include "MagicBitBoards.hpp"
+#include "CachedMoves.hpp"
 
 namespace MoveGeneration {
 
@@ -44,7 +44,7 @@ namespace MoveGeneration {
     BitBoard knights_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>();
 
     BitBoardUtils::for_each_set_square(knights_bit_board, [&game_state, &moves](const auto source_square) {
-      const BitBoard non_overlapping_moves = CachedMoves::KNIGHT[source_square] & ~game_state.position.get_color_bit_board<color>();
+      const BitBoard non_overlapping_moves = CachedMoves::get_knight_moves(source_square) & ~game_state.position.get_color_bit_board<color>();
       BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
@@ -96,7 +96,7 @@ namespace MoveGeneration {
     BitBoardUtils::for_each_bit_board(kings_bit_board, [&game_state, &moves](BitBoard king_bit_board) {
       Square source_square = BitBoardUtils::bit_board_to_square(king_bit_board);
 
-      const BitBoard non_overlapping_moves = CachedMoves::KING[source_square] & ~game_state.position.get_color_bit_board<color>();
+      const BitBoard non_overlapping_moves = CachedMoves::get_king_moves(source_square) & ~game_state.position.get_color_bit_board<color>();
       BitBoardUtils::for_each_set_square(non_overlapping_moves, [source_square, &moves](auto dest_square) {
         moves.push_back(Move(source_square, dest_square));
         });
@@ -121,174 +121,5 @@ namespace MoveGeneration {
     MoveGeneration::get_bishop_moves<color>(game_state, moves);
     MoveGeneration::get_knight_moves<color>(game_state, moves);
     MoveGeneration::get_pawn_moves<color>(game_state, moves);
-  }
-
-  // Threaten Squares Templates
-  template <const int V, const int H>
-  auto get_captures_in_direction(const Position& position, BitBoard bit_board) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-
-    for (int i = 0; i < 8; ++i) {
-      if constexpr (V > 0) {
-        if (BitBoardUtils::is_piece_in_top_row(bit_board)) {
-          break;
-        }
-      } else if constexpr (V < 0) {
-        if (BitBoardUtils::is_piece_in_bottom_row(bit_board)) {
-          break;
-        }
-      }
-
-      if constexpr (H > 0) {
-        if (BitBoardUtils::is_piece_in_right_col(bit_board)) {
-          break;
-        }
-      } else if constexpr (H < 0) {
-        if (BitBoardUtils::is_piece_in_left_col(bit_board)) {
-          break;
-        }
-      }
-
-      bit_board = BitBoardUtils::shift_bit_board<V, H>(bit_board);
-      capturable_bit_board |= bit_board;
-
-      if (position.is_occupied(bit_board)) {
-        break;
-      }
-    }
-
-    return capturable_bit_board;
-  }
-
-  template <const Color color>
-  auto get_pawn_capture_positions(const BitBoard bit_board) noexcept -> BitBoard {
-    constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoardUtils::for_each_bit_board(bit_board, [&capturable_bit_board, pawn_dir](const  BitBoard pawn_bit_board) {
-      const BitBoard pawn_bit_board_left_capture = BitBoardUtils::is_piece_in_left_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-      const BitBoard pawn_bit_board_right_capture = BitBoardUtils::is_piece_in_right_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
-      capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture;
-      });
-    return capturable_bit_board;
-  }
-
-  template<const Color color>
-  auto get_cached_pawn_capture_positions(const BitBoard bit_board) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoardUtils::for_each_set_square(bit_board, [&capturable_bit_board](const Square square) {
-      capturable_bit_board |= CachedMoves::get_pawn_capture_moves<color>(square);
-      });
-    return capturable_bit_board;
-  }
-
-  template <const Color color>
-  auto get_pawn_move_positions(const BitBoard bit_board) noexcept -> BitBoard {
-    constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
-    constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
-    constexpr Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
-    BitBoard moves_bit_board = BitBoards::EMPTY;
-
-    BitBoardUtils::for_each_bit_board(bit_board, [&moves_bit_board](const BitBoard pawn_bit_board) {
-
-      moves_bit_board |= BitBoardUtils::shift_bit_board<pawn_dir, 0>(pawn_bit_board);
-      moves_bit_board |= BitBoardUtils::is_piece_in_row(pawn_bit_board, starting_row) * BitBoardUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
-      });
-
-    return moves_bit_board;
-  }
-
-  auto get_knight_capture_positions(const BitBoard knights_bit_board) noexcept -> BitBoard;
-  auto get_cached_knight_capture_positions(const BitBoard knights_bit_board) noexcept -> BitBoard;
-
-  template<const Color color>
-  auto get_cached_bishop_capture_positions(const Position& position) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
-    BitBoardUtils::for_each_set_square(bishops_bit_board, [&capturable_bit_board, &position](const Square square) {
-      capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
-      });
-    return capturable_bit_board;
-  }
-
-  template <const Color color>
-  auto get_bishop_capture_positions(const Position& position) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
-    BitBoardUtils::for_each_bit_board(bishops_bit_board, [&capturable_bit_board, &position](BitBoard bishop_bit_board) {
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 1>(position, bishop_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 1>(position, bishop_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, -1>(position, bishop_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, -1>(position, bishop_bit_board);
-      });
-    return capturable_bit_board;
-  }
-
-  template<const Color color>
-  auto get_cached_rook_capture_positions(const Position& position) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard rook_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-    BitBoardUtils::for_each_set_square(rook_bit_board, [&capturable_bit_board, &position](const Square square) {
-      capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
-      });
-    return capturable_bit_board;
-  }
-
-  template <const Color color>
-  auto get_rook_capture_positions(const Position& position) noexcept  -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard rooks_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-    BitBoardUtils::for_each_bit_board(rooks_bit_board, [&capturable_bit_board, &position](BitBoard rook_bit_board) {
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 0>(position, rook_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 0>(position, rook_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, -1>(position, rook_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, 1>(position, rook_bit_board);
-      });
-    return capturable_bit_board;
-  }
-
-  template<const Color color>
-  auto get_cached_queen_capture_positions(const Position& position) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard queen_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-    BitBoardUtils::for_each_set_square(queen_bit_board, [&capturable_bit_board, &position](const Square square) {
-      capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
-      capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
-      });
-    return capturable_bit_board;
-  }
-
-  template <const Color color>
-  auto get_queen_capture_positions(const Position& position) noexcept  -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard queens_bit_board = position.get_piece_color_bit_board(PieceCodes::QUEEN, color);
-    BitBoardUtils::for_each_bit_board(queens_bit_board, [&capturable_bit_board, &position](BitBoard queen_bit_board) {
-      // Diagonal
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 1>(position, queen_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 1>(position, queen_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, -1>(position, queen_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, -1>(position, queen_bit_board);
-
-      // Vertical/Horizontal
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<1, 0>(position, queen_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<-1, 0>(position, queen_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, -1>(position, queen_bit_board);
-      capturable_bit_board |= MoveGeneration::get_captures_in_direction<0, 1>(position, queen_bit_board);
-      });
-    return capturable_bit_board;
-  }
-
-  auto get_king_capture_positions(const BitBoard kings_bit_board) noexcept -> BitBoard;
-  auto get_cached_king_capture_positions(const BitBoard kings_bit_board) noexcept -> BitBoard;
-
-  template <const Color color>
-  auto get_capture_positions(const Position& position) noexcept -> BitBoard {
-    BitBoard capturable_bit_board = BitBoards::EMPTY;
-    capturable_bit_board |= MoveGeneration::get_cached_pawn_capture_positions<color>(position.get_piece_color_bit_board<PieceCodes::PAWN, color>());
-    capturable_bit_board |= MoveGeneration::get_cached_knight_capture_positions(position.get_piece_color_bit_board<PieceCodes::KNIGHT, color>());
-    capturable_bit_board |= MoveGeneration::get_cached_bishop_capture_positions<color>(position);
-    capturable_bit_board |= MoveGeneration::get_cached_rook_capture_positions<color>(position);
-    capturable_bit_board |= MoveGeneration::get_cached_queen_capture_positions<color>(position);
-    capturable_bit_board |= MoveGeneration::get_cached_king_capture_positions(position.get_piece_color_bit_board<PieceCodes::KING, color>());
-    return capturable_bit_board;
   }
 } // namespace MoveGeneration

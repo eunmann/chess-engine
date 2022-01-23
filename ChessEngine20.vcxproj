@@ -137,6 +137,8 @@
     <ClCompile Include="src\BitBoardUtils.cpp" />
     <ClCompile Include="src\BitMaskValue.cpp" />
     <ClCompile Include="src\Board.cpp" />
+    <ClCompile Include="src\CachedCapturesGeneration.cpp" />
+    <ClCompile Include="src\CapturesGeneration.cpp" />
     <ClCompile Include="src\Definitions.cpp" />
     <ClCompile Include="src\FormatUtils.cpp" />
     <ClCompile Include="src\GameState.cpp" />
@@ -163,6 +165,8 @@
     <ClInclude Include="include\BitBoardUtils.hpp" />
     <ClInclude Include="include\BitMaskValue.hpp" />
     <ClInclude Include="include\Board.hpp" />
+    <ClInclude Include="include\CachedCapturesGeneration.hpp" />
+    <ClInclude Include="include\CapturesGeneration.hpp" />
     <ClInclude Include="include\Definitions.hpp" />
     <ClInclude Include="include\FormatUtils.hpp" />
     <ClInclude Include="include\GameState.hpp" />
