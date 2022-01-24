@@ -13,19 +13,12 @@ namespace BitBoardUtils {
   auto get_row_col(const BitBoard bit_board, int32_t& row, int32_t& col) noexcept -> void;
   auto get_tile_name(const BitBoard bit_board) noexcept -> std::string;
 
-  auto get_count(const BitBoard bit_board) noexcept -> int32_t;
+  constexpr auto get_count(const BitBoard bit_board) noexcept -> int32_t {
+    return std::popcount(bit_board);
+  }
 
   // Conversions
-  constexpr auto bit_board_to_square(const BitBoard bit_board) noexcept ->Square {
-
-    if (bit_board == BitBoards::EMPTY) {
-      return -1;
-    }
-
-    unsigned long index = 0;
-    _BitScanForward64(&index, bit_board);
-    return index;
-  }
+  auto bit_board_to_square(const BitBoard bit_board) noexcept ->Square;
 
   constexpr auto square_to_bit_board(const Square square) noexcept ->BitBoard {
     return 0b1ULL << square;
@@ -42,8 +35,15 @@ namespace BitBoardUtils {
   }
 
   auto is_piece_in_col(const BitBoard bit_board, const int32_t col) noexcept -> bool;
-  auto is_piece_in_top_row(const BitBoard bit_board) noexcept -> bool;
-  auto is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool;
+
+  constexpr auto is_piece_in_top_row(const BitBoard bit_board) noexcept -> bool {
+    return do_bit_boards_overlap(BitBoards::ROW_8, bit_board);
+  }
+
+
+  constexpr auto is_piece_in_bottom_row(const BitBoard bit_board) noexcept -> bool {
+    return do_bit_boards_overlap(BitBoards::ROW_1, bit_board);
+  }
 
   constexpr auto is_piece_in_left_col(const BitBoard bit_board) noexcept -> bool {
     return do_bit_boards_overlap(BitBoards::COL_A, bit_board);

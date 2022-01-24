@@ -394,7 +394,7 @@ namespace Tests {
       Position position;
 
       auto assert_positions = [&position]() {
-        const BitBoard expected_bishop_moves = CapturesGeneration::get_bishop_capture_positions<Colors::WHITE>(position);
+        const BitBoard expected_bishop_moves = CapturesGeneration::get_bishop_capture_positions(position.get_piece_color_bit_board<PieceCodes::BISHOP, Colors::WHITE>(), position.get_occupied_bit_board());
         const BitBoard magic_bishop_moves = CachedCapturesGeneration::get_cached_bishop_capture_positions<Colors::WHITE>(position);
 
         if (expected_bishop_moves != magic_bishop_moves) {
@@ -430,7 +430,7 @@ namespace Tests {
 
       Position position;
       auto assert_positions = [&position]() {
-        const BitBoard expected_rook_moves = CapturesGeneration::get_rook_capture_positions<Colors::WHITE>(position);
+        const BitBoard expected_rook_moves = CapturesGeneration::get_rook_capture_positions(position.get_piece_color_bit_board<PieceCodes::ROOK, Colors::WHITE>(), position.get_occupied_bit_board());
         const BitBoard magic_rook_moves = CachedCapturesGeneration::get_cached_rook_capture_positions<Colors::WHITE>(position);
         TFW_ASSERT_EQ(expected_rook_moves, magic_rook_moves);
       };

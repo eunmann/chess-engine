@@ -7,8 +7,6 @@
 
 int main() {
 
-  MagicBitBoards::init();
-
   auto run_tests = true;
   if (run_tests) {
     Tests::run_tests();

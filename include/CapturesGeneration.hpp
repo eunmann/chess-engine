@@ -1,15 +1,13 @@
 #pragma once
 
-#include "Position.hpp"
 #include "Definitions.hpp"
 #include "BitBoardUtils.hpp"
-#include "MagicBitBoards.hpp"
 
 namespace CapturesGeneration {
 
   // Threaten Squares Templates
   template <const int V, const int H>
-  auto get_captures_in_direction(const Position& position, BitBoard bit_board) noexcept -> BitBoard {
+  constexpr auto get_captures_in_direction(BitBoard bit_board, const BitBoard occupied_bit_board) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
 
     for (int i = 0; i < 8; ++i) {
@@ -36,7 +34,7 @@ namespace CapturesGeneration {
       bit_board = BitBoardUtils::shift_bit_board<V, H>(bit_board);
       capturable_bit_board |= bit_board;
 
-      if (position.is_occupied(bit_board)) {
+      if (BitBoardUtils::do_bit_boards_overlap(occupied_bit_board, bit_board)) {
         break;
       }
     }
@@ -120,49 +118,38 @@ namespace CapturesGeneration {
     return capturable_bit_board;
   }
 
-  template <const Color color>
-  auto get_bishop_capture_positions(const Position& position) noexcept -> BitBoard {
+  constexpr auto get_bishop_capture_positions(const BitBoard bishop_bit_board, const BitBoard occupied_bit_board) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard bishops_bit_board = position.get_piece_color_bit_board(PieceCodes::BISHOP, color);
-    BitBoardUtils::for_each_bit_board(bishops_bit_board, [&capturable_bit_board, &position](BitBoard bishop_bit_board) {
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 1>(position, bishop_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 1>(position, bishop_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, -1>(position, bishop_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, -1>(position, bishop_bit_board);
-      });
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 1>(bishop_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 1>(bishop_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, -1>(bishop_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, -1>(bishop_bit_board, occupied_bit_board);
     return capturable_bit_board;
   }
 
-  template <const Color color>
-  auto get_rook_capture_positions(const Position& position) noexcept  -> BitBoard {
+  constexpr auto get_rook_capture_positions(const BitBoard rook_bit_board, const BitBoard occupied_bit_board) noexcept  -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard rooks_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
-    BitBoardUtils::for_each_bit_board(rooks_bit_board, [&capturable_bit_board, &position](BitBoard rook_bit_board) {
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 0>(position, rook_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 0>(position, rook_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, -1>(position, rook_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, 1>(position, rook_bit_board);
-      });
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 0>(rook_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 0>(rook_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, -1>(rook_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, 1>(rook_bit_board, occupied_bit_board);
     return capturable_bit_board;
   }
 
-  template <const Color color>
-  auto get_queen_capture_positions(const Position& position) noexcept  -> BitBoard {
+  constexpr auto get_queen_capture_positions(const BitBoard queen_bit_board, const BitBoard occupied_bit_board) noexcept  -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard queens_bit_board = position.get_piece_color_bit_board(PieceCodes::QUEEN, color);
-    BitBoardUtils::for_each_bit_board(queens_bit_board, [&capturable_bit_board, &position](BitBoard queen_bit_board) {
-      // Diagonal
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 1>(position, queen_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 1>(position, queen_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, -1>(position, queen_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, -1>(position, queen_bit_board);
+    // Diagonal
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 1>(queen_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 1>(queen_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, -1>(queen_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, -1>(queen_bit_board, occupied_bit_board);
 
-      // Vertical/Horizontal
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 0>(position, queen_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 0>(position, queen_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, -1>(position, queen_bit_board);
-      capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, 1>(position, queen_bit_board);
-      });
+    // Vertical/Horizontal
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<1, 0>(queen_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<-1, 0>(queen_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, -1>(queen_bit_board, occupied_bit_board);
+    capturable_bit_board |= CapturesGeneration::get_captures_in_direction<0, 1>(queen_bit_board, occupied_bit_board);
+
     return capturable_bit_board;
   }
 
