@@ -159,7 +159,15 @@
     <ClCompile Include="src\SearchThread.cpp" />
     <ClCompile Include="src\StringUtils.cpp" />
     <ClCompile Include="src\TestFW.cpp" />
-    <ClCompile Include="src\Tests.cpp" />
+    <ClCompile Include="test\BoardTests.cpp" />
+    <ClCompile Include="test\ConversionTests.cpp" />
+    <ClCompile Include="test\GenerateMoveTests.cpp" />
+    <ClCompile Include="test\MagicBitBoardsTests.cpp" />
+    <ClCompile Include="test\MoveSearchTests.cpp" />
+    <ClCompile Include="test\MoveTests.cpp" />
+    <ClCompile Include="test\ProcessMoveTests.cpp" />
+    <ClCompile Include="test\ShiftTests.cpp" />
+    <ClCompile Include="test\Tests.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <ClCompile Include="src\UCIUtils.cpp" />
   </ItemGroup>

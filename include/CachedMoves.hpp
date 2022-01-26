@@ -79,10 +79,10 @@ namespace CachedMoves {
     return moves;
   }
 
-  constexpr std::array<BitBoard, Squares::NUM> KNIGHT = generate_knight_moves();
-  constexpr std::array<BitBoard, Squares::NUM> KING = generate_king_moves();
-  constexpr std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN_CAPTURES = generate_pawn_captures();
-  constexpr std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN = generate_pawn_moves();
+  extern const std::array<BitBoard, Squares::NUM> KNIGHT;
+  extern const std::array<BitBoard, Squares::NUM> KING;
+  extern const std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN_CAPTURES;
+  extern const std::array<BitBoard, Squares::NUM* Colors::NUM> PAWN;
 
   template<const Color color>
   auto get_pawn_capture_moves(const Square square) noexcept -> BitBoard {
