@@ -103,6 +103,7 @@ namespace GameUtils {
     }
 
     auto is_move_legal = [&game_state, color_to_move](const Move move) {
+
       GameState check = game_state;
       if (color_to_move == Colors::WHITE) {
         check.apply_move<Colors::WHITE>(move);
@@ -112,8 +113,13 @@ namespace GameUtils {
       return check.is_legal();
     };
 
+    printf("\nSTART\n");
+
     for (auto& move : moves) {
-      if (is_move_legal(move) && move.to_string() == move_str) {
+
+      auto is_legal = is_move_legal(move);
+      printf("Move: %s - Legal: %d\n", move.to_string().c_str(), is_legal);
+      if (is_legal && move.to_string() == move_str) {
         if (color_to_move == Colors::WHITE) {
           game_state.apply_move<Colors::WHITE>(move);
         } else {
@@ -122,6 +128,8 @@ namespace GameUtils {
         return true;
       }
     }
+
+    printf("\nEND\n");
 
     return false;
   }

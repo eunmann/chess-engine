@@ -4,10 +4,11 @@
 
 #include "GameUtils.hpp"
 
-Move::Move() noexcept : Move(1, 2) {}
+Move::Move() noexcept : Move(0, 0) {
+}
 
 Move::Move(const Square source, const Square dest) noexcept : m_move() {
-  ASSERT(source != dest);
+  //ASSERT(source != dest);
   this->set_source_square(source);
   this->set_destination_square(dest);
   this->set_promotion(Move::MASK_3_BITS);
@@ -15,7 +16,8 @@ Move::Move(const Square source, const Square dest) noexcept : m_move() {
   this->set_castle(Castles::NONE);
 }
 
-Move::Move(const int& move) noexcept : m_move(move) {}
+Move::Move(const int& move) noexcept : m_move(move) {
+}
 
 auto Move::set_source_square(const Square square) noexcept -> void {
   this->m_move.set_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>(square);

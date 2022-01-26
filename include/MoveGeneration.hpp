@@ -103,10 +103,15 @@ namespace MoveGeneration {
 
       constexpr Castle king = color == Colors::WHITE ? Castles::WHITE_KING : Castles::BLACK_KING;
       constexpr Castle queen = color == Colors::WHITE ? Castles::WHITE_QUEEN : Castles::BLACK_QUEEN;
+      constexpr BitBoard king_start = color == Colors::WHITE ? BitBoards::WHITE_KING_START : BitBoards::BLACK_KING_START;
+      constexpr BitBoard king_end_king = color == Colors::WHITE ? BitBoards::WHITE_KING_KING_CASTLE : BitBoards::BLACK_KING_KING_CASTLE;
+      constexpr BitBoard king_end_queen = color == Colors::WHITE ? BitBoards::WHITE_KING_QUEEN_CASTLE : BitBoards::BLACK_KING_QUEEN_CASTLE;
 
-      Move move;
+      Move move(king_start, king_end_king);
       move.set_castle(king);
       moves.push_back(move);
+
+      move.set_destination_square(king_end_queen);
       move.set_castle(queen);
       moves.push_back(move);
       });
