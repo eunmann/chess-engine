@@ -20,7 +20,17 @@ namespace Squares {
     G1 = 6, G2 = 15, G3 = 22, G4 = 30, G5 = 38, G6 = 46, G7 = 54, G8 = 62,
     H1 = 7, H2 = 16, H3 = 23, H4 = 31, H5 = 39, H6 = 47, H7 = 55, H8 = 63,
     NUM = 64;
+
+  constexpr Square WHITE_KING_START = E1;
+  constexpr Square BLACK_KING_START = E8;
+
+  constexpr Square WHITE_KING_KING_CASTLE_END = G1;
+  constexpr Square WHITE_KING_QUEEN_CASTLE_END = C1;
+
+  constexpr Square BLACK_KING_KING_CASTLE_END = G8;
+  constexpr Square BLACK_KING_QUEEN_CASTLE_END = C8;
 }
+
 
 typedef int32_t PieceCode;
 namespace PieceCodes {

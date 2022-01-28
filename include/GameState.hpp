@@ -101,19 +101,19 @@ class GameState {
       } else {
         piece_code = this->position.get_piece_type(source_bit_board);
       }
+
+      constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
+      constexpr int32_t forward_2_row = color == Colors::WHITE ? 3 : 4;
+
+      if (piece_code == PieceCodes::PAWN &&
+        BitBoardUtils::is_piece_in_row(source_bit_board, starting_row) &&
+        BitBoardUtils::is_piece_in_row(destination_bit_board, forward_2_row)) {
+        this->set_en_passant(BitBoardUtils::get_col(source_bit_board));
+      }
+
+      this->position.clear(source_bit_board | destination_bit_board);
+      this->position.add(piece_code, color, destination_bit_board);
     }
-
-    constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
-    constexpr int32_t forward_2_row = color == Colors::WHITE ? 3 : 4;
-
-    if (piece_code == PieceCodes::PAWN &&
-      BitBoardUtils::is_piece_in_row(source_bit_board, starting_row) &&
-      BitBoardUtils::is_piece_in_row(destination_bit_board, forward_2_row)) {
-      this->set_en_passant(BitBoardUtils::get_col(source_bit_board));
-    }
-
-    this->position.clear(source_bit_board | destination_bit_board);
-    this->position.add(piece_code, color, destination_bit_board);
 
     this->position.recompute_threaten();
 

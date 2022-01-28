@@ -62,6 +62,20 @@ namespace Tests {
       TFW_ASSERT_EQ(true, move.is_promotion());
       TFW_ASSERT_EQ(PieceCodes::BISHOP, move.get_promotion());
       }));
+
+    move_test_case.tests.push_back(TestFW::Test("Move - Black Castle", []() {
+      Move move(Squares::BLACK_KING_START, Squares::BLACK_KING_KING_CASTLE_END);
+      move.set_castle(Castles::BLACK_KING);
+      TFW_ASSERT_EQ(true, move.is_castle());
+      TFW_ASSERT_EQ(Squares::BLACK_KING_START, BitBoardUtils::bit_board_to_square(move.get_source_bit_board()));
+      TFW_ASSERT_EQ(Squares::BLACK_KING_KING_CASTLE_END, BitBoardUtils::bit_board_to_square(move.get_destination_bit_board()));
+
+      move.set_destination_square(Squares::BLACK_KING_QUEEN_CASTLE_END);
+      move.set_castle(Castles::BLACK_QUEEN);
+      TFW_ASSERT_EQ(true, move.is_castle());
+      TFW_ASSERT_EQ(Squares::BLACK_KING_START, BitBoardUtils::bit_board_to_square(move.get_source_bit_board()));
+      TFW_ASSERT_EQ(Squares::BLACK_KING_QUEEN_CASTLE_END, BitBoardUtils::bit_board_to_square(move.get_destination_bit_board()));
+      }));
     unit_tests.test_cases.push_back(move_test_case);
   }
 }

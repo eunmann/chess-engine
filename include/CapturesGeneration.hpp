@@ -46,8 +46,8 @@ namespace CapturesGeneration {
   constexpr auto get_pawn_capture_positions(const BitBoard pawn_bit_board) noexcept -> BitBoard {
     constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    const BitBoard pawn_bit_board_left_capture = BitBoardUtils::is_piece_in_left_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-    const BitBoard pawn_bit_board_right_capture = BitBoardUtils::is_piece_in_right_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
+    const BitBoard pawn_bit_board_left_capture = !BitBoardUtils::is_piece_in_left_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
+    const BitBoard pawn_bit_board_right_capture = !BitBoardUtils::is_piece_in_right_col(pawn_bit_board) * BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
     capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture;
     return capturable_bit_board;
   }
