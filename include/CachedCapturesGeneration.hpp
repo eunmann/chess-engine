@@ -41,7 +41,7 @@ namespace CachedCapturesGeneration {
   template<const Color color>
   auto get_cached_queen_capture_positions(const Position& position) noexcept -> BitBoard {
     BitBoard capturable_bit_board = BitBoards::EMPTY;
-    BitBoard queen_bit_board = position.get_piece_color_bit_board(PieceCodes::ROOK, color);
+    BitBoard queen_bit_board = position.get_piece_color_bit_board(PieceCodes::QUEEN, color);
     BitBoardUtils::for_each_set_square(queen_bit_board, [&capturable_bit_board, &position](const Square square) {
       capturable_bit_board |= MagicBitBoards::get_bishop_moves(square, position.get_occupied_bit_board());
       capturable_bit_board |= MagicBitBoards::get_rook_moves(square, position.get_occupied_bit_board());
