@@ -23,7 +23,7 @@ To briefly summarize Magic Bit Boards, they are methods to precompute all possib
 Since the computation of Cached Moves is the same on every start, the computation was moved to compile. In this way, the startup is slightly faster and initialization is implicit. Rather than having `init()` functions that need to be called at the start of the program.
 
 ## Move Search
-The current implementation is a single thread alpha-beta pruning search. The search is done on a separate thread to allow I/O processing while searching.
+The current implementation is a multi-thread alpha-beta pruning search. The searching is done on a separate thread to allow I/O processing while searching.
 
 ## Testing
 Testing is done througha custom framework named TestFW (Testing Framework). It was created specifically for this projec to be light-weight and easy to use. It provides the most basic functionality, but only what is needed for this project.
@@ -44,16 +44,20 @@ Testing is done througha custom framework named TestFW (Testing Framework). It w
 ## AI
 * Book openings
 * Better Heuristics
+  * Double Pawns
 
 ## Performance
-* Multithreaded search
+* Optimize Searching
+  * Profile performance again
 
 ## Engine
 * Accept clock time and obey it
 * Print info strings for in-game info and also debugging strings
+* Print line for best move
 
 ## Play Testing
 * Get the engine playing on a website like [Lichess](https://lichess.org).
 
 # Utility
+## PGN Extract
 [PGN-Extract](https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/) is a useful tool for turning PGN format into a format more consumable for the engine's test.
