@@ -111,6 +111,9 @@
     <ClCompile Include="test\MagicBitBoardsTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SearchThreadPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Board.hpp">
@@ -189,6 +192,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\CachedCapturesGeneration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SearchThreadPool.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

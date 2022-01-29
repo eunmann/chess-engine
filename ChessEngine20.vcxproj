@@ -159,6 +159,7 @@
     <ClCompile Include="src\SearchThread.cpp" />
     <ClCompile Include="src\StringUtils.cpp" />
     <ClCompile Include="src\TestFW.cpp" />
+    <ClCompile Include="src\SearchThreadPool.cpp" />
     <ClCompile Include="test\BoardTests.cpp" />
     <ClCompile Include="test\ConversionTests.cpp" />
     <ClCompile Include="test\GenerateMoveTests.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="include\SearchThread.hpp" />
     <ClInclude Include="include\TestFW.hpp" />
     <ClInclude Include="include\Tests.hpp" />
+    <ClInclude Include="include\SearchThreadPool.hpp" />
     <ClInclude Include="include\Timer.hpp" />
     <ClInclude Include="include\UCIUtils.hpp" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include "Tests.hpp"
 #include "UCIUtils.hpp"
+#include <thread>
 
 int main() {
 

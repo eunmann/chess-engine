@@ -20,3 +20,7 @@ auto Moves::begin() const noexcept -> std::array<Move, MAX_NUM_MOVES>::const_ite
 auto Moves::end() const noexcept -> std::array<Move, MAX_NUM_MOVES>::const_iterator{
   return this->m_moves_array.begin() + this->m_index;
 }
+
+auto Moves::operator[](const std::size_t index)->Move& {
+  return this->m_moves_array[index];
+}

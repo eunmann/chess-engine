@@ -6,6 +6,7 @@
 #include <inttypes.h>
 #include "GameState.hpp"
 #include "MoveSearch.hpp"
+#include "SearchThreadPool.hpp"
 
 class SearchThread {
   public:
@@ -18,20 +19,20 @@ class SearchThread {
   private:
 
   template <const Color max_color>
-  auto alpha_beta_pruning_search(const GameState& game_state, const int32_t ply_depth, int32_t alpha, int32_t beta) noexcept -> int32_t {
+  auto alpha_beta_pruning_search(const GameState& game_state, const int32_t ply_depth, int32_t alpha, int32_t beta, SearchResult& search_result) noexcept -> int32_t {
 
     if (!this->should_search()) {
       return 0;
     }
 
     if (ply_depth == 0) {
-      this->m_leaf_nodes_counter++;
+      search_result.leaf_nodes_counter++;
       return MoveSearch::get_position_heuristic(game_state);
     }
 
     Moves moves;
     MoveGeneration::get_moves<max_color>(game_state, moves);
-    this->m_counter += moves.size();
+    search_result.moves_counter += moves.size();
 
     constexpr Color opponent_color = max_color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
     int32_t best_heuristic = max_color == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
@@ -44,16 +45,16 @@ class SearchThread {
       }
 
       if constexpr (max_color == Colors::WHITE) {
-        best_heuristic = std::max(best_heuristic, this->alpha_beta_pruning_search<opponent_color>(check, ply_depth - 1, alpha, beta));
+        best_heuristic = std::max(best_heuristic, this->alpha_beta_pruning_search<opponent_color>(check, ply_depth - 1, alpha, beta, search_result));
         if (best_heuristic >= beta) {
-          this->m_times_pruned++;
+          search_result.times_pruned_counter++;
           break;
         }
         alpha = std::max(alpha, best_heuristic);
       } else if constexpr (max_color == Colors::BLACK) {
-        best_heuristic = std::min(best_heuristic, this->alpha_beta_pruning_search<opponent_color>(check, ply_depth - 1, alpha, beta));
+        best_heuristic = std::min(best_heuristic, this->alpha_beta_pruning_search<opponent_color>(check, ply_depth - 1, alpha, beta, search_result));
         if (best_heuristic <= alpha) {
-          this->m_times_pruned++;
+          search_result.times_pruned_counter++;
           break;
         }
         beta = std::min(beta, best_heuristic);
@@ -67,6 +68,7 @@ class SearchThread {
   auto wait_for_search_event() -> void;
 
   std::thread m_thread;
+  SearchThreadPool thread_pool;
 
   std::mutex m_mutex_cv;
   std::condition_variable m_cv;
@@ -76,8 +78,4 @@ class SearchThread {
 
   GameState m_game_state;
   uint32_t m_search_depth = 1;
-
-  int64_t m_counter = 0;
-  int64_t m_leaf_nodes_counter = 0;
-  int64_t m_times_pruned = 0;
 };

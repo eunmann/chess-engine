@@ -5,7 +5,9 @@
 #include "Timer.hpp"
 #include "MoveGeneration.hpp"
 
-SearchThread::SearchThread() : m_thread(&SearchThread::work, this) {
+SearchThread::SearchThread() :
+  m_thread(&SearchThread::work, this),
+  thread_pool(std::thread::hardware_concurrency()) {
 }
 
 auto SearchThread::start_search(const GameState& game_state, const uint32_t search_depth) noexcept -> void {
@@ -22,6 +24,7 @@ auto SearchThread::stop_search() noexcept -> void {
 auto SearchThread::stop() noexcept -> void {
   this->m_run_thread = false;
   this->stop_search();
+  this->thread_pool.stop();
 }
 
 auto SearchThread::work() -> void {
@@ -43,43 +46,73 @@ auto SearchThread::work() -> void {
       MoveGeneration::get_moves<Colors::BLACK>(this->m_game_state, moves);
     }
 
-    int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
-    Move best_move;
-
-    this->m_counter = moves.size();
-    this->m_leaf_nodes_counter = 0;
-    this->m_times_pruned = 0;
+    std::vector<SearchResult> search_results(moves.size());
+    size_t index = 0;
     for (auto& move : moves) {
-      GameState check = this->m_game_state;
-      if (color_to_move == Colors::WHITE) {
-        check.apply_move<Colors::WHITE>(move);
-      } else {
-        check.apply_move<Colors::BLACK>(move);
-      }
-      if (check.is_legal()) {
-
+      this->thread_pool.enqueue([this, move, color_to_move, &search_results, index] {
+        GameState check = this->m_game_state;
+        SearchResult& search_result = search_results[index];
         if (color_to_move == Colors::WHITE) {
-          int32_t heuristic = this->alpha_beta_pruning_search<Colors::BLACK>(check, this->m_search_depth, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
-          if (best_heuristic < heuristic) {
-            best_heuristic = heuristic;
-            best_move = move;
-          }
+          check.apply_move<Colors::WHITE>(move);
         } else {
-          int32_t heuristic = this->alpha_beta_pruning_search<Colors::WHITE>(check, this->m_search_depth, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY);
-          if (best_heuristic > heuristic) {
-            best_heuristic = heuristic;
-            best_move = move;
+          check.apply_move<Colors::BLACK>(move);
+        }
+        if (check.is_legal()) {
+          search_result.is_legal = true;
+          if (color_to_move == Colors::WHITE) {
+            search_result.heuristic = this->alpha_beta_pruning_search<Colors::BLACK>(check, this->m_search_depth, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY, search_result);
+          } else {
+            search_result.heuristic = this->alpha_beta_pruning_search<Colors::WHITE>(check, this->m_search_depth, PieceValues::NEG_INFINITY, PieceValues::POS_INFINITY, search_result);
           }
+        }
+        search_result.notify();
+        });
+      index++;
+    }
+
+    // Wait for all the tasks to finish
+    for (auto& search_result : search_results) {
+      search_result.wait();
+    }
+
+    timer.end();
+
+    SearchResult accumlated_search_results;
+    Move best_move;
+    int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+
+    accumlated_search_results.moves_counter += moves.size();
+
+    for (int i = 0; i < moves.size(); i++) {
+      const Move move = moves[i];
+      const SearchResult& search_result = search_results[i];
+
+      if (!search_result.is_legal) {
+        continue;
+      }
+
+      accumlated_search_results.moves_counter += search_result.moves_counter;
+      accumlated_search_results.leaf_nodes_counter += search_result.leaf_nodes_counter;
+      accumlated_search_results.times_pruned_counter += search_result.times_pruned_counter;
+
+      if (color_to_move == Colors::WHITE) {
+        if (best_heuristic < search_result.heuristic) {
+          best_heuristic = search_result.heuristic;
+          best_move = move;
+        }
+      } else {
+        if (best_heuristic > search_result.heuristic) {
+          best_heuristic = search_result.heuristic;
+          best_move = move;
         }
       }
     }
 
-    timer.end();
     printf("info Time to Search: %s\n", timer.time_string().c_str());
-    printf("info Moves considered: %llu\n", this->m_counter);
-    printf("info Leaf nodes: %llu\n", this->m_leaf_nodes_counter);
-    printf("info Time Pruned: %llu \n", this->m_times_pruned);
-    printf("info Nodes per Second: %3.2fM\n", (this->m_leaf_nodes_counter / (timer.get_time_elapsed() / 1e9)) / 1e6);
+    printf("info Moves considered: %llu\n", accumlated_search_results.moves_counter);
+    printf("info Leaf nodes: %llu\n", accumlated_search_results.leaf_nodes_counter);
+    printf("info Time Pruned: %llu \n", accumlated_search_results.times_pruned_counter);
+    printf("info Nodes per Second: %3.2fM\n", (accumlated_search_results.leaf_nodes_counter / (timer.get_time_elapsed() / 1e9)) / 1e6);
 
     UCIUtils::send_best_move(best_move.to_string());
 
@@ -95,6 +128,5 @@ auto SearchThread::should_search() const noexcept -> bool {
 
 auto SearchThread::wait_for_search_event() -> void {
   std::unique_lock<std::mutex> lock(this->m_mutex_cv);
-  this->m_cv.wait(lock, [this] {return this->should_search(); });
-  lock.unlock();
+  this->m_cv.wait(lock, [this] { return this->should_search(); });
 }
