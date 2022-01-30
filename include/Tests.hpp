@@ -14,4 +14,5 @@ namespace Tests {
   auto add_generate_move_tests(TestFW::UnitTest& unit_tests) -> void;
   auto add_move_search_tests(TestFW::UnitTest& unit_tests) -> void;
   auto add_magic_bit_boards_tests(TestFW::UnitTest& unit_tests) -> void;
+  auto add_game_state_tests(TestFW::UnitTest& unit_tests) -> void;
 }

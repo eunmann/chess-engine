@@ -133,7 +133,6 @@ namespace Tests {
         TFW_ASSERT_EQ(true, game_state.is_legal());
       }
       }));
-
     process_move_test_case.tests.push_back(TestFW::Test("GameUtils::process_user_move - Test Game 2", []() {
 
       GameState game_state;
@@ -147,6 +146,29 @@ namespace Tests {
           TFW_ASSERT_EQ(true, game_state.is_legal());
         }
       }
+      }));
+    process_move_test_case.tests.push_back(TestFW::Test("GameUtils::process_user_move - Test Game 3", []() {
+
+      GameState game_state;
+      game_state.init();
+
+      std::vector<std::string> moves{"e2e4", "b8c6", "d2d4", "d7d5", "e4d5", "d8d5", "g1f3", "d5e4", "d1e2", "e4e2", "f1e2", "c8g4", "b1c3", "a8d8", "c1e3", "d8d6", "e1c1", "g4h3", "g2h3"};
+      bool rook_moved = false;
+      for (auto& move : moves) {
+        TFW_ASSERT_EQ(true, GameUtils::process_user_move(game_state, move));
+        TFW_ASSERT_EQ(true, game_state.is_legal());
+        if (!rook_moved && game_state.has_rook_A_moved<Colors::BLACK>()) {
+          rook_moved = true;
+        } else if (rook_moved) {
+          TFW_ASSERT_EQ(true, game_state.has_rook_A_moved<Colors::BLACK>());
+        }
+      }
+
+      TFW_ASSERT_EQ(true, game_state.has_rook_A_moved<Colors::BLACK>());
+
+      std::string illegal_black_queen_side_castle = "e8c8";
+      TFW_ASSERT_EQ(false, GameUtils::process_user_move(game_state, illegal_black_queen_side_castle));
+
       }));
 
     unit_tests.test_cases.push_back(process_move_test_case);

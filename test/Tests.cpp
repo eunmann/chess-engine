@@ -25,6 +25,7 @@ namespace Tests {
     Tests::add_generate_move_tests(unit_tests);
     Tests::add_move_search_tests(unit_tests);
     Tests::add_magic_bit_boards_tests(unit_tests);
+    Tests::add_game_state_tests(unit_tests);
 
     unit_tests.run();
   }

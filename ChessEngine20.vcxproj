@@ -162,6 +162,7 @@
     <ClCompile Include="src\SearchThreadPool.cpp" />
     <ClCompile Include="test\BoardTests.cpp" />
     <ClCompile Include="test\ConversionTests.cpp" />
+    <ClCompile Include="test\GameStateTest.cpp" />
     <ClCompile Include="test\GenerateMoveTests.cpp" />
     <ClCompile Include="test\MagicBitBoardsTests.cpp" />
     <ClCompile Include="test\MoveSearchTests.cpp" />

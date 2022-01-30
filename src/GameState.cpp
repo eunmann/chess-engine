@@ -20,37 +20,6 @@ auto GameState::init() noexcept -> void {
   this->set_en_passant(GameState::MASK_4_BIT);
 }
 
-auto GameState::has_king_moved(const Color color) const noexcept -> bool {
-  if (color == Colors::WHITE) {
-    return this->m_flags.get_bits< GameState::MASK_1_BIT, GameState::WHITE_KING_MOVED_OFFSET>();
-  } else {
-    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::BLACK_KING_MOVED_OFFSET>();
-  }
-}
-
-auto GameState::is_color_in_check(const Color color) const noexcept -> bool {
-  if (color == Colors::WHITE) {
-    return this->is_color_in_check<Colors::WHITE>();
-  } else {
-    return this->is_color_in_check<Colors::BLACK>();
-  }
-}
-
-auto GameState::has_rook_A_moved(const Color color) const noexcept -> bool {
-  if (color == Colors::WHITE) {
-    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_A_OFFSET>();;
-  } else {
-    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::BLACK_ROOK_A_OFFSET>();
-  }
-}
-auto GameState::has_rook_H_moved(const Color color) const noexcept -> bool {
-  if (color == Colors::WHITE) {
-    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_H_OFFSET>();;
-  } else {
-    return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::BLACK_ROOK_H_OFFSET>();
-  }
-}
-
 auto GameState::is_white_in_check() const noexcept -> bool {
   return this->is_color_in_check<Colors::WHITE>();
 }
