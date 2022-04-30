@@ -8,7 +8,7 @@ int main() {
   setbuf(stdout, NULL);
   setbuf(stdin, NULL);
 
-  auto run_tests = false;
+  auto run_tests = true;
   if (run_tests) {
     Tests::run_tests();
   } else {

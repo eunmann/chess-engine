@@ -1,6 +1,7 @@
 #include "BitBoardUtils.hpp"
 #include "Assert.hpp"
 #include <bit>
+#include <intrin.h>
 
 namespace BitBoardUtils {
 
