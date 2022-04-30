@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include <format>
+#include <stdexcept>
 
 #define TFW_ASSERT_EQ(expected, actual)                                                           \
   {                                                                                               \
@@ -17,39 +18,39 @@
       #actual,                                                                                    \
       std::to_string(expected),                                                                   \
       std::to_string(actual));                                                                    \
-      throw failure_message;                                                                      \
+      throw std::runtime_error(failure_message);                                                  \
     }                                                                                             \
 }
 
 namespace TestFW {
 
-  class Test {
+    class Test {
     public:
-    Test(const std::string& description, const std::function<void()> test) noexcept;
+        Test(std::string description, std::function<void()> test) noexcept;
 
-    auto run() noexcept -> void;
+        auto run() noexcept -> void;
 
-    std::string description;
-    std::function<void()> test;
-  };
+        std::string description;
+        std::function<void()> test;
+    };
 
-  class TestCase {
+    class TestCase {
     public:
-    TestCase(const std::string& description) noexcept;
+        explicit TestCase(std::string description) noexcept;
 
-    auto run() noexcept -> void;
+        auto run() noexcept -> void;
 
-    std::string description;
-    std::vector<Test> tests;
-  };
+        std::string description;
+        std::vector<Test> tests;
+    };
 
-  class UnitTest {
+    class UnitTest {
     public:
-    UnitTest(const std::string& description) noexcept;
+        explicit UnitTest(std::string description) noexcept;
 
-    auto run() noexcept -> void;
+        auto run() noexcept -> void;
 
-    std::string description;
-    std::vector<TestCase> test_cases;
-  };
+        std::string description;
+        std::vector<TestCase> test_cases;
+    };
 }  // namespace TestFW

@@ -1,38 +1,31 @@
 #include "Definitions.hpp"
 
 auto PieceCodes::to_char(PieceCode piece_code) noexcept -> char {
-  switch (piece_code) {
-    case PieceCodes::PAWN:
-    {
-      return ' ';
+    switch (piece_code) {
+        case PieceCodes::PAWN: {
+            return ' ';
+        }
+        case PieceCodes::KNIGHT: {
+            return 'N';
+        }
+        case PieceCodes::BISHOP: {
+            return 'B';
+        }
+        case PieceCodes::ROOK: {
+            return 'R';
+        }
+        case PieceCodes::QUEEN: {
+            return 'Q';
+        }
+        case PieceCodes::KING: {
+            return 'K';
+        }
+        default: {
+            return '-';
+        }
     }
-    case PieceCodes::KNIGHT:
-    {
-      return 'N';
-    }
-    case PieceCodes::BISHOP:
-    {
-      return 'B';
-    }
-    case PieceCodes::ROOK:
-    {
-      return 'R';
-    }
-    case PieceCodes::QUEEN:
-    {
-      return 'Q';
-    }
-    case PieceCodes::KING:
-    {
-      return 'K';
-    }
-    default:
-    {
-      return '-';
-    }
-  }
 }
 
 auto Colors::bool_to_color(bool white_to_move) noexcept -> Color {
-  return white_to_move ? Colors::WHITE : Colors::BLACK;
+    return white_to_move ? Colors::WHITE : Colors::BLACK;
 }

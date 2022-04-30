@@ -4,16 +4,21 @@
 
 int main() {
 
-  // Do not buffer output or else SearchThread output does not print out instantly
-  setbuf(stdout, NULL);
-  setbuf(stdin, NULL);
+    // Do not buffer output or else SearchThread output does not print out instantly
+    if (setvbuf(stdout, nullptr, _IONBF, 0) != 0) {
+        printf("Failed to set buffer size\n");
+    }
 
-  auto run_tests = true;
-  if (run_tests) {
-    Tests::run_tests();
-  } else {
-    UCIUtils::loop();
-  }
+    if (setvbuf(stdin, nullptr, _IONBF, 0) != 0) {
+        printf("Failed to set buffer size\n");
+    }
 
-  return 0;
+    auto run_tests = true;
+    if (run_tests) {
+        Tests::run_tests();
+    } else {
+        UCIUtils::loop();
+    }
+
+    return 0;
 }

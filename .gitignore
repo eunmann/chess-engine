@@ -3,3 +3,7 @@
 chess_engine
 /.vs
 /x64
+/cmake*
+*.sln
+*.vcxproj*
+makefile
