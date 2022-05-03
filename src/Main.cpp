@@ -1,6 +1,5 @@
 #include "Tests.hpp"
 #include "UCIUtils.hpp"
-#include <thread>
 
 int main() {
 
@@ -13,12 +12,7 @@ int main() {
         printf("Failed to set buffer size\n");
     }
 
-    auto run_tests = true;
-    if (run_tests) {
-        Tests::run_tests();
-    } else {
-        UCIUtils::loop();
-    }
+    UCIUtils::loop();
 
     return 0;
 }

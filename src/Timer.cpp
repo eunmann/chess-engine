@@ -5,7 +5,7 @@
 #include "FormatUtils.hpp"
 
 Timer::Timer(std::string message) noexcept: m_message(std::move(message)),
-                                            m_start_timestamp(std::chrono::steady_clock::now()),
+                                            m_start_timestamp(std::chrono::high_resolution_clock::now()),
                                             m_end_timestamp(m_start_timestamp) {
 }
 
@@ -15,11 +15,11 @@ Timer::Timer() noexcept: m_message(),
 }
 
 auto Timer::start() noexcept -> void {
-    this->m_start_timestamp = std::chrono::steady_clock::now();
+    this->m_start_timestamp = std::chrono::high_resolution_clock::now();
 }
 
 auto Timer::end() noexcept -> void {
-    this->m_end_timestamp = std::chrono::steady_clock::now();
+    this->m_end_timestamp = std::chrono::high_resolution_clock::now();
 }
 
 auto Timer::get_time_elapsed() const noexcept -> int64_t {

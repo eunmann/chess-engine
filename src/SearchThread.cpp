@@ -5,15 +5,15 @@
 #include "Timer.hpp"
 #include "MoveGeneration.hpp"
 
-SearchThread::SearchThread() :
-        thread_pool(std::thread::hardware_concurrency()) {
+SearchThread::SearchThread() : m_search_thread(&SearchThread::work, this),
+                               thread_pool(std::thread::hardware_concurrency()) {
 }
 
 auto SearchThread::start_search(const GameState &game_state, const uint32_t search_depth) noexcept -> void {
     this->m_start_search = true;
     this->m_game_state = game_state;
     this->m_search_depth = search_depth;
-    this->m_cv.notify_all();
+    this->trigger_search_event();
 }
 
 auto SearchThread::stop_search() noexcept -> void {
@@ -21,8 +21,10 @@ auto SearchThread::stop_search() noexcept -> void {
 }
 
 auto SearchThread::stop() noexcept -> void {
-    this->m_run_thread = false;
+    this->m_run_search_thread = false;
     this->stop_search();
+    this->trigger_search_event();
+    this->m_search_thread.join();
     this->thread_pool.stop();
 }
 
@@ -30,9 +32,12 @@ auto SearchThread::work() -> void {
 
     printf("info Starting Search Thread\n");
 
-    while (this->m_run_thread) {
+    while (this->m_run_search_thread) {
 
         this->wait_for_search_event();
+        if (!this->m_start_search) {
+            continue;
+        }
 
         printf("info Event to search\n");
 
@@ -84,11 +89,11 @@ auto SearchThread::work() -> void {
 
         timer.end();
 
-        SearchResult accumlated_search_results;
+        SearchResult accumulated_search_results;
         Move best_move;
         int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
 
-        accumlated_search_results.moves_counter += moves.size();
+        accumulated_search_results.moves_counter += moves.size();
 
         for (int i = 0; i < moves.size(); i++) {
             const Move move = moves[i];
@@ -98,9 +103,9 @@ auto SearchThread::work() -> void {
                 continue;
             }
 
-            accumlated_search_results.moves_counter += search_result.moves_counter;
-            accumlated_search_results.leaf_nodes_counter += search_result.leaf_nodes_counter;
-            accumlated_search_results.times_pruned_counter += search_result.times_pruned_counter;
+            accumulated_search_results.moves_counter += search_result.moves_counter;
+            accumulated_search_results.leaf_nodes_counter += search_result.leaf_nodes_counter;
+            accumulated_search_results.times_pruned_counter += search_result.times_pruned_counter;
 
             if (color_to_move == Colors::WHITE) {
                 if (best_heuristic < search_result.heuristic) {
@@ -116,11 +121,11 @@ auto SearchThread::work() -> void {
         }
 
         printf("info Time to Search: %s\n", timer.time_string().c_str());
-        printf("info Moves considered: %llu\n", accumlated_search_results.moves_counter);
-        printf("info Leaf nodes: %llu\n", accumlated_search_results.leaf_nodes_counter);
-        printf("info Time Pruned: %llu \n", accumlated_search_results.times_pruned_counter);
+        printf("info Moves considered: %llu\n", accumulated_search_results.moves_counter);
+        printf("info Leaf nodes: %llu\n", accumulated_search_results.leaf_nodes_counter);
+        printf("info Time Pruned: %llu \n", accumulated_search_results.times_pruned_counter);
         printf("info Nodes per Second: %3.2fM\n",
-               (accumlated_search_results.leaf_nodes_counter / (timer.get_time_elapsed() / 1e9)) / 1e6);
+               (accumulated_search_results.leaf_nodes_counter / (timer.get_time_elapsed() / 1e9)) / 1e6);
 
         UCIUtils::send_best_move(best_move.to_string());
 
@@ -136,5 +141,9 @@ auto SearchThread::should_search() const noexcept -> bool {
 
 auto SearchThread::wait_for_search_event() -> void {
     std::unique_lock<std::mutex> lock(this->m_mutex_cv);
-    this->m_cv.wait(lock, [this] { return this->should_search(); });
+    this->m_cv.wait(lock, [this] { return this->should_search() || !this->m_run_search_thread; });
+}
+
+auto SearchThread::trigger_search_event() -> void {
+    this->m_cv.notify_all();
 }

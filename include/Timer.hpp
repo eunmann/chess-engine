@@ -55,6 +55,6 @@ public:
 
 private:
     std::string m_message;
-    std::chrono::steady_clock::time_point m_start_timestamp;
-    std::chrono::steady_clock::time_point m_end_timestamp;
+    std::chrono::high_resolution_clock::time_point m_start_timestamp;
+    std::chrono::high_resolution_clock::time_point m_end_timestamp;
 };

@@ -2,8 +2,6 @@
 
 namespace FormatUtils {
     auto format_number(double num) noexcept -> std::string {
-        std::string formated_string;
-
         char unit[][2] = {"p", "n", "u", "m", "", "K", "M", "G", "T"};
 
         int unit_index = 4;
@@ -49,7 +47,7 @@ namespace FormatUtils {
 
         int i;
         for (i = 0; i < 4; i++) {
-            if (time_elapsed > ratio[i]) {
+            if (time_elapsed >= ratio[i]) {
                 time_elapsed /= ratio[i];
             } else {
                 break;
@@ -58,6 +56,6 @@ namespace FormatUtils {
 
         char buff[32];
         snprintf(buff, sizeof(buff), "%.3f %s", time_elapsed, unit[i]);
-        return std::string(buff);
+        return {buff};
     }
 }

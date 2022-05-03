@@ -77,13 +77,15 @@ private:
 
     auto wait_for_search_event() -> void;
 
+    auto trigger_search_event() -> void;
+
+    std::thread m_search_thread;
     SearchThreadPool thread_pool;
 
     std::mutex m_mutex_cv;
     std::condition_variable m_cv;
     bool m_start_search = false;
-
-    bool m_run_thread = true;
+    bool m_run_search_thread = true;
 
     GameState m_game_state;
     uint32_t m_search_depth = 1;
