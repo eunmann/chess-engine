@@ -96,4 +96,6 @@ namespace BitBoardUtils {
     }
 
     auto col_of_square(Square square) noexcept -> BitBoard;
+
+    auto get_col(int32_t col_index) noexcept -> BitBoard;
 }

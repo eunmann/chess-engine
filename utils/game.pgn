@@ -1,22 +1,22 @@
 [Event "Computer chess game"]
 [Site "EVANPC"]
-[Date "2022.09.04"]
+[Date "2022.09.05"]
 [Round "?"]
 [White "Evan"]
 [Black "ChessEngine20 [003]"]
 [Result "1-0"]
 [BlackElo "2000"]
-[ECO "B00"]
-[Opening "Nimzowitsch Defence"]
-[Time "23:11:08"]
-[Variation "2.d4 d5 3.e5"]
+[ECO "C00"]
+[Opening "French"]
+[Time "12:08:10"]
+[Variation "2.d4"]
 [WhiteElo "2400"]
 [TimeControl "300"]
 [Termination "rules infraction"]
-[PlyCount "23"]
+[PlyCount "15"]
 [WhiteType "human"]
 [BlackType "program"]
 
-1. e4 d5 2. e5 Nc6 3. d4 e6 4. Nf3 a6 5. Be3 f6 6. exf6 Nxf6 7. c3 Ng4 8.
-h3 Nxe3 9. fxe3 b5 10. Bd3 Qd6 11. O-O Qg3 12. Nbd2 1-0
+1. d4 e6 2. e4 Qh4 3. Nc3 Bb4 4. Bd3 Nc6 5. Nf3 Qg4 6. O-O a6 7. e5 d5 8.
+exd6 {Arena Adjudication. Illegal move!} 1-0
 

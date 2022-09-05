@@ -82,13 +82,22 @@ public:
                 piece_code = this->position.get_piece_type(source_bit_board);
             }
 
-            constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
-            constexpr int32_t forward_2_row = color == Colors::WHITE ? 3 : 4;
+            constexpr auto starting_row = color == Colors::WHITE ? 1 : 6;
+            constexpr auto forward_2_row = color == Colors::WHITE ? 3 : 4;
+            constexpr auto en_passant_row = color == Colors::WHITE ? BitBoards::ROW_3 : BitBoards::ROW_6;
+            constexpr auto en_passant_opponent_row = color == Colors::WHITE ? BitBoards::ROW_5 : BitBoards::ROW_4;
+            auto en_passant_col = BitBoardUtils::get_col(this->get_en_passant());
 
-            if (piece_code == PieceCodes::PAWN &&
-                BitBoardUtils::is_piece_in_row(source_bit_board, starting_row) &&
-                BitBoardUtils::is_piece_in_row(destination_bit_board, forward_2_row)) {
-                this->set_en_passant(BitBoardUtils::get_col(source_bit_board));
+            if (piece_code == PieceCodes::PAWN) {
+                if (BitBoardUtils::is_piece_in_row(source_bit_board, starting_row) &&
+                    BitBoardUtils::is_piece_in_row(destination_bit_board, forward_2_row)) {
+                    this->set_en_passant(BitBoardUtils::get_col(source_bit_board));
+                } else if (this->get_en_passant() != MASK_4_BIT &&
+                           (en_passant_row & en_passant_col) == destination_bit_board) {
+                    this->position.clear(en_passant_opponent_row & en_passant_col);
+                }
+            } else {
+                this->set_en_passant(MASK_4_BIT);
             }
 
             this->position.clear(source_bit_board | destination_bit_board);
@@ -250,13 +259,13 @@ private:
     BitMaskValue m_flags;
     static constexpr int32_t MASK_1_BIT = 0b1;
     static constexpr int32_t WHITE_TO_MOVE_OFFSET = 0;
-    static constexpr int32_t WHITE_KING_MOVED_OFFSET = WHITE_TO_MOVE_OFFSET + 1;
-    static constexpr int32_t WHITE_ROOK_A_OFFSET = WHITE_KING_MOVED_OFFSET + 1;
-    static constexpr int32_t WHITE_ROOK_H_OFFSET = WHITE_ROOK_A_OFFSET + 1;
-    static constexpr int32_t BLACK_KING_MOVED_OFFSET = WHITE_ROOK_H_OFFSET + 1;
-    static constexpr int32_t BLACK_ROOK_A_OFFSET = BLACK_KING_MOVED_OFFSET + 1;
-    static constexpr int32_t BLACK_ROOK_H_OFFSET = BLACK_ROOK_A_OFFSET + 1;
-    static constexpr int32_t IS_LEGAL_OFFSET = BLACK_ROOK_H_OFFSET + 1;
+    static constexpr int32_t WHITE_KING_MOVED_OFFSET = WHITE_TO_MOVE_OFFSET + MASK_1_BIT;
+    static constexpr int32_t WHITE_ROOK_A_OFFSET = WHITE_KING_MOVED_OFFSET + MASK_1_BIT;
+    static constexpr int32_t WHITE_ROOK_H_OFFSET = WHITE_ROOK_A_OFFSET + MASK_1_BIT;
+    static constexpr int32_t BLACK_KING_MOVED_OFFSET = WHITE_ROOK_H_OFFSET + MASK_1_BIT;
+    static constexpr int32_t BLACK_ROOK_A_OFFSET = BLACK_KING_MOVED_OFFSET + MASK_1_BIT;
+    static constexpr int32_t BLACK_ROOK_H_OFFSET = BLACK_ROOK_A_OFFSET + MASK_1_BIT;
+    static constexpr int32_t IS_LEGAL_OFFSET = BLACK_ROOK_H_OFFSET + MASK_1_BIT;
     static constexpr int32_t MASK_4_BIT = 0b1111;
-    static constexpr int32_t PAWN_EN_OFFSET = IS_LEGAL_OFFSET + 1;
+    static constexpr int32_t PAWN_EN_OFFSET = IS_LEGAL_OFFSET + MASK_1_BIT;
 };

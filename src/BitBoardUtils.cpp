@@ -118,4 +118,8 @@ namespace BitBoardUtils {
     auto col_of_square(Square square) noexcept -> BitBoard {
         return BitBoards::COL_A << (square % BOARD_DIM);
     }
+
+    auto BitBoardUtils::get_col(int32_t col_index) noexcept -> BitBoard {
+        return BitBoards::COL_A << col_index;
+    }
 }

@@ -259,6 +259,18 @@ namespace Tests {
             TFW_ASSERT_EQ(false, GameUtils::process_user_move(game_state, illegal_black_queen_side_castle));
 
         }));
+        process_move_test_case.tests.emplace_back(
+                TestFW::Test("GameUtils::process_user_move - Test Game 4 - En Passant", []() {
+
+                    GameState game_state;
+                    std::vector<std::string> moves{"d2d4", "e7e6", "e2e4", "d8h4", "b1c3", "f8b4", "f1d3", "b8c6",
+                                                   "g1f3", "h4g4", "e1g1", "a7a6", "e4e5", "d7d5", "e5d6",};
+
+                    for (auto &move: moves) {
+                        TFW_ASSERT_EQ(true, GameUtils::process_user_move(game_state, move));
+                        TFW_ASSERT_EQ(true, game_state.is_legal());
+                    }
+                }));
 
         unit_tests.test_cases.push_back(process_move_test_case);
     }

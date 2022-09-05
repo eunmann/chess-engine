@@ -48,9 +48,15 @@ namespace MoveGeneration {
                     }
                 });
             } else {
-                BitBoardUtils::for_each_set_square(move_bit_board, [&game_state, &moves, source_square](
+                BitBoardUtils::for_each_set_square(move_bit_board, [&game_state, &moves, source_square, pawn_bit_board](
                         const Square destination_square) {
-                    moves.push_back(Move(source_square, destination_square));
+                    auto move = Move(source_square, destination_square);
+                    if (BitBoardUtils::is_piece_in_row(pawn_bit_board, starting_row) &&
+                        BitBoardUtils::is_piece_in_row(destination_square, forward_2_row)) {
+                        move.set_en_passant(
+                                BitBoardUtils::get_col(BitBoardUtils::square_to_bit_board(destination_square)));
+                    }
+                    moves.push_back(move);
                 });
             }
         });

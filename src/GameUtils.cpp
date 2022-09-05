@@ -106,6 +106,7 @@ namespace GameUtils {
             }
         }
 
+        printf("info Unable to process move %s\n", move_str.c_str());
         return false;
     }
 
