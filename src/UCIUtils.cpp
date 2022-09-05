@@ -25,16 +25,14 @@ namespace UCIUtils {
             const std::unordered_map<std::string, std::function<void()>> command_map{
                     {"uci",
                             [] {
-                                send_id();
-                                send_option();
-                                send_uci_ok();
+                                UCIUtils::handle_uci_command();
                             }},
                     {"debug",
                             [] {}
                     },
                     {"isready",
                             [] {
-                                send_ready_ok();
+                                UCIUtils::handle_isready_command();
                             }},
                     {"setoption",
                             [] {}
@@ -44,33 +42,25 @@ namespace UCIUtils {
                     },
                     {"ucinewgame",
                             [&game_state] {
-                                game_state.init();
+                                UCIUtils::handle_ucinewgame_command(game_state);
                             }},
                     {"position",
-                            [&line_split, &game_state] {
-                                if (line_split[1] == "startpos") {
-                                    game_state.init();
-                                }
-                                for (size_t i = 3; i < line_split.size(); ++i) {
-                                    std::string move_str = line_split[i];
-                                    if (!GameUtils::process_user_move(game_state, move_str)) {
-                                        printf("info string cannot process move %s\n", move_str.c_str());
-                                    }
-                                }
+                            [&game_state, &line_split] {
+                                UCIUtils::handle_position_command(game_state, line_split);
                             }},
                     {"go",
                             [&game_state, &search_thread] {
-                                search_thread.start_search(game_state, 6);
+                                UCIUtils::handle_go_command(game_state, search_thread);
                             }},
                     {"stop",
                             [&search_thread] {
-                                search_thread.stop_search();
+                                UCIUtils::handle_stop_command(search_thread);
                             }},
                     {"ponderhit",
                             [] {}},
                     {"quit",
                             [&should_run, &search_thread] {
-                                search_thread.stop();
+                                UCIUtils::handle_quit_command(search_thread);
                                 should_run = false;
                             }},
             };
@@ -113,5 +103,51 @@ namespace UCIUtils {
     }
 
     auto send_option() noexcept -> void {
+    }
+
+    auto handle_uci_command() noexcept -> void {
+        send_id();
+        send_option();
+        send_uci_ok();
+    }
+
+    auto handle_debug_commend() noexcept -> void {
+
+    }
+
+    auto handle_isready_command() noexcept -> void {
+        send_ready_ok();
+    }
+
+    auto handle_setoption_command() noexcept -> void {
+
+    }
+
+    auto handle_ucinewgame_command(GameState &game_state) noexcept -> void {
+        game_state.init();
+    }
+
+    auto handle_position_command(GameState &game_state, const std::vector<std::string> &line_split) noexcept -> void {
+        if (line_split[1] == "startpos") {
+            game_state.init();
+        }
+        for (size_t i = 3; i < line_split.size(); ++i) {
+            std::string move_str = line_split[i];
+            if (!GameUtils::process_user_move(game_state, move_str)) {
+                printf("info string cannot process move %s\n", move_str.c_str());
+            }
+        }
+    }
+
+    auto handle_go_command(const GameState &game_state, SearchThread &search_thread) noexcept -> void {
+        search_thread.start_search(game_state, 6);
+    }
+
+    auto handle_stop_command(SearchThread &search_thread) noexcept -> void {
+        search_thread.stop_search();
+    }
+
+    auto handle_quit_command(SearchThread &search_thread) noexcept -> void {
+        search_thread.stop();
     }
 }

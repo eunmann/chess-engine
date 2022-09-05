@@ -109,6 +109,12 @@ auto Move::to_string() const noexcept -> std::string {
     } else {
         move_str += BitBoardUtils::get_tile_name(this->get_source_bit_board());
         move_str += BitBoardUtils::get_tile_name(this->get_destination_bit_board());
+
+        // This is the default value. "0000" is considered the nullmove, meaning we didn't find a move
+        if (move_str == "a1a1") {
+            return "0000";
+        }
+
         if (this->is_promotion()) {
             switch (this->get_promotion()) {
                 case PieceCodes::BISHOP: {

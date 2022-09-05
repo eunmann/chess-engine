@@ -114,4 +114,8 @@ namespace BitBoardUtils {
         const BitBoard col_mask = BitBoards::COL_A << col;
         return do_bit_boards_overlap(col_mask, bit_board);
     }
+
+    auto col_of_square(Square square) noexcept -> BitBoard {
+        return BitBoards::COL_A << (square % BOARD_DIM);
+    }
 }

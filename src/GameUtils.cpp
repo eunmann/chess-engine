@@ -43,19 +43,9 @@ namespace GameUtils {
             printf("Found %llu psuedo-legal moves for %s\n", moves.size(),
                    color_to_move == Colors::WHITE ? "white" : "black");
 
-            auto is_move_legal = [&game_state, color_to_move](const Move move) {
-                GameState check = game_state;
-                if (color_to_move == Colors::WHITE) {
-                    check.apply_move<Colors::WHITE>(move);
-                } else {
-                    check.apply_move<Colors::BLACK>(move);
-                }
-                return check.is_legal();
-            };
-
             Moves legal_moves;
             for (auto &move: moves) {
-                if (is_move_legal(move)) {
+                if (GameUtils::is_move_legal(game_state, move, color_to_move)) {
                     legal_moves.push_back(move);
                 } else {
                     printf("Illegal Move: %s\n", move.to_string().c_str());
@@ -104,20 +94,8 @@ namespace GameUtils {
             MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
         }
 
-        auto is_move_legal = [&game_state, color_to_move](const Move move) {
-
-            GameState check = game_state;
-            if (color_to_move == Colors::WHITE) {
-                check.apply_move<Colors::WHITE>(move);
-            } else {
-                check.apply_move<Colors::BLACK>(move);
-            }
-            return check.is_legal();
-        };
-
         for (auto &move: moves) {
-
-            auto is_legal = is_move_legal(move);
+            auto is_legal = GameUtils::is_move_legal(game_state, move, color_to_move);
             if (is_legal && move.to_string() == move_str) {
                 if (color_to_move == Colors::WHITE) {
                     game_state.apply_move<Colors::WHITE>(move);
@@ -189,6 +167,16 @@ namespace GameUtils {
         }
 
         return move;
+    }
+
+    auto is_move_legal(const GameState &game_state, const Move move, const Color color_to_move) -> bool {
+        GameState check = game_state;
+        if (color_to_move == Colors::WHITE) {
+            check.apply_move<Colors::WHITE>(move);
+        } else {
+            check.apply_move<Colors::BLACK>(move);
+        }
+        return check.is_legal();
     }
 }
 

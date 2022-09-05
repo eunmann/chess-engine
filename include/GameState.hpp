@@ -20,7 +20,14 @@ public:
         const BitBoard source_bit_board = move.get_source_bit_board();
         const BitBoard destination_bit_board = move.get_destination_bit_board();
 
+        // Trying to move the opponents piece or no piece at all is not legal
         if (color != this->position.get_color(source_bit_board)) {
+            this->set_is_legal(false);
+            return;
+        }
+
+        // Trying to capture a piece of the same color is not legal
+        if (this->position.is_color_occupied<color>(destination_bit_board)) {
             this->set_is_legal(false);
             return;
         }
@@ -37,69 +44,37 @@ public:
                 this->set_is_legal(false);
                 return;
             }
-            constexpr Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
-
-            constexpr auto can_queen_castle = [](const GameState &game_state) {
-                constexpr BitBoard queen_castle =
-                        color == Colors::WHITE ? BitBoards::WHITE_QUEEN_CASTLE : BitBoards::BLACK_QUEEN_CASTLE;
-                return !(game_state.has_rook_A_moved<color>() ||
-                         !game_state.position.is_empty(queen_castle) ||
-                         game_state.position.is_threaten<opponent_color>(queen_castle));
-            };
-
-            constexpr auto can_king_castle = [](const GameState &game_state) {
-                constexpr BitBoard king_castle =
-                        color == Colors::WHITE ? BitBoards::WHITE_KING_CASTLE : BitBoards::BLACK_KING_CASTLE;
-                return !(game_state.has_rook_H_moved<color>() ||
-                         !game_state.position.is_empty(king_castle) ||
-                         game_state.position.is_threaten<opponent_color>(king_castle));
-            };
 
             const Castle castle = move.get_castle();
             if constexpr (color == Colors::WHITE) {
                 if (castle == Castles::WHITE_KING) {
-                    if (!can_king_castle(*this)) {
+                    if (!this->can_king_castle<color>(*this)) {
                         this->set_is_legal(false);
                         return;
                     }
-                    this->position.clear(BitBoards::WHITE_KING_START | BitBoards::WHITE_ROOK_H_START);
-                    this->position.add(PieceCodes::KING, color, BitBoards::WHITE_KING_KING_CASTLE);
-                    this->position.add(PieceCodes::ROOK, color, BitBoards::WHITE_ROOK_KING_CASTLE);
-                    this->set_rook_H_moved<color>(true);
+                    this->castle_king_side<color>();
                 } else {
-                    if (!can_queen_castle(*this)) {
+                    if (!this->can_queen_castle<color>(*this)) {
                         this->set_is_legal(false);
                         return;
                     }
-                    this->position.clear(BitBoards::WHITE_KING_START | BitBoards::WHITE_ROOK_A_START);
-                    this->position.add(PieceCodes::KING, color, BitBoards::WHITE_KING_QUEEN_CASTLE);
-                    this->position.add(PieceCodes::ROOK, color, BitBoards::WHITE_ROOK_QUEEN_CASTLE);
-                    this->set_rook_A_moved<color>(true);
+                    this->castle_queen_side<color>();
                 }
             } else if constexpr (color == Colors::BLACK) {
                 if (castle == Castles::BLACK_KING) {
-                    if (!can_king_castle(*this)) {
+                    if (!this->can_king_castle<color>(*this)) {
                         this->set_is_legal(false);
                         return;
                     }
-                    this->position.clear(BitBoards::BLACK_KING_START | BitBoards::BLACK_ROOK_H_START);
-                    this->position.add(PieceCodes::KING, color, BitBoards::BLACK_KING_KING_CASTLE);
-                    this->position.add(PieceCodes::ROOK, color, BitBoards::BLACK_ROOK_KING_CASTLE);
-                    this->set_rook_H_moved<color>(true);
+                    this->castle_king_side<color>();
                 } else {
-                    if (!can_queen_castle(*this)) {
+                    if (!this->can_queen_castle<color>(*this)) {
                         this->set_is_legal(false);
                         return;
                     }
-                    this->position.clear(BitBoards::BLACK_KING_START | BitBoards::BLACK_ROOK_A_START);
-                    this->position.add(PieceCodes::KING, color, BitBoards::BLACK_KING_QUEEN_CASTLE);
-                    this->position.add(PieceCodes::ROOK, color, BitBoards::BLACK_ROOK_QUEEN_CASTLE);
-                    this->set_rook_A_moved<color>(true);
+                    this->castle_queen_side<color>();
                 }
             }
-        } else if (this->position.is_color_occupied<color>(destination_bit_board)) {
-            this->set_is_legal(false);
-            return;
         } else {
             if (move.is_promotion()) {
                 piece_code = move.get_promotion();
@@ -215,6 +190,60 @@ public:
     auto set_en_passant(int32_t pawn_ep) noexcept -> void;
 
     [[nodiscard]] auto get_en_passant() const noexcept -> int32_t;
+
+    template<const Color color>
+    auto can_queen_castle(const GameState &game_state) -> bool {
+        constexpr auto queen_castle =
+                color == Colors::WHITE ? BitBoards::WHITE_QUEEN_CASTLE : BitBoards::BLACK_QUEEN_CASTLE;
+        constexpr auto opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+        return !(game_state.has_rook_A_moved<color>() ||
+                 !game_state.position.is_empty(queen_castle) ||
+                 game_state.position.is_threaten<opponent_color>(queen_castle));
+    };
+
+    template<const Color color>
+    auto can_king_castle(const GameState &game_state) -> bool {
+        constexpr auto king_castle =
+                color == Colors::WHITE ? BitBoards::WHITE_KING_CASTLE : BitBoards::BLACK_KING_CASTLE;
+        constexpr auto opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+        return !(game_state.has_rook_H_moved<color>() ||
+                 !game_state.position.is_empty(king_castle) ||
+                 game_state.position.is_threaten<opponent_color>(king_castle));
+    };
+
+    template<const Color color>
+    auto castle_king_side() -> void {
+
+        constexpr auto king_start = color == Colors::WHITE ? BitBoards::WHITE_KING_START : BitBoards::BLACK_KING_START;
+        constexpr auto h_rook_start =
+                color == Colors::WHITE ? BitBoards::WHITE_ROOK_H_START : BitBoards::BLACK_ROOK_H_START;
+        constexpr auto king_end =
+                color == Colors::WHITE ? BitBoards::WHITE_KING_KING_CASTLE : BitBoards::BLACK_KING_KING_CASTLE;
+        constexpr auto rook_end =
+                color == Colors::WHITE ? BitBoards::WHITE_ROOK_KING_CASTLE : BitBoards::BLACK_ROOK_KING_CASTLE;
+
+        this->position.clear(king_start | h_rook_start);
+        this->position.add(PieceCodes::KING, color, king_end);
+        this->position.add(PieceCodes::ROOK, color, rook_end);
+        this->set_rook_H_moved<color>(true);
+    }
+
+    template<const Color color>
+    auto castle_queen_side() -> void {
+
+        constexpr auto king_start = color == Colors::WHITE ? BitBoards::WHITE_KING_START : BitBoards::BLACK_KING_START;
+        constexpr auto h_rook_start =
+                color == Colors::WHITE ? BitBoards::WHITE_ROOK_A_START : BitBoards::BLACK_ROOK_A_START;
+        constexpr auto king_end =
+                color == Colors::WHITE ? BitBoards::WHITE_KING_QUEEN_CASTLE : BitBoards::BLACK_KING_QUEEN_CASTLE;
+        constexpr auto rook_end =
+                color == Colors::WHITE ? BitBoards::WHITE_ROOK_QUEEN_CASTLE : BitBoards::BLACK_ROOK_QUEEN_CASTLE;
+
+        this->position.clear(king_start | h_rook_start);
+        this->position.add(PieceCodes::KING, color, king_end);
+        this->position.add(PieceCodes::ROOK, color, rook_end);
+        this->set_rook_H_moved<color>(true);
+    }
 
     Position position;
 private:

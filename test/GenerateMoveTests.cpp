@@ -81,6 +81,46 @@ namespace Tests {
             TFW_ASSERT_EQ(20, legal_moves_strs.size());
         }));
 
+        generate_moves_test_case.tests.emplace_back(
+                TestFW::Test("MoveGeneration::get_moves - Pawn 2 Forward Blocked by Piece", []() {
+
+                    GameState game_state;
+                    game_state.init();
+
+                    std::vector<std::string> moves{"e2e4", "d7d5", "e4e5", "b8c6", "d2d4", "e7e6", "g1f3", "a7a6",
+                                                   "c1e3", "f7f6", "e5f6", "g8f6", "c2c3", "f6g4", "h2h3", "g4e3",
+                                                   "f2e3", "b7b5", "f1d3", "d8d6", "e1g1", "d6g3", "b1d2"};
+                    for (std::size_t i = 0; i < moves.size(); i++) {
+                        game_state.init();
+                        for (std::size_t j = 0; j <= i; j++) {
+                            auto move = moves[j];
+                            TFW_ASSERT_EQ(true, GameUtils::process_user_move(game_state, move));
+                            TFW_ASSERT_EQ(true, game_state.is_legal());
+                        }
+                    }
+
+                    Moves gen_moves;
+                    MoveGeneration::get_moves<Colors::BLACK>(game_state, gen_moves);
+
+                    std::vector<std::string> legal_moves_strs;
+                    GameUtils::for_each_legal_move<Colors::BLACK>(game_state, gen_moves,
+                                                                  [&legal_moves_strs](const Move &move) {
+                                                                      legal_moves_strs.push_back(move.to_string());
+                                                                      printf("Move: %s\n", move.to_string().c_str());
+                                                                  });
+
+                    std::unordered_set<std::string> not_expected_moves{"c7c5"};
+                    std::vector<std::string> illegal_moves_generated;
+
+                    for (auto &move: legal_moves_strs) {
+                        if (not_expected_moves.contains(move)) {
+                            illegal_moves_generated.push_back(move);
+                        }
+                    }
+
+                    TFW_ASSERT_EQ(0, illegal_moves_generated.size());
+                }));
+
         unit_tests.test_cases.push_back(generate_moves_test_case);
     }
 }

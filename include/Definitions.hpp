@@ -44,7 +44,7 @@ typedef int32_t PieceValue;
 
 namespace PieceValues {
     constexpr PieceValue PAWN = 100, KNIGHT = 300, BISHOP = 300, ROOK = 500,
-            QUEEN = 900, KING = 300000, POS_INFINITY = KING + 1,
+            QUEEN = 900, KING = 300000, POS_INFINITY = 2 * KING,
             NEG_INFINITY = -1 * POS_INFINITY;
 };
 

@@ -24,7 +24,7 @@ namespace MoveSearch {
 
         int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
         Move best_move;
-        constexpr int32_t max_search_depth = 6;
+        constexpr int32_t max_search_depth = 7;
 
         counter = moves.size();
         leaf_nodes_counter = 0;
@@ -39,7 +39,7 @@ namespace MoveSearch {
             if (check.is_legal()) {
 
                 if (color_to_move == Colors::WHITE) {
-                    int32_t heuristic = alpha_beta_pruning_search<Colors::BLACK>(check, max_search_depth,
+                    int32_t heuristic = alpha_beta_pruning_search<Colors::BLACK>(check, max_search_depth - 1,
                                                                                  PieceValues::NEG_INFINITY,
                                                                                  PieceValues::POS_INFINITY);
                     if (best_heuristic < heuristic) {
@@ -47,7 +47,7 @@ namespace MoveSearch {
                         best_move = move;
                     }
                 } else {
-                    int32_t heuristic = alpha_beta_pruning_search<Colors::WHITE>(check, max_search_depth,
+                    int32_t heuristic = alpha_beta_pruning_search<Colors::WHITE>(check, max_search_depth - 1,
                                                                                  PieceValues::NEG_INFINITY,
                                                                                  PieceValues::POS_INFINITY);
                     if (best_heuristic > heuristic) {
@@ -89,7 +89,7 @@ namespace MoveSearch {
         }
 
         // Put the King in check
-        heuristic += PieceValues::PAWN * (game_state.is_white_in_check() - game_state.is_black_in_check());
+        heuristic += PieceValues::PAWN / 2 * (game_state.is_white_in_check() - game_state.is_black_in_check());
 
         // Center Control
         const BitBoard white_bit_board = game_state.position.get_white_bit_board();

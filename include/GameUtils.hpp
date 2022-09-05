@@ -18,6 +18,11 @@ namespace GameUtils {
     auto process_user_move(GameState &game_state, const std::string &move_str) noexcept -> bool;
 
     // Input
+
+    /**
+     * Gets the next line from STDIN
+     * @return
+     */
     auto get_user_input() noexcept -> std::string;
 
     auto square_name_to_square(const std::string &square_name) noexcept -> Square;
@@ -34,4 +39,6 @@ namespace GameUtils {
             }
         }
     }
+
+    auto is_move_legal(const GameState &game_state, Move move, Color color_to_move) -> bool;
 }  // namespace GameUtils

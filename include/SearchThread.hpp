@@ -39,7 +39,8 @@ private:
         search_result.moves_counter += moves.size();
 
         constexpr Color opponent_color = max_color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
-        int32_t best_heuristic = max_color == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+        int32_t best_heuristic =
+                max_color == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
 
         for (auto &move: moves) {
             GameState check = game_state;

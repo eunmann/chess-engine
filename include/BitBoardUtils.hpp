@@ -90,4 +90,10 @@ namespace BitBoardUtils {
             return bit_board >> shift * -1;
         }
     }
+
+    constexpr auto row_of_square(const Square square) noexcept -> BitBoard {
+        return BitBoards::ROW_1 << (square / BOARD_DIM);
+    }
+
+    auto col_of_square(Square square) noexcept -> BitBoard;
 }

@@ -65,13 +65,15 @@ auto SearchThread::work() -> void {
                     search_result.is_legal = true;
                     if (color_to_move == Colors::WHITE) {
                         search_result.heuristic = this->alpha_beta_pruning_search<Colors::BLACK>(check,
-                                                                                                 this->m_search_depth,
+                                                                                                 this->m_search_depth -
+                                                                                                 1,
                                                                                                  PieceValues::NEG_INFINITY,
                                                                                                  PieceValues::POS_INFINITY,
                                                                                                  search_result);
                     } else {
                         search_result.heuristic = this->alpha_beta_pruning_search<Colors::WHITE>(check,
-                                                                                                 this->m_search_depth,
+                                                                                                 this->m_search_depth -
+                                                                                                 1,
                                                                                                  PieceValues::NEG_INFINITY,
                                                                                                  PieceValues::POS_INFINITY,
                                                                                                  search_result);

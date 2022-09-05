@@ -20,3 +20,4 @@ for move in moves_split:
 output += "}"
 
 print(output)
+
