@@ -1,6 +1,6 @@
 #include "TestFW.hpp"
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 #include "Moves.hpp"
 #include <cassert>
@@ -32,22 +32,22 @@ namespace Tests {
                     position.add(PieceCodes::BISHOP, Colors::WHITE, magic_bishop_moves);
                     position.to_board().print();
                 }
-                TFW_ASSERT_EQ(expected_bishop_moves, magic_bishop_moves);
+                TFW_ASSERT_EQ(expected_bishop_moves.value(), magic_bishop_moves.value());
             };
 
-            position.add(PieceCodes::BISHOP, Colors::WHITE, BitBoardUtils::square_to_bit_board(Squares::E4));
+            position.add(PieceCodes::BISHOP, Colors::WHITE, Squares::E4.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D3));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::D3.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D5));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::D5.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::F3));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::F3.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::F5));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::F5.to_bit_board());
             assert_positions();
 
         }));
@@ -61,22 +61,22 @@ namespace Tests {
                         position.get_occupied_bit_board());
                 const BitBoard magic_rook_moves = CachedCapturesGeneration::get_cached_rook_capture_positions<Colors::WHITE>(
                         position);
-                TFW_ASSERT_EQ(expected_rook_moves, magic_rook_moves);
+                TFW_ASSERT_EQ(expected_rook_moves.value(), magic_rook_moves.value());
             };
 
-            position.add(PieceCodes::ROOK, Colors::WHITE, BitBoardUtils::square_to_bit_board(Squares::E4));
+            position.add(PieceCodes::ROOK, Colors::WHITE, Squares::E4.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::E5));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::E5.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::D4));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::D4.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::F4));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::F4.to_bit_board());
             assert_positions();
 
-            position.add(PieceCodes::PAWN, Colors::BLACK, BitBoardUtils::square_to_bit_board(Squares::E3));
+            position.add(PieceCodes::PAWN, Colors::BLACK, Squares::E3.to_bit_board());
             assert_positions();
 
         }));

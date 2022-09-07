@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "color/color.hpp"
 
 Board::Board() noexcept {
@@ -21,9 +21,9 @@ auto Board::init_standard() noexcept -> void {
 
     const int bottom_start = 8 * 6;
     for (int i = 0; i < 8; ++i) {
-        this->positions[i] = init_rank[i] * -1;
+        this->positions[i] = init_rank[i].value * -1;
         this->positions[i + 8] = 1 * -1;
-        this->positions[bottom_start + 8 + i] = init_rank[i];
+        this->positions[bottom_start + 8 + i] = init_rank[i].value;
         this->positions[bottom_start + i] = 1;
     }
 

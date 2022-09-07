@@ -22,7 +22,8 @@ namespace MoveSearch {
             MoveGeneration::get_moves<Colors::BLACK>(game_state, moves);
         }
 
-        int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+        int32_t best_heuristic =
+                color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY.value() : PieceValues::POS_INFINITY.value();
         Move best_move;
         constexpr int32_t max_search_depth = 7;
 
@@ -40,16 +41,16 @@ namespace MoveSearch {
 
                 if (color_to_move == Colors::WHITE) {
                     int32_t heuristic = alpha_beta_pruning_search<Colors::BLACK>(check, max_search_depth - 1,
-                                                                                 PieceValues::NEG_INFINITY,
-                                                                                 PieceValues::POS_INFINITY);
+                                                                                 PieceValues::NEG_INFINITY.value(),
+                                                                                 PieceValues::POS_INFINITY.value());
                     if (best_heuristic < heuristic) {
                         best_heuristic = heuristic;
                         best_move = move;
                     }
                 } else {
                     int32_t heuristic = alpha_beta_pruning_search<Colors::WHITE>(check, max_search_depth - 1,
-                                                                                 PieceValues::NEG_INFINITY,
-                                                                                 PieceValues::POS_INFINITY);
+                                                                                 PieceValues::NEG_INFINITY.value(),
+                                                                                 PieceValues::POS_INFINITY.value());
                     if (best_heuristic > heuristic) {
                         best_heuristic = heuristic;
                         best_move = move;
@@ -84,12 +85,12 @@ namespace MoveSearch {
             const BitBoard black_piece_bit_board = game_state.position.get_piece_color_bit_board(piece_code,
                                                                                                  Colors::BLACK);
 
-            heuristic += piece_values[piece_code] * (BitBoardUtils::get_count(white_piece_bit_board) -
-                                                     BitBoardUtils::get_count(black_piece_bit_board));
+            heuristic += piece_values[piece_code.value].value() * (BitBoardUtils::get_count(white_piece_bit_board) -
+                                                                   BitBoardUtils::get_count(black_piece_bit_board));
         }
 
         // Put the King in check
-        heuristic += PieceValues::PAWN / 2 * (game_state.is_white_in_check() - game_state.is_black_in_check());
+        heuristic += PieceValues::PAWN.value() / 2 * (game_state.is_white_in_check() - game_state.is_black_in_check());
 
         // Center Control
         const BitBoard white_bit_board = game_state.position.get_white_bit_board();
@@ -98,24 +99,25 @@ namespace MoveSearch {
         const BitBoard black_threaten_board = game_state.position.get_black_threaten();
 
         // Occupy Center
-        heuristic += (PieceValues::PAWN / 4) *
+        heuristic += (PieceValues::PAWN.value() / 4) *
                      (BitBoardUtils::get_count(white_bit_board & BitBoards::CENTER_4_SQUARES) -
                       BitBoardUtils::get_count(black_bit_board & BitBoards::CENTER_4_SQUARES));
-        heuristic += (PieceValues::PAWN / 16) *
+        heuristic += (PieceValues::PAWN.value() / 16) *
                      (BitBoardUtils::get_count(white_bit_board & BitBoards::CENTER_16_SQUARES) -
                       BitBoardUtils::get_count(black_bit_board & BitBoards::CENTER_16_SQUARES));
 
         // Threaten Center
-        heuristic += (PieceValues::PAWN / 4) *
+        heuristic += (PieceValues::PAWN.value() / 4) *
                      (BitBoardUtils::get_count(white_threaten_board & BitBoards::CENTER_4_SQUARES) -
                       BitBoardUtils::get_count(black_threaten_board & BitBoards::CENTER_4_SQUARES));
-        heuristic += (PieceValues::PAWN / 16) *
+        heuristic += (PieceValues::PAWN.value() / 16) *
                      (BitBoardUtils::get_count(white_threaten_board & BitBoards::CENTER_16_SQUARES) -
                       BitBoardUtils::get_count(black_threaten_board & BitBoards::CENTER_16_SQUARES));
 
         // Attack Opponent Pieces
-        heuristic += (PieceValues::PAWN / 16) * (BitBoardUtils::get_count(white_threaten_board & black_bit_board) -
-                                                 BitBoardUtils::get_count(black_threaten_board & white_bit_board));
+        heuristic +=
+                (PieceValues::PAWN.value() / 16) * (BitBoardUtils::get_count(white_threaten_board & black_bit_board) -
+                                                    BitBoardUtils::get_count(black_threaten_board & white_bit_board));
 
         return heuristic;
     }

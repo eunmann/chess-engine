@@ -26,8 +26,9 @@ namespace MoveSearch {
         MoveGeneration::get_moves<max_color>(game_state, moves);
         counter += moves.size();
 
-        constexpr Color opponent_color = max_color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
-        int32_t best_heuristic = max_color == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+        constexpr Color opponent_color = Colors::opponent_color<max_color>();
+        int32_t best_heuristic =
+                max_color == Colors::WHITE ? PieceValues::NEG_INFINITY.value() : PieceValues::POS_INFINITY.value();
 
         for (auto &move: moves) {
             GameState check = game_state;

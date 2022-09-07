@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include <numeric>
 #include <algorithm>
 #include "BitBoardUtils.hpp"
@@ -153,38 +153,35 @@ namespace MagicBitBoards {
     auto get_rook_moves(Square square, BitBoard blockers) noexcept -> BitBoard;
 
     constexpr auto
-    generate_blocker_board_permutation(const Square square, const BitBoard blocker_mask) noexcept -> BitBoard {
+    generate_blocker_board_permutation(const uint64_t permutation_index,
+                                       const BitBoard blocker_mask) noexcept -> BitBoard {
 
         BitBoard blocker_board = BitBoards::EMPTY;
         int32_t bit_index = 0;
 
-        std::array<BitBoard, 64> index_checks{0};
-        std::iota(index_checks.begin(), index_checks.end(), 0);
-        std::for_each(index_checks.begin(), index_checks.end(),
-                      [&blocker_board, &bit_index, square, blocker_mask](auto index) {
-
-                          const BitBoard bit_board = (1ULL << index);
-                          if (BitBoardUtils::do_bit_boards_overlap(blocker_mask, bit_board)) {
-                              if (square & (1 << bit_index)) {
-                                  blocker_board |= bit_board;
-                              }
-                              bit_index++;
-                          }
-                      });
+        for (auto i = 0; i < 64; i++) {
+            const BitBoard bit_board = BitBoard(1ULL << i);
+            if (blocker_mask.overlaps(bit_board)) {
+                if (permutation_index & (1ULL << bit_index)) {
+                    blocker_board |= bit_board;
+                }
+                bit_index++;
+            }
+        }
 
         return blocker_board;
     }
 
     struct BishopMagics {
-        std::array<BitBoard, Squares::NUM> blocker_masks{0};
-        std::array<uint64_t, Squares::NUM> magics{0};
-        std::array<std::array<BitBoard, MAX_BISHOP_PERMUTATIONS>, Squares::NUM> moves{{0}};
+        std::array<BitBoard, Squares::NUM.value()> blocker_masks{};
+        std::array<uint64_t, Squares::NUM.value()> magics{};
+        std::array<std::array<BitBoard, MAX_BISHOP_PERMUTATIONS>, Squares::NUM.value()> moves{};
     };
 
     struct RookMagics {
-        std::array<BitBoard, Squares::NUM> blocker_masks{0};
-        std::array<uint64_t, Squares::NUM> magics{0};
-        std::array<std::array<BitBoard, MAX_ROOK_PERMUTATIONS>, Squares::NUM> moves{{0}};
+        std::array<BitBoard, Squares::NUM.value()> blocker_masks{};
+        std::array<uint64_t, Squares::NUM.value()> magics{0};
+        std::array<std::array<BitBoard, MAX_ROOK_PERMUTATIONS>, Squares::NUM.value()> moves{};
     };
 
     constexpr auto generate_bishop_magics() noexcept -> BishopMagics {
@@ -194,17 +191,17 @@ namespace MagicBitBoards {
         for (Square square = Squares::A1; square <= Squares::H8; square++) {
 
             // Build the blocker mask for the square
-            const BitBoard bishop_bit_board = BitBoardUtils::square_to_bit_board(square);
+            const BitBoard bishop_bit_board = square.to_bit_board();
             const BitBoard blocker_mask =
                     CapturesGeneration::get_bishop_capture_positions(bishop_bit_board, BitBoards::EMPTY) &
-                    ~BitBoards::EDGES;
+                    BitBoards::EDGES.invert();
 
             // Iterate over all possible permutations of the blocker mask and calculate the possible moves
             const int32_t blocker_mask_bit_count = BitBoardUtils::get_count(blocker_mask);
-            const int32_t num_of_permutations = 1ULL << blocker_mask_bit_count;
+            const auto num_of_permutations = 1ULL << blocker_mask_bit_count;
             std::array<BitBoard, MAX_BISHOP_PERMUTATIONS> bishop_blockers_permutations{};
             std::array<BitBoard, MAX_BISHOP_PERMUTATIONS> bishop_attacks{};
-            for (int32_t i = 0; i < num_of_permutations; i++) {
+            for (auto i = 0ULL; i < num_of_permutations; i++) {
                 bishop_blockers_permutations[i] = generate_blocker_board_permutation(i, blocker_mask);
                 bishop_attacks[i] = CapturesGeneration::get_bishop_capture_positions(bishop_bit_board,
                                                                                      bishop_blockers_permutations[i]);
@@ -216,7 +213,7 @@ namespace MagicBitBoards {
                 uint64_t magic = 0;
 
                 // Find a random number with a low number of bits set
-                while (BitBoardUtils::get_count((magic * blocker_mask) & 0xFF00000000000000ULL) < 6) {
+                while (BitBoardUtils::get_count((magic * blocker_mask) & BitBoard(0xFF00000000000000ULL)) < 6) {
                     magic = random.next_random() & random.next_random() & random.next_random();
                 }
 
@@ -227,28 +224,30 @@ namespace MagicBitBoards {
                 for (int32_t i = 0; i < num_of_permutations; i++) {
                     // Calculate the magic index into the move array
                     const uint64_t magic_index =
-                            (bishop_blockers_permutations[i] * magic) >> (Squares::NUM - blocker_mask_bit_count);
+                            ((bishop_blockers_permutations[i] * magic)
+                                    >> (Squares::NUM - blocker_mask_bit_count).value()).value();
 
                     // If the magic index isn't used yet, set it
                     if (used_magics[magic_index] == 0ULL) {
-                        used_magics[magic_index] = bishop_attacks[i];
+                        used_magics[magic_index] = bishop_attacks[i].value();
                     }
                         // If the index is already used, see if it maps into the same moves
-                    else if (used_magics[magic_index] != bishop_attacks[i]) {
+                    else if (used_magics[magic_index] != bishop_attacks[i].value()) {
                         magic_found = false;
                         break;
                     }
                 }
 
                 if (magic_found) {
-                    bishop_magics.magics[square] = magic;
-                    bishop_magics.blocker_masks[square] = blocker_mask;
+                    bishop_magics.magics[square.value()] = magic;
+                    bishop_magics.blocker_masks[square.value()] = blocker_mask;
                     // Set the moves table to map magic_index into the correct move
                     for (int32_t i = 0; i < num_of_permutations; i++) {
                         // Calculate the magic index into the move array
                         const uint64_t magic_index =
-                                (bishop_blockers_permutations[i] * magic) >> (Squares::NUM - blocker_mask_bit_count);
-                        bishop_magics.moves[square][magic_index] = bishop_attacks[i];
+                                ((bishop_blockers_permutations[i] * magic)
+                                        >> (Squares::NUM - blocker_mask_bit_count).value()).value();
+                        bishop_magics.moves[square.value()][magic_index] = bishop_attacks[i];
                     }
                     break;
                 }
@@ -265,30 +264,30 @@ namespace MagicBitBoards {
         for (Square square = Squares::A1; square <= Squares::H8; square++) {
 
             // Build the blocker mask for the square
-            const BitBoard bishop_bit_board = BitBoardUtils::square_to_bit_board(square);
+            const BitBoard bishop_bit_board = square.to_bit_board();
             const BitBoard blocker_mask =
                     CapturesGeneration::get_bishop_capture_positions(bishop_bit_board, BitBoards::EMPTY) &
-                    ~BitBoards::EDGES;
+                    BitBoards::EDGES.invert();
 
             // Iterate over all possible permutations of the blocker mask and calculate the possible moves
             const int32_t blocker_mask_bit_count = BitBoardUtils::get_count(blocker_mask);
-            const int32_t num_of_permutations = 1ULL << blocker_mask_bit_count;
+            const auto num_of_permutations = 1ULL << blocker_mask_bit_count;
             std::array<BitBoard, MAX_BISHOP_PERMUTATIONS> bishop_blockers_permutations{};
             std::array<BitBoard, MAX_BISHOP_PERMUTATIONS> bishop_attacks{};
-            for (int32_t i = 0; i < num_of_permutations; i++) {
+            for (auto i = 0ULL; i < num_of_permutations; i++) {
                 bishop_blockers_permutations[i] = generate_blocker_board_permutation(i, blocker_mask);
                 bishop_attacks[i] = CapturesGeneration::get_bishop_capture_positions(bishop_bit_board,
                                                                                      bishop_blockers_permutations[i]);
             }
 
-            bishop_magics.magics[square] = BISHOP_MAGICS_CACHE[square];
-            bishop_magics.blocker_masks[square] = blocker_mask;
+            bishop_magics.magics[square.value()] = BISHOP_MAGICS_CACHE[square.value()];
+            bishop_magics.blocker_masks[square.value()] = blocker_mask;
             // Set the moves table to map magic_index into the correct move
             for (int32_t i = 0; i < num_of_permutations; i++) {
                 // Calculate the magic index into the move array
-                const uint64_t magic_index = (bishop_blockers_permutations[i] * BISHOP_MAGICS_CACHE[square])
-                        >> (Squares::NUM - blocker_mask_bit_count);
-                bishop_magics.moves[square][magic_index] = bishop_attacks[i];
+                const uint64_t magic_index = ((bishop_blockers_permutations[i] * BISHOP_MAGICS_CACHE[square.value()])
+                        >> (Squares::NUM - blocker_mask_bit_count).value()).value();
+                bishop_magics.moves[square.value()][magic_index] = bishop_attacks[i];
             }
         }
 
@@ -302,23 +301,23 @@ namespace MagicBitBoards {
         for (Square square = Squares::A1; square <= Squares::H8; square++) {
 
             // Build the blocker mask for the square
-            const BitBoard rook_bit_board = BitBoardUtils::square_to_bit_board(square);
+            const BitBoard rook_bit_board = square.to_bit_board();
             BitBoard blocker_mask = BitBoards::EMPTY;
             blocker_mask |= CapturesGeneration::get_captures_in_direction<1, 0>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::ROW_8;
+                            BitBoards::ROW_8.invert();
             blocker_mask |= CapturesGeneration::get_captures_in_direction<-1, 0>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::ROW_1;
+                            BitBoards::ROW_1.invert();
             blocker_mask |= CapturesGeneration::get_captures_in_direction<0, -1>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::COL_A;
+                            BitBoards::COL_A.invert();
             blocker_mask |= CapturesGeneration::get_captures_in_direction<0, 1>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::COL_H;
+                            BitBoards::COL_H.invert();
 
             // Iterate over all possible permutations of the blocker mask and calculate the possible moves
             const int32_t blocker_mask_bit_count = BitBoardUtils::get_count(blocker_mask);
-            const int32_t num_of_permutations = 1ULL << blocker_mask_bit_count;
+            const auto num_of_permutations = 1ULL << blocker_mask_bit_count;
             std::array<BitBoard, MAX_ROOK_PERMUTATIONS> rook_blockers_permutations{};
             std::array<BitBoard, MAX_ROOK_PERMUTATIONS> rook_attacks{};
-            for (int32_t i = 0; i < num_of_permutations; i++) {
+            for (auto i = 0ULL; i < num_of_permutations; i++) {
                 rook_blockers_permutations[i] = generate_blocker_board_permutation(i, blocker_mask);
                 rook_attacks[i] = CapturesGeneration::get_rook_capture_positions(rook_bit_board,
                                                                                  rook_blockers_permutations[i]);
@@ -330,7 +329,7 @@ namespace MagicBitBoards {
                 uint64_t magic = 0;
 
                 // Find a random number with a low number of bits set
-                while (BitBoardUtils::get_count((magic * blocker_mask) & 0xFF00000000000000ULL) < 6) {
+                while (BitBoardUtils::get_count((magic * blocker_mask) & BitBoard(0xFF00000000000000ULL)) < 6) {
                     magic = random.next_random() & random.next_random() & random.next_random();
                 }
 
@@ -341,28 +340,30 @@ namespace MagicBitBoards {
                 for (int32_t i = 0; i < num_of_permutations; i++) {
                     // Calculate the magic index into the move array
                     const uint64_t magic_index =
-                            (rook_blockers_permutations[i] * magic) >> (Squares::NUM - blocker_mask_bit_count);
+                            ((rook_blockers_permutations[i] * magic)
+                                    >> (Squares::NUM - blocker_mask_bit_count).value()).value();
 
                     // If the magic index isn't used yet, set it
                     if (used_magics[magic_index] == 0ULL) {
-                        used_magics[magic_index] = rook_attacks[i];
+                        used_magics[magic_index] = rook_attacks[i].value();
                     }
                         // If the index is already used, see if it maps into the same moves
-                    else if (used_magics[magic_index] != rook_attacks[i]) {
+                    else if (used_magics[magic_index] != rook_attacks[i].value()) {
                         magic_found = false;
                         break;
                     }
                 }
 
                 if (magic_found) {
-                    rook_magics.magics[square] = magic;
-                    rook_magics.blocker_masks[square] = blocker_mask;
+                    rook_magics.magics[square.value()] = magic;
+                    rook_magics.blocker_masks[square.value()] = blocker_mask;
                     // Set the moves table to map magic_index into the correct move
                     for (int32_t i = 0; i < num_of_permutations; i++) {
                         // Calculate the magic index into the move array
                         const uint64_t magic_index =
-                                (rook_blockers_permutations[i] * magic) >> (Squares::NUM - blocker_mask_bit_count);
-                        rook_magics.moves[square][magic_index] = rook_attacks[i];
+                                ((rook_blockers_permutations[i] * magic)
+                                        >> (Squares::NUM - blocker_mask_bit_count).value()).value();
+                        rook_magics.moves[square.value()][magic_index] = rook_attacks[i];
                     }
                     break;
                 }
@@ -379,36 +380,36 @@ namespace MagicBitBoards {
         for (Square square = Squares::A1; square <= Squares::H8; square++) {
 
             // Build the blocker mask for the square
-            const BitBoard rook_bit_board = BitBoardUtils::square_to_bit_board(square);
+            const BitBoard rook_bit_board = square.to_bit_board();
             BitBoard blocker_mask = BitBoards::EMPTY;
             blocker_mask |= CapturesGeneration::get_captures_in_direction<1, 0>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::ROW_8;
+                            BitBoards::ROW_8.invert();
             blocker_mask |= CapturesGeneration::get_captures_in_direction<-1, 0>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::ROW_1;
+                            BitBoards::ROW_1.invert();
             blocker_mask |= CapturesGeneration::get_captures_in_direction<0, -1>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::COL_A;
+                            BitBoards::COL_A.invert();
             blocker_mask |= CapturesGeneration::get_captures_in_direction<0, 1>(rook_bit_board, BitBoards::EMPTY) &
-                            ~BitBoards::COL_H;
+                            BitBoards::COL_H.invert();
 
             // Iterate over all possible permutations of the blocker mask and calculate the possible moves
             const int32_t blocker_mask_bit_count = BitBoardUtils::get_count(blocker_mask);
-            const int32_t num_of_permutations = 1ULL << blocker_mask_bit_count;
+            const auto num_of_permutations = 1ULL << blocker_mask_bit_count;
             std::array<BitBoard, MAX_ROOK_PERMUTATIONS> rook_blockers_permutations{};
             std::array<BitBoard, MAX_ROOK_PERMUTATIONS> rook_attacks{};
-            for (int32_t i = 0; i < num_of_permutations; i++) {
+            for (auto i = 0ULL; i < num_of_permutations; i++) {
                 rook_blockers_permutations[i] = generate_blocker_board_permutation(i, blocker_mask);
                 rook_attacks[i] = CapturesGeneration::get_rook_capture_positions(rook_bit_board,
                                                                                  rook_blockers_permutations[i]);
             }
 
-            rook_magics.magics[square] = ROOK_MAGICS_CACHE[square];
-            rook_magics.blocker_masks[square] = blocker_mask;
+            rook_magics.magics[square.value()] = ROOK_MAGICS_CACHE[square.value()];
+            rook_magics.blocker_masks[square.value()] = blocker_mask;
             // Set the moves table to map magic_index into the correct move
             for (int32_t i = 0; i < num_of_permutations; i++) {
                 // Calculate the magic index into the move array
-                const uint64_t magic_index = (rook_blockers_permutations[i] * ROOK_MAGICS_CACHE[square])
-                        >> (Squares::NUM - blocker_mask_bit_count);
-                rook_magics.moves[square][magic_index] = rook_attacks[i];
+                const uint64_t magic_index = ((rook_blockers_permutations[i] * ROOK_MAGICS_CACHE[square.value()])
+                        >> (Squares::NUM - blocker_mask_bit_count).value()).value();
+                rook_magics.moves[square.value()][magic_index] = rook_attacks[i];
             }
         }
 

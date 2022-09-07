@@ -1,6 +1,6 @@
 #include "TestFW.hpp"
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 #include <cassert>
 #include "GameState.hpp"

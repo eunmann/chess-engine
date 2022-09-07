@@ -1,23 +1,23 @@
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 
 auto PieceCodes::to_char(PieceCode piece_code) noexcept -> char {
-    switch (piece_code) {
-        case PieceCodes::PAWN: {
+    switch (piece_code.value) {
+        case PieceCodes::PAWN.value: {
             return ' ';
         }
-        case PieceCodes::KNIGHT: {
+        case PieceCodes::KNIGHT.value: {
             return 'N';
         }
-        case PieceCodes::BISHOP: {
+        case PieceCodes::BISHOP.value: {
             return 'B';
         }
-        case PieceCodes::ROOK: {
+        case PieceCodes::ROOK.value: {
             return 'R';
         }
-        case PieceCodes::QUEEN: {
+        case PieceCodes::QUEEN.value: {
             return 'Q';
         }
-        case PieceCodes::KING: {
+        case PieceCodes::KING.value: {
             return 'K';
         }
         default: {

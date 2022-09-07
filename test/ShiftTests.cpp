@@ -1,6 +1,6 @@
 #include "TestFW.hpp"
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 #include <cassert>
 
@@ -10,25 +10,25 @@ namespace Tests {
         TestFW::TestCase shifts_test_case("Shifts");
         shifts_test_case.tests.emplace_back(
                 TestFW::Test("BitBoardUtils::shift_bit_board", []() {
-                    const BitBoard start = 0b10'0000'0000;
+                    const BitBoard start = BitBoard(0b10'0000'0000);
 
-                    const BitBoard expected_left = 0b100'0000'0000;
-                    const BitBoard expected_right = 0b001'0000'0000;
-                    const BitBoard expected_up = 0b10'0000'0000'0000'0000;
-                    const BitBoard expected_down = 0b10;
-                    const BitBoard expected_up_left = 0b100'0000'0000'0000'0000;
-                    const BitBoard expected_up_right = 0b001'0000'0000'0000'0000;
-                    const BitBoard expected_down_left = 0b100;
-                    const BitBoard expected_down_right = 0b001;
+                    const BitBoard expected_left = BitBoard(0b100'0000'0000);
+                    const BitBoard expected_right = BitBoard(0b001'0000'0000);
+                    const BitBoard expected_up = BitBoard(0b10'0000'0000'0000'0000);
+                    const BitBoard expected_down = BitBoard(0b10);
+                    const BitBoard expected_up_left = BitBoard(0b100'0000'0000'0000'0000);
+                    const BitBoard expected_up_right = BitBoard(0b001'0000'0000'0000'0000);
+                    const BitBoard expected_down_left = BitBoard(0b100);
+                    const BitBoard expected_down_right = BitBoard(0b001);
 
-                    assert((BitBoardUtils::shift_bit_board<1, 0>(start) == expected_up));
-                    assert((BitBoardUtils::shift_bit_board(start, 1, 0) == expected_up));
+                    assert((start.shift<1, 0>() == expected_up));
+                    assert((start.shift(1, 0) == expected_up));
 
-                    assert((BitBoardUtils::shift_bit_board<-1, 0>(start) == expected_down));
-                    assert((BitBoardUtils::shift_bit_board(start, -1, 0) == expected_down));
+                    assert((start.shift<-1, 0>() == expected_down));
+                    assert((start.shift(-1, 0) == expected_down));
 
-                    assert((BitBoardUtils::shift_bit_board<0, 1>(start) == expected_left));
-                    assert((BitBoardUtils::shift_bit_board(start, 0, 1) == expected_left));
+                    assert((start.shift<0, 1>() == expected_left));
+                    assert((start.shift(0, 1) == expected_left));
 
                     assert((BitBoardUtils::shift_bit_board<0, -1>(start) == expected_right));
                     assert((BitBoardUtils::shift_bit_board(start, 0, -1) == expected_right));

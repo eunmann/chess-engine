@@ -1,6 +1,6 @@
 #include "TestFW.hpp"
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 #include "Moves.hpp"
 #include "GameState.hpp"
@@ -74,6 +74,7 @@ namespace Tests {
             for (auto &move: legal_moves_strs) {
                 if (!expected_moves.contains(move)) {
                     not_contained_moves.push_back(move);
+                    printf("*** %s ***\n", move.c_str());
                 }
             }
 

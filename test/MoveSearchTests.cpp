@@ -1,6 +1,6 @@
 #include "TestFW.hpp"
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 #include "Moves.hpp"
 #include <cassert>

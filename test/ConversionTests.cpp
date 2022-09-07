@@ -1,6 +1,6 @@
 #include "TestFW.hpp"
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 
 namespace Tests {
@@ -8,29 +8,29 @@ namespace Tests {
         TestFW::TestCase conversion_test_case("Conversions");
         conversion_test_case.tests.emplace_back(
                 TestFW::Test("BitBoardUtils::bit_board_to_square", []() {
-                    BitBoard bit_board = 0b101ULL;
+                    auto bit_board = BitBoard(0b101ULL);
                     int32_t counter = 0;
                     do {
-                        Square expected_square = counter;
+                        auto expected_square = Square(counter);
                         Square actual_square = BitBoardUtils::bit_board_to_square(bit_board);
 
-                        TFW_ASSERT_EQ(expected_square, actual_square);
+                        TFW_ASSERT_EQ(expected_square.value(), actual_square.value());
 
                         counter++;
                         bit_board <<= 1;
-                    } while (bit_board != 0);
+                    } while (bit_board != BitBoards::EMPTY);
                 }));
         conversion_test_case.tests.emplace_back(
                 TestFW::Test("BitBoardUtils::square_to_bit_board", []() {
-                    Square square = 0;
+                    auto square = Squares::A1;
                     do {
-                        BitBoard expected_bit_board = 0b1ULL << square;
-                        BitBoard actual_bit_board = BitBoardUtils::square_to_bit_board(square);
+                        BitBoard expected_bit_board = BitBoard(0b1ULL) << square.value();
+                        BitBoard actual_bit_board = square.to_bit_board();
 
-                        TFW_ASSERT_EQ(expected_bit_board, actual_bit_board);
+                        TFW_ASSERT_EQ(expected_bit_board.value(), actual_bit_board.value());
 
                         square++;
-                    } while (square < 64);
+                    } while (square < Squares::NUM);
                 }));
         unit_tests.test_cases.push_back(conversion_test_case);
     }

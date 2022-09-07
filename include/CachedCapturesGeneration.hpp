@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "Position.hpp"
 #include "MagicBitBoards.hpp"
 #include "CachedMoves.hpp"

@@ -5,9 +5,9 @@
 
 class BitMaskValue {
 public:
-    BitMaskValue() noexcept;
+    constexpr BitMaskValue() noexcept: m_value(0) {}
 
-    explicit BitMaskValue(int32_t value) noexcept;
+    constexpr explicit BitMaskValue(int32_t value) noexcept: m_value(value) {}
 
     template<const int32_t mask, const int32_t shift>
     auto set_bits(const int32_t value) noexcept -> void {
@@ -15,11 +15,13 @@ public:
     }
 
     template<const int32_t mask, const int32_t shift>
-    [[nodiscard]] auto get_bits() const noexcept -> int32_t {
+    [[nodiscard]] constexpr auto get_bits() const noexcept -> int32_t {
         return (this->m_value >> shift) & mask;
     }
 
-    auto operator==(const BitMaskValue &bit_mask_value) const noexcept -> bool;
+    constexpr auto operator==(const BitMaskValue &bit_mask_value) const noexcept -> bool {
+        return this->m_value == bit_mask_value.m_value;
+    }
 
 private:
     int32_t m_value;

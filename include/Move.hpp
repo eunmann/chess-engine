@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitMaskValue.hpp"
 
 class Move {

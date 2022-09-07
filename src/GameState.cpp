@@ -48,6 +48,3 @@ auto GameState::set_en_passant(const int32_t pawn_ep) noexcept -> void {
     this->m_flags.set_bits<GameState::MASK_4_BIT, GameState::PAWN_EN_OFFSET>(pawn_ep);
 }
 
-auto GameState::get_en_passant() const noexcept -> int32_t {
-    return this->m_flags.get_bits<GameState::MASK_4_BIT, GameState::PAWN_EN_OFFSET>();
-}

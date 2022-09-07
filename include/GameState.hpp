@@ -82,19 +82,24 @@ public:
                 piece_code = this->position.get_piece_type(source_bit_board);
             }
 
-            constexpr auto starting_row = color == Colors::WHITE ? 1 : 6;
-            constexpr auto forward_2_row = color == Colors::WHITE ? 3 : 4;
-            constexpr auto en_passant_row = color == Colors::WHITE ? BitBoards::ROW_3 : BitBoards::ROW_6;
-            constexpr auto en_passant_opponent_row = color == Colors::WHITE ? BitBoards::ROW_5 : BitBoards::ROW_4;
+            constexpr auto en_passant_row = BitBoards::pawn_en_passant_row<color>();
+            constexpr auto starting_row = BitBoards::pawn_start_row<color>();
+            constexpr auto forward_2_row = BitBoards::pawn_forward_two_row<color>();
+
+            constexpr auto opponent_color = Colors::opponent_color<color>();
+            constexpr auto en_passant_opponent_row = BitBoards::pawn_en_passant_row<opponent_color>();
             auto en_passant_col = BitBoardUtils::get_col(this->get_en_passant());
 
             if (piece_code == PieceCodes::PAWN) {
-                if (BitBoardUtils::is_piece_in_row(source_bit_board, starting_row) &&
-                    BitBoardUtils::is_piece_in_row(destination_bit_board, forward_2_row)) {
+                if (source_bit_board.overlaps(starting_row) &&
+                    destination_bit_board.overlaps(forward_2_row)) {
                     this->set_en_passant(BitBoardUtils::get_col(source_bit_board));
                 } else if (this->get_en_passant() != MASK_4_BIT &&
                            (en_passant_row & en_passant_col) == destination_bit_board) {
                     this->position.clear(en_passant_opponent_row & en_passant_col);
+                    this->set_en_passant(MASK_4_BIT);
+                } else {
+                    this->set_en_passant(MASK_4_BIT);
                 }
             } else {
                 this->set_en_passant(MASK_4_BIT);
@@ -129,7 +134,7 @@ public:
 
     template<const Color color>
     [[nodiscard]] auto is_color_in_check() const noexcept -> bool {
-        constexpr Color opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+        constexpr Color opponent_color = Colors::opponent_color<color>();
         const BitBoard king_bit_board = this->position.get_piece_color_bit_board<PieceCodes::KING, color>();
         return this->position.is_threaten<opponent_color>(king_bit_board);
     }
@@ -198,13 +203,19 @@ public:
 
     auto set_en_passant(int32_t pawn_ep) noexcept -> void;
 
-    [[nodiscard]] auto get_en_passant() const noexcept -> int32_t;
+    [[nodiscard]] constexpr auto get_en_passant() const noexcept -> int32_t {
+        return this->m_flags.get_bits<GameState::MASK_4_BIT, GameState::PAWN_EN_OFFSET>();
+    }
+
+    [[nodiscard]] constexpr auto is_en_passant_set() const noexcept -> bool {
+        return this->get_en_passant() == MASK_4_BIT;
+    }
 
     template<const Color color>
     auto can_queen_castle(const GameState &game_state) -> bool {
         constexpr auto queen_castle =
                 color == Colors::WHITE ? BitBoards::WHITE_QUEEN_CASTLE : BitBoards::BLACK_QUEEN_CASTLE;
-        constexpr auto opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+        constexpr auto opponent_color = Colors::opponent_color<color>();
         return !(game_state.has_rook_A_moved<color>() ||
                  !game_state.position.is_empty(queen_castle) ||
                  game_state.position.is_threaten<opponent_color>(queen_castle));
@@ -214,7 +225,7 @@ public:
     auto can_king_castle(const GameState &game_state) -> bool {
         constexpr auto king_castle =
                 color == Colors::WHITE ? BitBoards::WHITE_KING_CASTLE : BitBoards::BLACK_KING_CASTLE;
-        constexpr auto opponent_color = color == Colors::WHITE ? Colors::BLACK : Colors::WHITE;
+        constexpr auto opponent_color = Colors::opponent_color<color>();
         return !(game_state.has_rook_H_moved<color>() ||
                  !game_state.position.is_empty(king_castle) ||
                  game_state.position.is_threaten<opponent_color>(king_castle));

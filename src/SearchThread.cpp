@@ -67,15 +67,15 @@ auto SearchThread::work() -> void {
                         search_result.heuristic = this->alpha_beta_pruning_search<Colors::BLACK>(check,
                                                                                                  this->m_search_depth -
                                                                                                  1,
-                                                                                                 PieceValues::NEG_INFINITY,
-                                                                                                 PieceValues::POS_INFINITY,
+                                                                                                 PieceValues::NEG_INFINITY.value(),
+                                                                                                 PieceValues::POS_INFINITY.value(),
                                                                                                  search_result);
                     } else {
                         search_result.heuristic = this->alpha_beta_pruning_search<Colors::WHITE>(check,
                                                                                                  this->m_search_depth -
                                                                                                  1,
-                                                                                                 PieceValues::NEG_INFINITY,
-                                                                                                 PieceValues::POS_INFINITY,
+                                                                                                 PieceValues::NEG_INFINITY.value(),
+                                                                                                 PieceValues::POS_INFINITY.value(),
                                                                                                  search_result);
                     }
                 }
@@ -93,7 +93,7 @@ auto SearchThread::work() -> void {
 
         SearchResult accumulated_search_results;
         Move best_move;
-        int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY : PieceValues::POS_INFINITY;
+        int32_t best_heuristic = color_to_move == Colors::WHITE ? PieceValues::NEG_INFINITY.value() : PieceValues::POS_INFINITY.value();
 
         accumulated_search_results.moves_counter += moves.size();
 

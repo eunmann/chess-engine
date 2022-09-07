@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "Move.hpp"
 #include "MoveGeneration.hpp"
 #include "Moves.hpp"
@@ -113,7 +113,7 @@ namespace GameUtils {
     auto square_name_to_square(const std::string &square_name) noexcept -> Square {
         // Check string length, min 2 characters required for a move
         if (square_name.size() < 2) {
-            return 0;
+            return Squares::INVALID;
         }
 
         int32_t col_index = square_name[0] - 'a';
@@ -122,10 +122,10 @@ namespace GameUtils {
         auto invalid_input_range = [](int32_t num) { return (num < 0 || num > 7); };
 
         if (invalid_input_range(col_index) || invalid_input_range(row_index)) {
-            return 0;
+            return Squares::INVALID;
         }
 
-        return row_index * 8 + col_index;
+        return Square(row_index * 8 + col_index);
     }
 
     auto move_str_to_move(const std::string &move_str) noexcept -> Move {
@@ -136,9 +136,9 @@ namespace GameUtils {
         }
 
         auto source_square = square_name_to_square(move_str);
-        auto destintion_square = square_name_to_square(move_str.substr(2, 2));
+        auto destination_square = square_name_to_square(move_str.substr(2, 2));
 
-        Move move(source_square, destintion_square);
+        Move move(source_square, destination_square);
 
         // Check if moves promotes a pawn
         if (move_str.size() == 5) {

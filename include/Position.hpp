@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Board.hpp"
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 
 class Position {
 public:
@@ -20,14 +20,14 @@ public:
 
     template<const PieceCode piece_code>
     [[nodiscard]] auto get_piece_bit_board() const noexcept -> BitBoard {
-        return this->piece_positions[piece_code];
+        return this->piece_positions[piece_code.value];
     }
 
     [[nodiscard]] auto get_color_bit_board(Color color) const noexcept -> BitBoard;
 
     template<const Color color>
     [[nodiscard]] auto get_color_bit_board() const noexcept -> BitBoard {
-        return this->color_positions[color];
+        return this->color_positions[color.value];
     }
 
     [[nodiscard]] auto get_piece_color_bit_board(PieceCode piece_code, Color color) const noexcept -> BitBoard;
@@ -65,13 +65,12 @@ public:
 
     template<const Color color>
     [[nodiscard]] auto get_threaten() const noexcept -> BitBoard {
-        return this->threaten_positions[color];
+        return this->threaten_positions[color.value];
     }
 
     auto clear(BitBoard bit_board) noexcept -> void;
 
-    auto add(PieceCode piece_code, Color color,
-             BitBoard bit_board) noexcept -> void;
+    auto add(PieceCode piece_code, Color color, BitBoard bit_board) noexcept -> void;
 
     auto recompute_threaten() noexcept -> void;
 
@@ -85,7 +84,7 @@ public:
 
     template<const Color color>
     [[nodiscard]] auto is_color_occupied(const BitBoard bit_board) const noexcept -> bool {
-        return (this->get_color_bit_board<color>() & bit_board) != 0;
+        return this->get_color_bit_board<color>().overlaps(bit_board);
     }
 
     [[nodiscard]] auto is_white_threaten(BitBoard bit_board) const noexcept -> bool;
@@ -94,7 +93,7 @@ public:
 
     template<const Color color>
     [[nodiscard]] auto is_threaten(const BitBoard bit_board) const noexcept -> bool {
-        return (this->threaten_positions[color] & bit_board) != 0;
+        return this->threaten_positions[color.value].overlaps(bit_board);
     }
 
     [[nodiscard]] auto is_threaten(BitBoard bit_board, Color color) const noexcept -> bool;
@@ -102,7 +101,7 @@ public:
     [[nodiscard]] auto to_board() const noexcept -> Board;
 
 private:
-    std::array<BitBoard, PieceCodes::NUM> piece_positions{};
-    std::array<BitBoard, Colors::NUM> color_positions{};
-    std::array<BitBoard, Colors::NUM> threaten_positions{};
+    std::array<BitBoard, PieceCodes::NUM.value> piece_positions{};
+    std::array<BitBoard, Colors::NUM.value> color_positions{};
+    std::array<BitBoard, Colors::NUM.value> threaten_positions{};
 };

@@ -4,7 +4,7 @@
 
 #include <array>
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 
 typedef int32_t BoardValue;
 

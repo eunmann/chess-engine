@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Definitions.hpp"
+#include "CommonHeaders.hpp"
 #include "BitBoardUtils.hpp"
 
 namespace CapturesGeneration {
@@ -35,7 +35,7 @@ namespace CapturesGeneration {
             bit_board = BitBoardUtils::shift_bit_board<V, H>(bit_board);
             capturable_bit_board |= bit_board;
 
-            if (BitBoardUtils::do_bit_boards_overlap(occupied_bit_board, bit_board)) {
+            if (occupied_bit_board.overlaps(bit_board)) {
                 break;
             }
         }
@@ -45,25 +45,24 @@ namespace CapturesGeneration {
 
     template<const Color color>
     constexpr auto get_pawn_capture_positions(const BitBoard pawn_bit_board) noexcept -> BitBoard {
-        constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
-        BitBoard capturable_bit_board = BitBoards::EMPTY;
-        const BitBoard pawn_bit_board_left_capture = !BitBoardUtils::is_piece_in_left_col(pawn_bit_board) *
-                                                     BitBoardUtils::shift_bit_board<1 * pawn_dir, -1>(pawn_bit_board);
-        const BitBoard pawn_bit_board_right_capture = !BitBoardUtils::is_piece_in_right_col(pawn_bit_board) *
-                                                      BitBoardUtils::shift_bit_board<1 * pawn_dir, 1>(pawn_bit_board);
+        constexpr auto pawn_dir = BitBoards::pawn_direction<color>();
+        auto capturable_bit_board = BitBoards::EMPTY;
+        const auto pawn_bit_board_left_capture = !BitBoardUtils::is_piece_in_left_col(pawn_bit_board) *
+                                                 pawn_bit_board.shift<pawn_dir, -1>();
+        const auto pawn_bit_board_right_capture = !BitBoardUtils::is_piece_in_right_col(pawn_bit_board) *
+                                                  pawn_bit_board.shift<pawn_dir, 1>();
         capturable_bit_board |= pawn_bit_board_left_capture | pawn_bit_board_right_capture;
         return capturable_bit_board;
     }
 
     template<const Color color>
     constexpr auto get_pawn_move_positions(const BitBoard pawn_bit_board) noexcept -> BitBoard {
-        constexpr int64_t pawn_dir = color == Colors::WHITE ? 1 : -1;
-        constexpr int32_t starting_row = color == Colors::WHITE ? 1 : 6;
+        constexpr auto pawn_dir = BitBoards::pawn_direction<color>();
+        constexpr auto starting_row = BitBoards::pawn_start_row<color>();
         BitBoard moves_bit_board = BitBoards::EMPTY;
 
-        moves_bit_board |= BitBoardUtils::shift_bit_board<pawn_dir, 0>(pawn_bit_board);
-        moves_bit_board |= BitBoardUtils::is_piece_in_row(pawn_bit_board, starting_row) *
-                           BitBoardUtils::shift_bit_board<2 * pawn_dir, 0>(pawn_bit_board);
+        moves_bit_board |= pawn_bit_board.shift<pawn_dir, 0>();
+        moves_bit_board |= pawn_bit_board.overlaps(starting_row) * pawn_bit_board.shift<2 * pawn_dir, 0>();
 
         return moves_bit_board;
     }
@@ -71,66 +70,62 @@ namespace CapturesGeneration {
     constexpr auto get_knight_capture_positions(const BitBoard knight_bit_board) noexcept -> BitBoard {
         BitBoard capturable_bit_board = BitBoards::EMPTY;
         {
-            constexpr BitBoard negate_top_2_left_1 = ~(BitBoards::ROW_8 | BitBoards::ROW_7 | BitBoards::COL_A);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_top_2_left_1) *
-                    BitBoardUtils::shift_bit_board<2, -1>(knight_bit_board);
+            constexpr BitBoard negate_top_2_left_1 = (BitBoards::ROW_8 | BitBoards::ROW_7 | BitBoards::COL_A).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_top_2_left_1) *
+                                                   knight_bit_board.shift<2, -1>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_top_2_right_1 = ~(BitBoards::ROW_8 | BitBoards::ROW_7 | BitBoards::COL_H);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_top_2_right_1) *
-                    BitBoardUtils::shift_bit_board<2, 1>(knight_bit_board);
+            constexpr BitBoard negate_top_2_right_1 = (BitBoards::ROW_8 | BitBoards::ROW_7 | BitBoards::COL_H).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_top_2_right_1) *
+                                                   knight_bit_board.shift<2, 1>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_top_1_left_2 = ~(BitBoards::ROW_8 | BitBoards::COL_A | BitBoards::COL_B);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_top_1_left_2) *
-                    BitBoardUtils::shift_bit_board<1, -2>(knight_bit_board);
+            constexpr BitBoard negate_top_1_left_2 = (BitBoards::ROW_8 | BitBoards::COL_A | BitBoards::COL_B).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_top_1_left_2) *
+                                                   knight_bit_board.shift<1, -2>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_top_1_right_2 = ~(BitBoards::ROW_8 | BitBoards::COL_G | BitBoards::COL_H);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_top_1_right_2) *
-                    BitBoardUtils::shift_bit_board<1, 2>(knight_bit_board);
+            constexpr BitBoard negate_top_1_right_2 = (BitBoards::ROW_8 | BitBoards::COL_G | BitBoards::COL_H).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_top_1_right_2) *
+                                                   knight_bit_board.shift<1, 2>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_bottom_1_left_2 = ~(BitBoards::ROW_1 | BitBoards::COL_A | BitBoards::COL_B);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_bottom_1_left_2) *
-                    BitBoardUtils::shift_bit_board<-1, -2>(knight_bit_board);
+            constexpr BitBoard negate_bottom_1_left_2 = (BitBoards::ROW_1 | BitBoards::COL_A |
+                                                         BitBoards::COL_B).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_bottom_1_left_2) *
+                                                   knight_bit_board.shift<-1, -2>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_bottom_1_right_2 = ~(BitBoards::ROW_1 | BitBoards::COL_G | BitBoards::COL_H);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_bottom_1_right_2) *
-                    BitBoardUtils::shift_bit_board<-1, 2>(knight_bit_board);
+            constexpr BitBoard negate_bottom_1_right_2 = (BitBoards::ROW_1 | BitBoards::COL_G |
+                                                          BitBoards::COL_H).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_bottom_1_right_2) *
+                                                   knight_bit_board.shift<-1, 2>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_bottom_2_left_1 = ~(BitBoards::ROW_1 | BitBoards::ROW_2 | BitBoards::COL_A);
-            BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_bottom_2_left_1) *
-                    BitBoardUtils::shift_bit_board<-2, -1>(knight_bit_board);
+            constexpr BitBoard negate_bottom_2_left_1 = (BitBoards::ROW_1 | BitBoards::ROW_2 |
+                                                         BitBoards::COL_A).invert();
+            BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_bottom_2_left_1) *
+                                             knight_bit_board.shift<-2, -1>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
         {
-            constexpr BitBoard negate_bottom_2_right_1 = ~(BitBoards::ROW_1 | BitBoards::ROW_2 | BitBoards::COL_H);
-            const BitBoard next_knight_bit_board =
-                    BitBoardUtils::do_bit_boards_overlap(knight_bit_board, negate_bottom_2_right_1) *
-                    BitBoardUtils::shift_bit_board<-2, 1>(knight_bit_board);
+            constexpr BitBoard negate_bottom_2_right_1 = (BitBoards::ROW_1 | BitBoards::ROW_2 |
+                                                          BitBoards::COL_H).invert();
+            const BitBoard next_knight_bit_board = knight_bit_board.overlaps(negate_bottom_2_right_1) *
+                                                   knight_bit_board.shift<-2, 1>();
             capturable_bit_board |= next_knight_bit_board;
         }
 
@@ -194,65 +189,60 @@ namespace CapturesGeneration {
 
         // Up
         {
-            const BitBoard next_king_position =
-                    BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~BitBoards::ROW_8) *
-                    BitBoardUtils::shift_bit_board<1, 0>(king_bit_board);
+            const BitBoard next_king_position = king_bit_board.overlaps(BitBoards::ROW_8.invert()) *
+                                                king_bit_board.shift<1, 0>();
             capturable_bit_board |= next_king_position;
         }
 
         // Down
         {
-            const BitBoard next_king_position =
-                    BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~BitBoards::ROW_1) *
-                    BitBoardUtils::shift_bit_board<-1, 0>(king_bit_board);
+            const BitBoard next_king_position = king_bit_board.overlaps(BitBoards::ROW_1.invert()) *
+                                                BitBoardUtils::shift_bit_board<-1, 0>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
 
         // Left
         {
-            const BitBoard next_king_position =
-                    BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~BitBoards::COL_A) *
-                    BitBoardUtils::shift_bit_board<0, -1>(king_bit_board);
+            const BitBoard next_king_position = king_bit_board.overlaps(BitBoards::COL_A.invert()) *
+                                                BitBoardUtils::shift_bit_board<0, -1>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
 
         // Right
         {
-            const BitBoard next_king_position =
-                    BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~BitBoards::COL_H) *
-                    BitBoardUtils::shift_bit_board<0, 1>(king_bit_board);
+            const BitBoard next_king_position = king_bit_board.overlaps(BitBoards::COL_H.invert()) *
+                                                BitBoardUtils::shift_bit_board<0, 1>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
 
         // Up-Right
         {
-            constexpr BitBoard top_1_right_1 = BitBoards::ROW_8 | BitBoards::COL_H;
-            const BitBoard next_king_position = BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~top_1_right_1) *
+            constexpr BitBoard top_1_right_1 = (BitBoards::ROW_8 | BitBoards::COL_H).invert();
+            const BitBoard next_king_position = king_bit_board.overlaps(top_1_right_1) *
                                                 BitBoardUtils::shift_bit_board<1, 1>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
 
         // Up-Left
         {
-            constexpr BitBoard top_1_left_1 = BitBoards::ROW_8 | BitBoards::COL_A;
-            const BitBoard next_king_position = BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~top_1_left_1) *
+            constexpr BitBoard top_1_left_1 = (BitBoards::ROW_8 | BitBoards::COL_A).invert();
+            const BitBoard next_king_position = king_bit_board.overlaps(top_1_left_1) *
                                                 BitBoardUtils::shift_bit_board<1, -1>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
 
         // Down-Right
         {
-            constexpr BitBoard bottom_1_right_1 = BitBoards::ROW_1 | BitBoards::COL_H;
-            const BitBoard next_king_position =
-                    BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~bottom_1_right_1) *
-                    BitBoardUtils::shift_bit_board<-1, 1>(king_bit_board);
+            constexpr BitBoard bottom_1_right_1 = (BitBoards::ROW_1 | BitBoards::COL_H).invert();
+            const BitBoard next_king_position = king_bit_board.overlaps(bottom_1_right_1) *
+                                                BitBoardUtils::shift_bit_board<-1, 1>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
 
         // Down-Left
         {
-            constexpr BitBoard bottom_1_left_1 = BitBoards::ROW_1 | BitBoards::COL_A;
-            BitBoard next_king_position = BitBoardUtils::do_bit_boards_overlap(king_bit_board, ~bottom_1_left_1) *
+            constexpr BitBoard bottom_1_left_1 = (BitBoards::ROW_1 | BitBoards::COL_A).invert();
+            BitBoard next_king_position = king_bit_board.overlaps(bottom_1_left_1) *
                                           BitBoardUtils::shift_bit_board<-1, -1>(king_bit_board);
             capturable_bit_board |= next_king_position;
         }
