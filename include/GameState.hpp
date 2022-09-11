@@ -15,7 +15,7 @@ public:
     auto init() noexcept -> void;
 
     template<const Color color>
-    auto apply_move(const Move move) noexcept -> void {
+    constexpr auto apply_move(const Move move) noexcept -> void {
 
         const BitBoard source_bit_board = move.get_source_bit_board();
         const BitBoard destination_bit_board = move.get_destination_bit_board();
@@ -133,7 +133,7 @@ public:
     [[nodiscard]] auto is_black_in_check() const noexcept -> bool;
 
     template<const Color color>
-    [[nodiscard]] auto is_color_in_check() const noexcept -> bool {
+    [[nodiscard]] constexpr auto is_color_in_check() const noexcept -> bool {
         constexpr Color opponent_color = Colors::opponent_color<color>();
         const BitBoard king_bit_board = this->position.get_piece_color_bit_board<PieceCodes::KING, color>();
         return this->position.is_threaten<opponent_color>(king_bit_board);
@@ -144,7 +144,7 @@ public:
     auto set_white_to_move(bool white_move) noexcept -> void;
 
     template<const Color color>
-    [[nodiscard]] auto has_king_moved() const noexcept -> bool {
+    [[nodiscard]] constexpr auto has_king_moved() const noexcept -> bool {
         if constexpr (color == Colors::WHITE) {
             return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_KING_MOVED_OFFSET>();
         } else if constexpr (color == Colors::BLACK) {
@@ -153,7 +153,7 @@ public:
     }
 
     template<const Color color>
-    auto set_king_moved(const bool did_move) noexcept -> void {
+    constexpr auto set_king_moved(const bool did_move) noexcept -> void {
         if constexpr (color == Colors::WHITE) {
             this->m_flags.set_bits<GameState::MASK_1_BIT, GameState::WHITE_KING_MOVED_OFFSET>(did_move);
         } else if constexpr (color == Colors::BLACK) {
@@ -162,7 +162,7 @@ public:
     }
 
     template<const Color color>
-    [[nodiscard]] auto has_rook_A_moved() const noexcept -> bool {
+    [[nodiscard]] constexpr auto has_rook_A_moved() const noexcept -> bool {
         if constexpr (color == Colors::WHITE) {
             return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_A_OFFSET>();
         } else if constexpr (color == Colors::BLACK) {
@@ -171,7 +171,7 @@ public:
     }
 
     template<const Color color>
-    auto set_rook_A_moved(const bool did_move) noexcept -> void {
+    constexpr auto set_rook_A_moved(const bool did_move) noexcept -> void {
         if constexpr (color == Colors::WHITE) {
             this->m_flags.set_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_A_OFFSET>(did_move);
         } else if constexpr (color == Colors::BLACK) {
@@ -180,7 +180,7 @@ public:
     }
 
     template<const Color color>
-    [[nodiscard]] auto has_rook_H_moved() const noexcept -> bool {
+    [[nodiscard]] constexpr auto has_rook_H_moved() const noexcept -> bool {
         if constexpr (color == Colors::WHITE) {
             return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_H_OFFSET>();
         } else if constexpr (color == Colors::BLACK) {
@@ -189,7 +189,7 @@ public:
     }
 
     template<const Color color>
-    auto set_rook_H_moved(const bool did_move) noexcept -> void {
+    constexpr auto set_rook_H_moved(const bool did_move) noexcept -> void {
         if constexpr (color == Colors::WHITE) {
             this->m_flags.set_bits<GameState::MASK_1_BIT, GameState::WHITE_ROOK_H_OFFSET>(did_move);
         } else if constexpr (color == Colors::BLACK) {
@@ -212,7 +212,7 @@ public:
     }
 
     template<const Color color>
-    auto can_queen_castle(const GameState &game_state) -> bool {
+    constexpr auto can_queen_castle(const GameState &game_state) -> bool {
         constexpr auto queen_castle =
                 color == Colors::WHITE ? BitBoards::WHITE_QUEEN_CASTLE : BitBoards::BLACK_QUEEN_CASTLE;
         constexpr auto opponent_color = Colors::opponent_color<color>();
@@ -222,7 +222,7 @@ public:
     };
 
     template<const Color color>
-    auto can_king_castle(const GameState &game_state) -> bool {
+    constexpr auto can_king_castle(const GameState &game_state) -> bool {
         constexpr auto king_castle =
                 color == Colors::WHITE ? BitBoards::WHITE_KING_CASTLE : BitBoards::BLACK_KING_CASTLE;
         constexpr auto opponent_color = Colors::opponent_color<color>();
@@ -232,7 +232,7 @@ public:
     };
 
     template<const Color color>
-    auto castle_king_side() -> void {
+    constexpr auto castle_king_side() -> void {
 
         constexpr auto king_start = color == Colors::WHITE ? BitBoards::WHITE_KING_START : BitBoards::BLACK_KING_START;
         constexpr auto h_rook_start =
@@ -249,7 +249,7 @@ public:
     }
 
     template<const Color color>
-    auto castle_queen_side() -> void {
+    constexpr auto castle_queen_side() -> void {
 
         constexpr auto king_start = color == Colors::WHITE ? BitBoards::WHITE_KING_START : BitBoards::BLACK_KING_START;
         constexpr auto h_rook_start =

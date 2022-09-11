@@ -14,6 +14,15 @@ public:
         return this->m_value == castle.m_value;
     }
 
+    constexpr auto operator<=(const Castle castle) const noexcept -> bool {
+        return this->m_value <= castle.m_value;
+    }
+
+    constexpr auto operator++(const int v) noexcept -> Castle {
+        this->m_value++;
+        return *this;
+    }
+
 private:
     int32_t m_value;
 };
@@ -24,7 +33,8 @@ namespace Castles {
     constexpr Castle WHITE_QUEEN{0b101};
     constexpr Castle BLACK_KING{0b110};
     constexpr Castle BLACK_QUEEN{0b111};
-    constexpr std::array<Castle, 4> ALL{WHITE_KING, WHITE_QUEEN, BLACK_KING, BLACK_QUEEN};
+    constexpr Castle NUM{4};
+    constexpr std::array<Castle, NUM.value()> ALL{WHITE_KING, WHITE_QUEEN, BLACK_KING, BLACK_QUEEN};
 }  // namespace Castles
 
 

@@ -8,45 +8,84 @@
 
 class Move {
 public:
-    Move() noexcept;
+    constexpr Move() noexcept = default;
 
-    Move(Square source, Square dest) noexcept;
+    constexpr Move(const Square source, const Square dest) noexcept {
+        //ASSERT(source != dest);
+        this->set_source_square(source);
+        this->set_destination_square(dest);
+        this->set_promotion(PieceCode(Move::MASK_3_BITS));
+        this->set_en_passant(Move::MASK_4_BITS);
+        this->set_castle(Castles::NONE);
+    }
 
-    explicit Move(const int &move) noexcept;
+    constexpr explicit Move(const int &move) noexcept: m_move(move) {}
 
-    auto set_source_square(Square square) noexcept -> void;
+    constexpr auto set_source_square(const Square square) noexcept -> void {
+        this->m_move.set_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>(square.value());
+    }
 
-    auto set_destination_square(Square square) noexcept -> void;
+    constexpr auto set_destination_square(const Square square) noexcept -> void {
+        this->m_move.set_bits<Move::MASK_6_BITS, Move::DEST_OFFSET>(square.value());
+    }
 
-    [[nodiscard]] auto get_source_square() const noexcept -> Square;
+    [[nodiscard]] constexpr auto get_source_square() const noexcept -> Square {
+        return Square(this->m_move.get_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>());
+    }
 
-    [[nodiscard]] auto get_destination_square() const noexcept -> Square;
+    [[nodiscard]] constexpr auto get_destination_square() const noexcept -> Square {
+        return Square(this->m_move.get_bits<Move::MASK_6_BITS, Move::DEST_OFFSET>());
+    }
 
-    [[nodiscard]] auto get_source_bit_board() const noexcept -> BitBoard;
+    [[nodiscard]] constexpr auto get_source_bit_board() const noexcept -> BitBoard {
+        return this->get_source_square().to_bit_board();
+    }
 
-    [[nodiscard]] auto get_destination_bit_board() const noexcept -> BitBoard;
+    [[nodiscard]] constexpr auto get_destination_bit_board() const noexcept -> BitBoard {
+        return this->get_destination_square().to_bit_board();
+    }
 
-    [[nodiscard]] auto get_promotion() const noexcept -> PieceCode;
+    [[nodiscard]] constexpr auto get_promotion() const noexcept -> PieceCode {
+        return PieceCode(this->m_move.get_bits<Move::MASK_3_BITS, Move::PROMO_OFFSET>());
+    }
 
-    [[nodiscard]] auto get_en_passant() const noexcept -> int32_t;
+    [[nodiscard]] constexpr auto get_en_passant() const noexcept -> int32_t {
+        return this->m_move.get_bits<Move::MASK_4_BITS, Move::EN_OFFSET>();
+    }
 
-    [[nodiscard]] auto get_castle() const noexcept -> Castle;
+    [[nodiscard]] constexpr auto get_castle() const noexcept -> Castle {
+        return Castle(this->m_move.get_bits<Move::MASK_3_BITS, Move::CASTLE_OFFSET>());
+    }
 
-    auto set_promotion(PieceCode piece_code) noexcept -> void;
+    constexpr auto set_promotion(PieceCode piece_code) noexcept -> void {
+        this->m_move.set_bits<Move::MASK_3_BITS, Move::PROMO_OFFSET>(piece_code.value);
+    }
 
-    auto set_en_passant(int32_t column_index) noexcept -> void;
+    constexpr auto set_en_passant(int32_t column_index) noexcept -> void {
+        this->m_move.set_bits<Move::MASK_4_BITS, Move::EN_OFFSET>(column_index);
+    }
 
-    auto set_castle(Castle castle) noexcept -> void;
+    constexpr auto set_castle(Castle castle) noexcept -> void {
+        this->m_move.set_bits<Move::MASK_3_BITS, Move::CASTLE_OFFSET>(castle.value());
+    }
 
-    [[nodiscard]] auto is_promotion() const noexcept -> bool;
+    [[nodiscard]] constexpr auto is_promotion() const noexcept -> bool {
+        return this->get_promotion().value != Move::MASK_3_BITS;
+    }
 
-    [[nodiscard]] auto is_en_passantable() const noexcept -> bool;
+    [[nodiscard]] constexpr auto is_en_passantable() const noexcept -> bool {
+        return this->get_en_passant() != Move::MASK_4_BITS;
+    }
 
-    [[nodiscard]] auto is_castle() const noexcept -> bool;
+    [[nodiscard]] constexpr auto is_castle() const noexcept -> bool {
+        return this->get_castle() != Castles::NONE;
+    }
 
     [[nodiscard]] auto to_string() const noexcept -> std::string;
 
-    auto operator==(const Move &move) const noexcept -> bool;
+    constexpr auto operator==(const Move &move) const noexcept -> bool {
+        return this->m_move == move.m_move;
+    }
 
 private:
     BitMaskValue m_move;

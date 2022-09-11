@@ -4,81 +4,6 @@
 
 #include "GameUtils.hpp"
 
-Move::Move() noexcept: Move(Square(0), Square(0)) {
-}
-
-Move::Move(const Square source, const Square dest) noexcept: m_move() {
-    //ASSERT(source != dest);
-    this->set_source_square(source);
-    this->set_destination_square(dest);
-    this->set_promotion(PieceCode(Move::MASK_3_BITS));
-    this->set_en_passant(Move::MASK_4_BITS);
-    this->set_castle(Castles::NONE);
-}
-
-Move::Move(const int &move) noexcept: m_move(move) {
-}
-
-auto Move::set_source_square(const Square square) noexcept -> void {
-    this->m_move.set_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>(square.value());
-}
-
-auto Move::set_destination_square(const Square square) noexcept -> void {
-    this->m_move.set_bits<Move::MASK_6_BITS, Move::DEST_OFFSET>(square.value());
-}
-
-auto Move::get_source_square() const noexcept -> Square {
-    return Square(this->m_move.get_bits<Move::MASK_6_BITS, Move::SOURCE_OFFSET>());
-}
-
-auto Move::get_destination_square() const noexcept -> Square {
-    return Square(this->m_move.get_bits<Move::MASK_6_BITS, Move::DEST_OFFSET>());
-}
-
-auto Move::get_source_bit_board() const noexcept -> BitBoard {
-    return this->get_source_square().to_bit_board();
-}
-
-auto Move::get_destination_bit_board() const noexcept -> BitBoard {
-    return this->get_destination_square().to_bit_board();
-}
-
-auto Move::get_promotion() const noexcept -> PieceCode {
-    return PieceCode(this->m_move.get_bits<Move::MASK_3_BITS, Move::PROMO_OFFSET>());
-}
-
-auto Move::get_en_passant() const noexcept -> int32_t {
-    return this->m_move.get_bits<Move::MASK_4_BITS, Move::EN_OFFSET>();
-}
-
-auto Move::get_castle() const noexcept -> Castle {
-    return Castle(this->m_move.get_bits<Move::MASK_3_BITS, Move::CASTLE_OFFSET>());
-}
-
-auto Move::set_promotion(const PieceCode piece_code) noexcept -> void {
-    this->m_move.set_bits<Move::MASK_3_BITS, Move::PROMO_OFFSET>(piece_code.value);
-}
-
-auto Move::set_en_passant(const int32_t column_index) noexcept -> void {
-    this->m_move.set_bits<Move::MASK_4_BITS, Move::EN_OFFSET>(column_index);
-}
-
-auto Move::set_castle(const Castle castle) noexcept -> void {
-    this->m_move.set_bits<Move::MASK_3_BITS, Move::CASTLE_OFFSET>(castle.value());
-}
-
-auto Move::is_promotion() const noexcept -> bool {
-    return this->get_promotion().value != Move::MASK_3_BITS;
-}
-
-auto Move::is_en_passantable() const noexcept -> bool {
-    return this->get_en_passant() != Move::MASK_4_BITS;
-}
-
-auto Move::is_castle() const noexcept -> bool {
-    return this->get_castle() != Castles::NONE;
-}
-
 auto Move::to_string() const noexcept -> std::string {
     std::string move_str;
 
@@ -140,8 +65,4 @@ auto Move::to_string() const noexcept -> std::string {
         }
     }
     return move_str;
-}
-
-auto Move::operator==(const Move &move) const noexcept -> bool {
-    return this->m_move == move.m_move;
 }

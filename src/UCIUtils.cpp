@@ -140,7 +140,7 @@ namespace UCIUtils {
     }
 
     auto handle_go_command(const GameState &game_state, SearchThread &search_thread) noexcept -> void {
-        search_thread.start_search(game_state, 6);
+        search_thread.start_search(game_state, 7);
     }
 
     auto handle_stop_command(SearchThread &search_thread) noexcept -> void {

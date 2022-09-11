@@ -10,7 +10,7 @@ public:
     constexpr explicit BitMaskValue(int32_t value) noexcept: m_value(value) {}
 
     template<const int32_t mask, const int32_t shift>
-    auto set_bits(const int32_t value) noexcept -> void {
+    constexpr auto set_bits(const int32_t value) noexcept -> void {
         this->m_value = (this->m_value & ~(mask << shift)) | (value & mask) << shift;
     }
 
