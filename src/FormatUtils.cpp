@@ -39,7 +39,7 @@ namespace FormatUtils {
         return str;
     }
 
-    std::string format_time(int64_t time_ns) {
+    std::string format_time(uint64_t time_ns) {
         char unit[][4] = {"ns", "us", "ms", "s", "min"};
         double ratio[] = {1000, 1000, 1000, 60, 60};
 

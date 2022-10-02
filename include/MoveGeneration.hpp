@@ -12,15 +12,15 @@ namespace MoveGeneration {
 
     template<const Color color>
     auto get_pawn_moves(const GameState &game_state, Moves &moves) noexcept -> void {
-        constexpr auto promotion_row = BitBoards::pawn_promotion_row<color>();
-        constexpr auto opponent_color = Colors::opponent_color<color>();
-        constexpr auto en_passant_row = BitBoards::pawn_en_passant_row<color>();
-        constexpr auto pawn_dir = BitBoards::pawn_direction<color>();
-        constexpr auto starting_row = BitBoards::pawn_start_row<color>();
-        constexpr auto forward_2_row = BitBoards::pawn_forward_two_row<color>();
         const auto pawns_bit_board = game_state.position.get_piece_color_bit_board<PieceCodes::PAWN, color>();
 
         BitBoardUtils::for_each_bit_board(pawns_bit_board, [&game_state, &moves](const BitBoard pawn_bit_board) {
+
+            constexpr auto promotion_row = BitBoards::pawn_promotion_row<color>();
+            constexpr auto opponent_color = Colors::opponent_color<color>();
+            constexpr auto en_passant_row = BitBoards::pawn_en_passant_row<color>();
+            constexpr auto pawn_dir = BitBoards::pawn_direction<color>();
+
             const Square source_square = BitBoardUtils::bit_board_to_square(pawn_bit_board);
 
             auto move_bit_board = BitBoards::EMPTY;
@@ -52,7 +52,11 @@ namespace MoveGeneration {
             } else {
                 BitBoardUtils::for_each_set_square(move_bit_board, [&game_state, &moves, source_square, pawn_bit_board](
                         const Square destination_square) {
+                    constexpr auto starting_row = BitBoards::pawn_start_row<color>();
+                    constexpr auto forward_2_row = BitBoards::pawn_forward_two_row<color>();
+
                     auto move = Move(source_square, destination_square);
+
                     if (pawn_bit_board.overlaps(starting_row) &&
                         destination_square.to_bit_board().overlaps(forward_2_row)) {
                         move.set_en_passant(

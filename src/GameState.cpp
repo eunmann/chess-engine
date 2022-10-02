@@ -43,8 +43,3 @@ auto GameState::set_is_legal(const bool is_legal) noexcept -> void {
 auto GameState::is_legal() const noexcept -> bool {
     return this->m_flags.get_bits<GameState::MASK_1_BIT, GameState::IS_LEGAL_OFFSET>() == 1;
 }
-
-auto GameState::set_en_passant(const int32_t pawn_ep) noexcept -> void {
-    this->m_flags.set_bits<GameState::MASK_4_BIT, GameState::PAWN_EN_OFFSET>(pawn_ep);
-}
-

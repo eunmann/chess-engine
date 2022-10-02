@@ -17,5 +17,5 @@ namespace FormatUtils {
         return std::string(buff, buff + size - 1);
     }
 
-    std::string format_time(int64_t time_ns);
+    std::string format_time(uint64_t time_ns);
 }

@@ -34,7 +34,7 @@ public:
     /**
      * @return The number of nanoseconds that have elapsed
      */
-    [[nodiscard]] auto get_time_elapsed() const noexcept -> int64_t;
+    [[nodiscard]] auto get_time_elapsed() const noexcept -> uint64_t;
 
     /**
      * Prints the elapsed time with a m_message if given in the constructor

@@ -24,11 +24,24 @@
 
 namespace TestFW {
 
+    struct TestRunResult {
+        uint64_t succeeded_count{};
+        uint64_t total_count{};
+        uint64_t time_elapsed{};
+
+        constexpr auto operator+=(const TestRunResult test_run_result) noexcept -> TestRunResult {
+            this->succeeded_count += test_run_result.succeeded_count;
+            this->total_count += test_run_result.total_count;
+            this->time_elapsed += test_run_result.time_elapsed;
+            return *this;
+        }
+    };
+
     class Test {
     public:
         Test(std::string description, std::function<void()> test) noexcept;
 
-        auto run() noexcept -> void;
+        auto run() noexcept -> TestRunResult;
 
         std::string description;
         std::function<void()> test;
@@ -38,7 +51,7 @@ namespace TestFW {
     public:
         explicit TestCase(std::string description) noexcept;
 
-        auto run() noexcept -> void;
+        auto run() noexcept -> TestRunResult;
 
         std::string description;
         std::vector<Test> tests;

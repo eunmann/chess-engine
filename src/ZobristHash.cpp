@@ -1,7 +1,7 @@
 
 #include "ZobristHash.hpp"
 
-namespace ZobrishHashes {
+namespace ZobristHashes {
 
-    const ZobristHash ZOBRIST_HASH;
+    const ZobristHash ZOBRIST_HASH = ZobristHash();
 }

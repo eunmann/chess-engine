@@ -12,20 +12,6 @@ public:
         this->init();
     }
 
-private:
-    static constexpr auto
-    piece_square_index(const Color color, const PieceCode piece_code, const Square square) noexcept -> int32_t {
-
-        const auto color_offset = color.value * (PieceCodes::NUM.value * Squares::NUM.value());
-        const auto piece_offset = piece_code.value * Squares::NUM.value();
-        return color_offset + piece_offset +
-               square.value();
-    }
-
-    static constexpr auto castle_index(const Castle castle) noexcept -> int32_t {
-        return castle.value() & 0b11;
-    }
-
     [[nodiscard]] constexpr auto get_piece_square_hash(const Color color, const PieceCode piece_code,
                                                        const Square square) const noexcept -> BitBoard {
         return this->m_piece_square[piece_square_index(color, piece_code, square)];
@@ -43,13 +29,27 @@ private:
         return this->m_en_passant[col_index];
     }
 
+private:
+    static constexpr auto
+    piece_square_index(const Color color, const PieceCode piece_code, const Square square) noexcept -> int32_t {
+
+        const auto color_offset = color.value * (PieceCodes::NUM.value * Squares::NUM.value());
+        const auto piece_offset = piece_code.value * Squares::NUM.value();
+        return color_offset + piece_offset +
+               square.value();
+    }
+
+    static constexpr auto castle_index(const Castle castle) noexcept -> int32_t {
+        return castle.value() & 0b11;
+    }
+
     constexpr auto init() noexcept -> void {
 
         RandomNumberGenerator random_number_generator(728);
 
-        for (auto color = Colors::WHITE; color <= Colors::NUM; color++) {
-            for (auto piece_code = PieceCodes::PAWN; piece_code <= PieceCodes::NUM; piece_code++) {
-                for (auto square = Squares::A1; square <= Squares::NUM; square++) {
+        for (auto color = Colors::WHITE; color < Colors::NUM; color++) {
+            for (auto piece_code = PieceCodes::PAWN; piece_code < PieceCodes::NUM; piece_code++) {
+                for (auto square = Squares::A1; square < Squares::NUM; square++) {
                     const auto index = ZobristHash::piece_square_index(color, piece_code, square);
                     this->m_piece_square[index] = random_number_generator.next_random();
                 }
@@ -74,5 +74,5 @@ private:
 };
 
 namespace ZobristHashes {
-    extern const ZobristHash ZOBRIST_HASH = ZobristHash();
+    extern const ZobristHash ZOBRIST_HASH;
 };

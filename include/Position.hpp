@@ -72,6 +72,8 @@ public:
 
     auto add(PieceCode piece_code, Color color, BitBoard bit_board) noexcept -> void;
 
+    auto remove(PieceCode piece_code, Color color, BitBoard bit_board) noexcept -> void;
+
     auto recompute_threaten() noexcept -> void;
 
     [[nodiscard]] auto is_empty(BitBoard bit_board) const noexcept -> bool;

@@ -22,7 +22,7 @@ auto Timer::end() noexcept -> void {
     this->m_end_timestamp = std::chrono::high_resolution_clock::now();
 }
 
-auto Timer::get_time_elapsed() const noexcept -> int64_t {
+auto Timer::get_time_elapsed() const noexcept -> uint64_t {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
             this->m_end_timestamp - this->m_start_timestamp).count();
 }

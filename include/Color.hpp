@@ -15,6 +15,10 @@ public:
         return this->value <= color.value;
     }
 
+    constexpr auto operator<(const Color color) const noexcept -> bool {
+        return this->value < color.value;
+    }
+
     constexpr auto operator++(const int v) noexcept -> Color {
         this->value++;
         return *this;

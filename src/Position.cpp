@@ -135,6 +135,12 @@ auto Position::add(const PieceCode piece_code, const Color color, const BitBoard
     this->color_positions[color.value] |= bit_board;
 }
 
+auto Position::remove(const PieceCode piece_code, const Color color, const BitBoard bit_board) noexcept -> void {
+    const BitBoard negated_bit_board = bit_board.invert();
+    this->piece_positions[piece_code.value] &= negated_bit_board;
+    this->color_positions[color.value] &= negated_bit_board;
+}
+
 auto Position::recompute_threaten() noexcept -> void {
     this->threaten_positions[Colors::WHITE.value] = CachedCapturesGeneration::get_capture_positions<Colors::WHITE>(
             *this);
