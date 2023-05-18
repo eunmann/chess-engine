@@ -1,5 +1,5 @@
-#include "Tests.hpp"
-#include "GameState.hpp"
+#include "../src/GameState.hpp"
+#include "../src/Tests.hpp"
 
 auto Tests::add_game_state_tests(TestFW::UnitTest &unit_tests) -> void {
     TestFW::TestCase move_test_case("GameState");

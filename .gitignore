@@ -7,3 +7,7 @@ chess_engine
 *.sln
 *.vcxproj*
 makefile
+/.idea
+/build
+/zig-cache
+/zig-out

@@ -1,13 +1,12 @@
 #include "Board.hpp"
 
-#include <cstdio>
-
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
 #include <string>
 
 #include "CommonHeaders.hpp"
-#include "color/color.hpp"
+#include "dep/term_color/color.hpp"
 
 Board::Board() noexcept {
     this->clear();
@@ -15,9 +14,9 @@ Board::Board() noexcept {
 
 auto Board::init_standard() noexcept -> void {
     constexpr std::array<PieceCode, 8> init_rank{
-            PieceCodes::ROOK, PieceCodes::KNIGHT, PieceCodes::BISHOP,
-            PieceCodes::QUEEN, PieceCodes::KING, PieceCodes::BISHOP,
-            PieceCodes::KNIGHT, PieceCodes::ROOK};
+        PieceCodes::ROOK, PieceCodes::KNIGHT, PieceCodes::BISHOP,
+        PieceCodes::QUEEN, PieceCodes::KING, PieceCodes::BISHOP,
+        PieceCodes::KNIGHT, PieceCodes::ROOK};
 
     const int bottom_start = 8 * 6;
     for (int i = 0; i < 8; ++i) {
@@ -54,7 +53,7 @@ auto Board::print() const noexcept -> void {
 
 #ifdef __linux__
             if (value < 0) {
-              out += "\033[1;34m";
+                out += "\033[1;34m";
             }
 #endif
             std::string c;
@@ -93,8 +92,8 @@ auto Board::print() const noexcept -> void {
 
 #ifdef __linux__
             if (value < 0) {
-              out += c;
-              out += "\033[0m";
+                out += c;
+                out += "\033[0m";
             }
 #elif _WIN32
             if (value < 0) {
