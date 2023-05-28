@@ -1,6 +1,11 @@
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) !void {
+    try build_main_exe(b);
+    try build_test_exe(b);
+}
+
+fn build_main_exe(b: *std.build.Builder) !void {
     const chess_engine_exe = b.addExecutable(.{ .name = "chess_engine" });
     chess_engine_exe.addCSourceFiles(&.{
         "./src/BitBoard.cpp",
@@ -33,10 +38,21 @@ pub fn build(b: *std.build.Builder) !void {
         "./src/Timer.cpp",
         "./src/UCIUtils.cpp",
         "./src/ZobristHash.cpp",
-    }, &.{ "-std=c++2b", "-W", "-Wall", "-fexperimental-library", "-stdlib=libc++", "-O3" });
+    }, &.{ "-std=c++2b", "-W", "-Wall", "-Wextra", "-fexperimental-library", "-O3", "-static", "-flto" });
     chess_engine_exe.linkLibCpp();
     b.installArtifact(chess_engine_exe);
 
+    const run_cmd = b.addRunArtifact(chess_engine_exe);
+    run_cmd.step.dependOn(b.getInstallStep());
+    if (b.args) |args| {
+        run_cmd.addArgs(args);
+    }
+
+    const run_step = b.step("run", "Run the engine");
+    run_step.dependOn(&run_cmd.step);
+}
+
+fn build_test_exe(b: *std.Build.Builder) !void {
     const chess_engine_tests_exe = b.addExecutable(.{ .name = "chess_engine_tests" });
     chess_engine_tests_exe.addCSourceFiles(&.{
         "./src/BitBoard.cpp",
@@ -79,7 +95,16 @@ pub fn build(b: *std.build.Builder) !void {
         "./test/ProcessMoveTests.cpp",
         "./test/ShiftTests.cpp",
         "./test/Tests.cpp",
-    }, &.{ "-std=c++2b", "-W", "-Wall", "-fexperimental-library", "-stdlib=libc++", "-O3" });
+    }, &.{ "-std=c++2b", "-W", "-Wall", "-Wextra", "-fexperimental-library", "-O3", "-static", "-flto" });
     chess_engine_tests_exe.linkLibCpp();
     b.installArtifact(chess_engine_tests_exe);
+
+    const test_cmd = b.addRunArtifact(chess_engine_tests_exe);
+    test_cmd.step.dependOn(b.getInstallStep());
+    if (b.args) |args| {
+        test_cmd.addArgs(args);
+    }
+
+    const test_step = b.step("test", "Test the engine");
+    test_step.dependOn(&test_cmd.step);
 }
