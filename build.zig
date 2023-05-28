@@ -38,7 +38,7 @@ fn build_main_exe(b: *std.build.Builder) !void {
         "./src/Timer.cpp",
         "./src/UCIUtils.cpp",
         "./src/ZobristHash.cpp",
-    }, &.{ "-std=c++2b", "-W", "-Wall", "-Wextra", "-fexperimental-library", "-O3", "-static", "-flto" });
+    }, &.{ "-std=c++2b", "-W", "-Wall", "-Wextra", "-fexperimental-library", "-O3", "-static", "-flto", "-march=native" });
     chess_engine_exe.linkLibCpp();
     b.installArtifact(chess_engine_exe);
 
@@ -95,7 +95,7 @@ fn build_test_exe(b: *std.Build.Builder) !void {
         "./test/ProcessMoveTests.cpp",
         "./test/ShiftTests.cpp",
         "./test/Tests.cpp",
-    }, &.{ "-std=c++2b", "-W", "-Wall", "-Wextra", "-fexperimental-library", "-O3", "-static", "-flto" });
+    }, &.{ "-std=c++2b", "-W", "-Wall", "-Wextra", "-fexperimental-library", "-O3", "-static", "-flto", "-march=native" });
     chess_engine_tests_exe.linkLibCpp();
     b.installArtifact(chess_engine_tests_exe);
 
